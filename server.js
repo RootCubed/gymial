@@ -32,8 +32,7 @@ let options = {
 function login() {
     return new Promise((resolve, reject) => {
         let body = {
-            hash: "5e19a466e4c5d1.77428157",
-            loginuser: "liam.braun",
+            loginuser: process.env.user,
             loginpassword: process.env.password,
             loginschool: "kzo"
         }
