@@ -6,33 +6,16 @@
   },
   "description": "An open-source KZO timetable",
   "main": "server.js",
-  "dependencies": {
-    "bytes": "^3.1.0",
-    "content-type": "^1.0.4",
-    "curl-request": "^1.1.1",
-    "depd": "^1.1.2",
-    "destroy": "^1.0.4",
-    "ee-first": "^1.1.1",
-    "encodeurl": "^1.0.2",
-    "escape-html": "^1.0.3",
-    "etag": "^1.8.1",
-    "express": "^4.17.1",
-    "forwarded": "^0.1.2",
-    "fresh": "^0.5.2",
-    "iconv-lite": "^0.4.24",
-    "ipaddr.js": "^1.9.0",
-    "media-typer": "^0.3.0",
-    "mime": "^1.6.0",
-    "negotiator": "^0.6.2",
-    "node-fetch": "^2.6.0",
-    "querystring": "^0.2.0",
-    "request": "^2.88.0"
-  },
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
   "author": "Liam Braun",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "node-fetch": "^2.6.0",
+    "querystring": "^0.2.0"
+  }
 }
