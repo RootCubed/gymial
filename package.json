@@ -1,6 +1,9 @@
 {
   "name": "opensali",
   "version": "1.0.0",
+  "engines": {
+    "node": "12.14.1"
+  },
   "description": "An open-source KZO timetable",
   "main": "server.js",
   "dependencies": {
