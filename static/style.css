@@ -91,13 +91,19 @@ body {
     padding: 5px;
     text-align: center;
     cursor: pointer;
-    text-decoration: none;
-    color: white;
+    color: #a0c8ff;
 }
 
 .sidebar-link.active {
     background-color: #cfcfcf;
     color: black;
+}
+
+#sidebar-bottom {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
 }
 
 #search-dropdown {
@@ -305,13 +311,6 @@ img.teacher {
 #open-menu {
     float: left;
     margin-right: 10px;
-}
-
-#logout {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    left: 0;
 }
 
 @keyframes scroll {
