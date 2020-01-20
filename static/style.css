@@ -1,0 +1,339 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: Tahoma, sans-serif;
+    line-height: 1.05;
+}
+
+body {
+    background-color: #333;
+    overflow-x: hidden;
+}
+
+#scrollLimiter {
+    overflow: hidden;
+}
+
+#selection {
+    padding: 10px;
+    height: 40px;
+    text-align: center;
+}
+
+#progress-bar-cont {
+    background: white;
+}
+
+#progress-bar {
+    transition: width 0.5s,
+        background-color 0.5s;
+    background-color: #329F5B;
+    height: 2px;
+    border: none;
+    margin: 0;
+    width: 0;
+}
+
+#classSelect {
+    padding: 6px;
+    font-size: 20px;
+    width: calc(100% - 36px);
+    margin: 10px;
+    margin-bottom: 0;
+}
+
+#current-class {
+    padding: 6px;
+    display: inline-block;
+    color: white;
+    font-weight: bold;
+    font-size: 25px;
+    cursor: pointer;
+}
+
+#timetable {
+    width: 100%;
+    table-layout: fixed;
+    border-spacing: 4px;
+}
+
+.class-col {
+    width: 100px;
+}
+
+.class-col {
+    width: calc((100% - 100px) / 6);
+}
+
+#sidebar {
+    transition: left 0.5s;
+    position: fixed;
+    left: -200px;
+    width: 200px;
+    height: calc(100% - 60px);
+    background-color: #37373b;
+    z-index: 1;
+}
+
+#sidebar.visible {
+    left: 0;
+}
+
+#search-results {
+    max-height: 50vh;
+    overflow-y: auto;
+    width: calc(100% - 10px);
+}
+
+.sidebar-link {
+    display: block;
+    margin: 10px;
+    padding: 5px;
+    text-align: center;
+    cursor: pointer;
+    text-decoration: none;
+    color: white;
+}
+
+.sidebar-link.active {
+    background-color: #cfcfcf;
+    color: black;
+}
+
+#search-dropdown {
+    height: 50px;
+    position: relative;
+}
+
+.searchResult {
+    z-index: 2;
+    display: block;
+    background-color: white;
+    padding: 10px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.searchResult:hover {
+    background-color: #aaa;
+}
+
+.sc_cont {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: calc((100vh - 160px) / 11);
+}
+
+.double {
+    height: calc(2 * (100vh - 160px) / 11);
+}
+
+.scroller {
+    text-align: center;
+}
+
+.timetable-entry {
+    background-color: #dddddd;
+    text-align: center;
+    border-radius: 0.5em;
+    overflow-y: hidden;
+}
+
+.timetable-entry:not(.empty):not(.timetable-time) {
+    cursor: pointer;
+}
+
+.timetable-entry:not(.empty):not(.timetable-time):hover {
+    background-color: #aaaaaa;
+}
+
+.cancelled {
+    background-color: #da2626;
+    text-decoration: line-through;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.special {
+    background-color: #4F7CAC;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.empty {
+    background-color: #888888;
+}
+
+.timetable-entry span {
+    margin-right: 4px;
+}
+
+.timetable-time {
+    width: 60px;
+}
+
+.timetable-date {
+    padding: 10px;
+    font-size: 13px;
+}
+
+.timetable-time, .timetable-date {
+    background-color: transparent;
+    color: white;
+}
+
+.scrolling {
+    animation-name: scroll;
+    animation-duration: 4s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+    align-self: flex-start;
+}
+
+span.entry-title {
+    font-weight: bold;
+}
+
+#margin-details {
+    display: none;
+    position: fixed;
+    width: 80%;
+    height: 80%;
+    top: 0;
+    left: 0;
+    padding: 10vh 10vw;
+    display: none;
+}
+
+#details-overlay {
+    width: 100%;
+    height: 100%;
+    background-color: #222222f8;
+    border-radius: 5px;
+    overflow: auto;
+}
+
+.icon-x::before {
+    content: '\00d7';
+    color: #fff;
+    font-weight: 300;
+    font-size: xx-large;
+    float: right;
+    margin: 10px;
+    cursor: pointer;
+}
+
+.overlay-tab {
+    background-color: #aaa;
+    display: inline-block;
+    padding: 20px 30px 10px;
+    margin: 10px 0 -1px 10px;
+    border-radius: 10px 10px 0 0;
+    cursor: pointer;
+}
+
+.overlay-tab.active {
+    background-color: #eee;
+}
+
+#lesson-detail {
+    color: white;
+}
+
+#room-detail, #teacher-detail {
+    font-size: 2em;
+    margin-left: 15px;
+}
+
+#personal-shit img:not(.teacher) {
+    width: 100px;
+    border-radius: 5px;
+}
+
+img.teacher {
+    width: 200px;
+    border-radius: 10px;
+    margin: 15px;
+}
+
+#personal-shit {
+    width: calc(100% - 50px);
+}
+
+.student {
+    vertical-align: top;
+    display: inline-block;
+    text-align: center;
+    width: 100px;
+    color: white;
+    margin: 10px;
+}
+
+.student img {
+    width: 100px;
+}
+
+.studentName {
+    display: block;
+    font-size: 13px;
+}
+
+#teacher-personal-shit p {
+    padding: 10px;
+}
+
+.buttonSpan {
+    padding-top: 5px;
+    cursor: pointer;
+}
+
+#week-back, #week-forward, #today {
+    float: right;
+    margin-left: 10px;
+}
+
+#today::before {
+    content: attr(data-content);
+    color: white;
+    padding: 9px 0 0px 29px;
+    position: absolute;
+    text-align: center;
+    transform: translate(-50%, 0);
+}
+
+#open-menu {
+    float: left;
+    margin-right: 10px;
+}
+
+#logout {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+}
+
+@keyframes scroll {
+    from {transform: translateY(0)}
+    to {transform: translateY(-50%)}
+}
+
+@media print {
+    body {
+        background-color: white;
+    }
+
+    #selection {
+        display: none;
+    }
+
+    .timetable-entry:not(.timetable-time) {
+        border: 2px solid black
+    }
+
+    .sc_cont {
+        overflow: visible;
+        height: auto;
+    }
+}

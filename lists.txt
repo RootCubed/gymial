@@ -1,0 +1,11 @@
+20: class teacher
+30: own account
+39: KZO teachers
+45: own class
+46: own courses
+
+empty data:
+12, 34, 40
+
+error reading data:
+17, 32, 36, 37
