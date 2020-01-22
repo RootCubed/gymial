@@ -65,13 +65,13 @@ $(document).ready(() => {
         currTime = getFirstDayOfWeek(new Date()).getTime();
         weekOffset = 0;
         $("#today").attr("data-content", weekOffset);
-        loadClass();
+        init();
     });
     $("#week-forward").click(() => {
         currTime += DAY * 7;
         weekOffset++;
         $("#today").attr("data-content", weekOffset);
-        loadClass();
+        init();
     });
     $("#open-menu").click(() => {
         $("#mainWindow").toggleClass("toRight");
@@ -144,22 +144,31 @@ $(document).ready(() => {
         classID = classID.substr(1);
         $("#classSelect").val("");
         $("#search-dropdown span").remove();
-        loadClass();
+        init();
     });
 });
 
 function init() {
-    fetch(`/getIDs`).then(response => {
+    progress(0);
+    fetch(`/getIDs/${currTime}`).then(response => {
         return response.json();
     }).then(classes => {
-        classList.push(...classes);
+        progress(20);
+        let oldClassList = classList;
+        classList = classes;
+        if (oldClassList[0]) {
+            console.log(classes[0].classId, oldClassList[0].classId);
+            if (classes[0].classId != oldClassList[0].classId) {
+                classID = classes[0].classId;
+                $("#current-class").text(classes[0].className.replace(' ', ''));
+            }
+        }
+        loadClass();
     });
-    loadClass();
 }
 
 function loadClass() {
-    progress(0);
-    progress(20);
+    progress(40);
     let mainDiv = $("#timetable tbody");
     mainDiv.html("");
     fetch(`/getTimetable/${IDType}/${classID}/${currTime}`).then(response => {
@@ -185,14 +194,17 @@ function loadClass() {
                     let modText = "";
                     if (lesson.special) modText = "special";
                     if (lesson.cancelled) modText = "cancelled";
-                    let classTitle = `<div class="${modText}"><span class="entry-title">${lesson.cName}</span>`;
-                    let room = "", teacher = "", instrName;
-                    if (lesson.room != "" && lesson.tAcronym != "" && lesson.sNames != undefined && lesson.sNames.length > 0) {
-                        room = `<span class="entry-room">${lesson.room}</span>`;
-                        teacher = `<span class="entry-teacher">${lesson.tAcronym}</span>`;
-                        instrName = `<br><span class="entry-instrName">${lesson.sNames[0].studentName}</span>`;
+                    lessons += `<div class="${modText}"><span class="entry-title">${lesson.cName}</span>`;
+                    if (lesson.room != "") {
+                        lessons += `<span class="entry-room">${lesson.room}</span>`;
                     }
-                    lessons += classTitle + room + teacher + ((lesson.cName == "IU") ? instrName : "") + "</div>";
+                    if (lesson.tAcronym != "") {
+                        lessons += `<span class="entry-teacher">${lesson.tAcronym}</span>`;
+                    }
+                    if (lesson.sNames != undefined && lesson.sNames.length > 0) {
+                        lessons += (lesson.cName == "IU") ? `<br><span class="entry-instrName">${lesson.sNames[0].studentName}</span>` : "";
+                    }
+                    lessons += "</div>";
                 }
                 if (!timetableData[day][i][0]) {
                     $(".time-row").last().append(`<td class="timetable-entry empty"><div class="sc_cont"></div></td>`);

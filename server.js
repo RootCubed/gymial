@@ -29,6 +29,17 @@ let options = {
     headers: headers,
 }
 
+const periods = [
+    {
+        "period": 72,
+        "startTime": 1582498800000
+    },
+    {
+        "period": 71,
+        "startTime": 0
+    }
+];
+
 function login() {
     return new Promise((resolve, reject) => {
         let body = {
@@ -115,9 +126,16 @@ app.get("/getClassNumPeople/:className", function (req, res) {
     });
 });
 
-app.get("/getIDs", function (req, res) {
+app.get("/getIDs/:time", function (req, res) {
+    let currPeriod;
+    for (period of periods) {
+        if (req.params.time > period.startTime) {
+            currPeriod = period.period;
+            break;
+        }
+    }
     let body = {}
-    getShit("/kzo/timetable/ajax-get-resources/period/71", body).then(r => {
+    getShit("/kzo/timetable/ajax-get-resources/period/" + currPeriod, body).then(r => {
         res.send([...JSON.parse(r).data.classes, ...JSON.parse(r).data.teachers]);
     });
 });
