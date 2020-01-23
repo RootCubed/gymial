@@ -278,7 +278,7 @@ function convertToUsable(timetable) {
         }
         minimalLessons.push(mLesson);
     }
-    minDate = new Date(parseInt(minimalLessons[0].lDate.substr(6)));
+    minDate = getFirstDayOfWeek(new Date(parseInt(minimalLessons[0].lDate.substr(6))));
     for (let date = minDate; date < new Date(minDate.getTime() + DAY * 5); date = new Date(date.getTime() + DAY)) {
         result[date.toLocaleDateString("de-CH")] = new Array(times.length).fill(null).map(() => []);
     }
