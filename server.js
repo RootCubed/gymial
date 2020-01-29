@@ -140,5 +140,17 @@ app.get("/getIDs/:time", function (req, res) {
     });
 });
 
+app.get("/getGrades/:student/:course", function (req, res) {
+    let body = {
+        "studentId": req.params.student,
+        "courseId": req.params.course,
+        "periodId": 71
+    }
+    getShit("/kzo/gradebook/ajax-list-get-grades", body).then((r) => {
+        console.log(JSON.parse(r).data);
+        res.send(JSON.parse(r).data);
+    });
+});
+
 app.use(express.static("static"));
 app.listen(PORT, () => console.log("Web server is up and running on port " + PORT));
