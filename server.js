@@ -15,7 +15,7 @@ let headers = {
     "Host": "intranet.tam.ch",
     "Sec-Fetch-Site": "same-origin",
     "Sec-Fetch-Mode": "cors",
-    "Referer": "https://intranet.tam.ch/kzo/calendar",
+    "Referer": "https://intranet.tam.ch/kzo",
     "Cookie": "username=liam.braun; school=kzo; sturmuser=liam.braun; sturmsession="
 };
 
