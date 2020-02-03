@@ -152,5 +152,12 @@ app.get("/getGrades/:student/:course", function (req, res) {
     });
 });
 
+app.get("/getAllStudents/:period", function (req, res) {
+    let body = {}
+    getShit("/kzo/timetable/ajax-get-resources/period/" + req.params.period, body).then(r => {
+        res.send([...JSON.parse(r).data.students]);
+    });
+});
+
 app.use(express.static("static"));
 app.listen(PORT, () => console.log("Web server is up and running on port " + PORT));
