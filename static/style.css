@@ -327,12 +327,24 @@ img.teacher {
         display: none;
     }
 
+    .timetable-time, .timetable-date {
+        color: black;
+    }
+
     .timetable-entry:not(.timetable-time) {
         border: 2px solid black
     }
 
+    .timetable-entry.empty {
+        background: transparent;
+        border: transparent;
+    }
+
     .sc_cont {
-        overflow: visible;
-        height: auto;
+        height: calc((680px - 160px) / 11);
+    }
+
+    .scrolling {
+        animation: none;
     }
 }
