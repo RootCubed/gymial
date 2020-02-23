@@ -10,14 +10,13 @@ const times = [
     "15:10-15:55",
     "16:05-16:50",
     "16:55-17:40"
-]
+];
 const shortTimes = [730, 825, 920, 1025, 1110, 1225, 1320, 1415, 1510, 1605, 1655];
 
 const DAY = 24 * 60 * 60 * 1000;
 
 const FULL_LESSON = 1;
 const DOUBLE_LESSON = 2;
-const TRIPLE_LESSON = 3;
 
 let rawData, timetableData;
 
@@ -55,38 +54,37 @@ $(document).ready(() => {
             setLessonData(lessons[index]);
         });
     });
-    $("#week-back").click(() => {
+    $("#week-back").on("click", () => {
         currTime -= DAY * 7;
         weekOffset--;
         $("#today").attr("data-content", weekOffset);
         loadClass();
     });
-    $("#today").click(() => {
+    $("#today").on("click", () => {
         currTime = getFirstDayOfWeek(new Date()).getTime();
         weekOffset = 0;
         $("#today").attr("data-content", weekOffset);
         init();
     });
-    $("#week-forward").click(() => {
+    $("#week-forward").on("click", () => {
         currTime += DAY * 7;
         weekOffset++;
         $("#today").attr("data-content", weekOffset);
         init();
     });
-    $("#open-menu").click(() => {
+    $("#open-menu").on("click", () => {
         $("#mainWindow").toggleClass("toRight");
         $("#sidebar").toggleClass("visible");
     });
     let swipeStartX = 0;
     let swipeStartY = 0;
     document.addEventListener("touchstart", event => {
-        var t = event.touches[0];
+        let t = event.touches[0];
         swipeStartX = t.screenX; 
         swipeStartY = t.screenY;
     });
     document.addEventListener("touchmove", event => {
         var t = event.touches[0];
-        console.log(t);
         if (Math.abs(swipeStartY - t.screenY) < 20) {
             if (swipeStartX - t.screenX < -50) {
                 $("#mainWindow").addClass("toRight");
@@ -106,15 +104,16 @@ $(document).ready(() => {
         $("#overlay-lesson-tabs, #room-detail, #teacher-detail, #personal-shit").html("");
         $("#margin-details").fadeIn();
         let index = 0;
-        while (rawData[index].classId.length != 1 || rawData[index].classId[0] != classID) {
+        while (rawData[index].classId.length !== 1 || rawData[index].classId[0] !== classID) {
             index++;
         }
         fetch(`/getClassNumPeople/${rawData[index].className}`)
         .then(response => response.text())
         .then(res => {
+            res = parseInt(res);
             let clList = [];
             for (let c of rawData) {
-                if (c.student.length == res) {
+                if (c.student.length === res) {
                     clList = c.student;
                 }
             }
@@ -123,7 +122,7 @@ $(document).ready(() => {
                 img.src = "/getPicture/" + student.studentId;
                 img.onload = () => {
                     $(`#sdPic${student.studentId}`).attr("src", "/getPicture/" + student.studentId);
-                }
+                };
                 $("#personal-shit").append(
                     `<div class="student"><img id="sdPic${student.studentId}" src="spinner.svg"><p class="studentName">${student.studentName}</p></div>`
                 );
@@ -141,7 +140,7 @@ $(document).ready(() => {
                 IDType = "teacher";
                 break;
         }
-        classID = classID.substr(1);
+        classID = parseInt(classID.substr(1));
         $("#classSelect").val("");
         $("#search-dropdown span").remove();
         init();
@@ -242,7 +241,7 @@ function loadClass() {
 function setLessonData(lesson) {
     $("#teacher-detail").text(lesson.tFull);
     $("#personal-shit").html("<img>");
-    $("#personal-shit img").attr("src", "spinner.svg")
+    $("#personal-shit img").attr("src", "spinner.svg");
     let img = new Image();
     img.src = "/getPicture/" + lesson.tId;
     img.onload = () => {
@@ -269,6 +268,7 @@ function convertToUsable(timetable) {
             sNames: lesson.student,
             lessonLength: FULL_LESSON,
             hideForMultiple: false,
+            fullDay: lesson.isAllDay,
             special: lesson.timetableEntryTypeId == 15,
             cancelled: lesson.timetableEntryTypeId == 11
         };
@@ -278,7 +278,7 @@ function convertToUsable(timetable) {
         }
         minimalLessons.push(mLesson);
     }
-    minDate = getFirstDayOfWeek(new Date(parseInt(minimalLessons[0].lDate.substr(6))));
+    let minDate = getFirstDayOfWeek(new Date(parseInt(minimalLessons[0].lDate.substr(6))));
     for (let date = minDate; date < new Date(minDate.getTime() + DAY * 5); date = new Date(date.getTime() + DAY)) {
         result[date.toLocaleDateString("de-CH")] = new Array(times.length).fill(null).map(() => []);
     }
@@ -337,13 +337,13 @@ function dateToObjectKey(date) {
 
 function getFirstDayOfWeek(d) {
     let day = d.getDay();
-    let diff = d.getDate() - day + (day == 0 ? -6 : 1); // adjust when day is sunday
+    let diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
     return new Date(d.setDate(diff));
 }
 
 function progress(number) {
     $("#progress-bar").css("width", number + "%");
-    if (number == 100) {
+    if (number === 100) {
         setTimeout (() => {
             $("#progress-bar").css("background-color", "white");
         }, 500);

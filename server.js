@@ -16,7 +16,7 @@ let headers = {
     "Sec-Fetch-Site": "same-origin",
     "Sec-Fetch-Mode": "cors",
     "Referer": "https://intranet.tam.ch/kzo",
-    "Cookie": "username=liam.braun; school=kzo; sturmuser=liam.braun; sturmsession="
+    "Cookie": "username=liam.braun; school=kzo; sturmuser=liam.braun; sturmsession=61h71r9jtijgsammm7fu6lr4gl"
 };
 
 const PORT = process.env.PORT || 3000;
@@ -27,7 +27,7 @@ let options = {
     path: "/kzo/timetable/ajax-get-timetable",
     method: "POST",
     headers: headers,
-}
+};
 
 const periods = [
     {
@@ -41,19 +41,19 @@ const periods = [
 ];
 
 function login() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         let body = {
             loginuser: process.env.user,
             loginpassword: process.env.password,
             loginschool: "kzo"
-        }
+        };
     
         options.path = "/kzo";
     
         let req = https.request(options, res => {
             let setCookies = res.headers["set-cookie"];
             for (let c of setCookies) {
-                sturmsession = c.match(/sturmsession=[0-9a-z]+/);
+                let sturmsession = c.match(/sturmsession=[0-9a-z]+/);
                 if (sturmsession != null) {
                     headers["Cookie"] = "username=liam.braun; school=kzo; sturmuser=liam.braun; " + sturmsession;
                 }
@@ -68,7 +68,7 @@ function login() {
 
 function getShit(endpoint, body) {
     options.path = endpoint;
-    return new Promise(function(resolve, reject) {
+    return new Promise(function(resolve) {
         let str = "";
 
         let req = https.request(options, res => {
@@ -76,7 +76,8 @@ function getShit(endpoint, body) {
                 str += d.toString();
             });
             res.on("end", function() {
-                if (str[0] == "<") { // invalid session
+                if (str[0] === "<") { // invalid session
+                    console.log("logging in...");
                     login().then(() => {
                         getShit(endpoint, body).then(r => {
                             resolve(r);
@@ -98,7 +99,7 @@ app.get("/getTimetable/:type/:id/:time", function (req, res) {
         "startDate": req.params.time,
         "endDate": parseInt(req.params.time) + 4 * 24 * 60 * 60 * 1000,
         "holidaysOnly": 0
-    }
+    };
     body[req.params.type + "Id[]"] = req.params.id;
     getShit("/kzo/timetable/ajax-get-timetable", body).then(r => {
         res.send(JSON.parse(r).data);
@@ -108,7 +109,7 @@ app.get("/getTimetable/:type/:id/:time", function (req, res) {
 app.get("/getPicture/:id", function (req, res) {
     let body = {
         "person": req.params.id
-    }
+    };
     getShit("/kzo/list/get-person-picture", body).then((r) => {
         res.writeHead(200, {
             "Content-Type": "image/jpeg",
@@ -134,7 +135,7 @@ app.get("/getIDs/:time", function (req, res) {
             break;
         }
     }
-    let body = {}
+    let body = {};
     getShit("/kzo/timetable/ajax-get-resources/period/" + currPeriod, body).then(r => {
         res.send([...JSON.parse(r).data.classes, ...JSON.parse(r).data.teachers]);
     });
@@ -145,7 +146,7 @@ app.get("/getGrades/:student/:course", function (req, res) {
         "studentId": req.params.student,
         "courseId": req.params.course,
         "periodId": 71
-    }
+    };
     getShit("/kzo/gradebook/ajax-list-get-grades", body).then((r) => {
         console.log(JSON.parse(r).data);
         res.send(JSON.parse(r).data);
@@ -153,7 +154,7 @@ app.get("/getGrades/:student/:course", function (req, res) {
 });
 
 app.get("/getAllStudents/:period", function (req, res) {
-    let body = {}
+    let body = {};
     getShit("/kzo/timetable/ajax-get-resources/period/" + req.params.period, body).then(r => {
         res.send([...JSON.parse(r).data.students]);
     });

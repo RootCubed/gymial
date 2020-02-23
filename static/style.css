@@ -340,10 +340,6 @@ img.teacher {
         border: transparent;
     }
 
-    .sc_cont {
-        height: calc((680px - 160px) / 11);
-    }
-
     .scrolling {
         animation: none;
     }
