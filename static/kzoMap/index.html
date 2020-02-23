@@ -1,0 +1,51 @@
+<html>
+    <head>
+        <title>KZO Map</title>
+        <script src="script.js"></script>
+        <style>
+            body {
+                margin: 0;
+                font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
+            h1 {
+                position: fixed;
+                width: 100%;
+                top: 0;
+                text-align: center;
+                background-color: white;
+                z-index: 1;
+            }
+            #floorSelection {
+                position: fixed;
+                bottom: 20;
+                right: 20;
+                z-index: 1;
+            }
+            #floorSelection button {
+                display: block;
+                padding: 30px;
+            }
+            body {
+                overflow: hidden;
+            }
+            svg {
+                position: fixed;
+                transform-origin: top left;
+                width: 300%;
+                height: 300%;
+            }
+        </style>
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0">
+    </head>
+    <body onload="init()" style="touch-action: none;">
+        <h1 id="roomName">B3 (Biologie)</h1>
+        <object id="kzoMap" data="map_small.svg" type="image/svg+xml">
+            Your browser doesn't support SVG
+        </object>
+        <div id="floorSelection">
+            <button onclick="changeLayer('OG')">OG</button>
+            <button onclick="changeLayer('EG')">EG</button>
+            <button onclick="changeLayer('UG')">UG</button>
+        </div>
+    </body>
+</html>

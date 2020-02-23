@@ -21,7 +21,7 @@ const DOUBLE_LESSON = 2;
 let rawData, timetableData;
 
 let IDType = "class";
-let classID = 2359;
+let classID = 2421;
 
 let currTime = getFirstDayOfWeek(new Date()).getTime();
 
