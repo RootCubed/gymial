@@ -262,13 +262,13 @@
      inkscape:window-height="1730"
      id="namedview12"
      showgrid="false"
-     inkscape:zoom="0.25000001"
-     inkscape:cx="2068.1877"
-     inkscape:cy="1414.8324"
+     inkscape:zoom="1"
+     inkscape:cx="2501.9582"
+     inkscape:cy="1334.98"
      inkscape:window-x="-11"
      inkscape:window-y="-11"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg10"
+     inkscape:current-layer="K_UG"
      units="cm" />
   <image
      y="-600.77386"
@@ -554,16 +554,20 @@
      style="display:inline"
      transform="translate(0,102)">
     <g
-       id="g1265"
+       id="K_UG"
        inkscape:label="Kleiner Spezialtrakt"
        transform="translate(-1.18586,-103.2708)">
-      <path
-         d="m 2104.5,1367.8721 h 111 v 259.25 h -111 z m 30.25,-183.2501 H 1946.5 l -0.1105,573 H 2371.5 v -266 m 0,-43 v -264 h -190.8977"
-         style="opacity:1;fill:none;fill-opacity:0.50196078;stroke:#000000;stroke-width:18.89763832;stroke-linecap:square;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-         id="path1259"
-         inkscape:connector-curvature="0"
-         inkscape:label="K_EG"
-         sodipodi:nodetypes="ccccccccccccc" />
+      <g
+         id="K_UG_Rooms"
+         inkscape:label="K_UG_Rooms">
+        <path
+           sodipodi:nodetypes="ccccccccccccc"
+           inkscape:label="K_EG"
+           inkscape:connector-curvature="0"
+           id="path1259"
+           style="opacity:1;fill:none;fill-opacity:0.50196078;stroke:#000000;stroke-width:18.89763832;stroke-linecap:square;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           d="m 2104.5,1367.8721 h 111 v 259.25 h -111 z m 30.25,-183.2501 H 1946.5 l -0.1105,573 H 2371.5 v -266 m 0,-43 v -264 h -190.8977" />
+      </g>
     </g>
     <g
        inkscape:label="Grosser Spezialtrakt"

@@ -26,6 +26,11 @@ const grouping = [
         "roomGroup": "Aula_UG_Rooms"
     },
     {
+        "visibility": "UG",
+        "groupID": "K_UG",
+        "roomGroup": "K_UG_Rooms"
+    }
+    {
         "visibility": "EG",
         "groupID": "S_EG",
         "roomGroup": "S_EG_Rooms"
