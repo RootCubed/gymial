@@ -29,7 +29,7 @@ const grouping = [
         "visibility": "UG",
         "groupID": "K_UG",
         "roomGroup": "K_UG_Rooms"
-    }
+    },
     {
         "visibility": "EG",
         "groupID": "S_EG",
