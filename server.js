@@ -141,14 +141,11 @@ app.get("/getIDs/:time", function (req, res) {
     });
 });
 
-app.get("/getGrades/:student/:course", function (req, res) {
+app.get("/getName/:id", function (req, res) {
     let body = {
-        "studentId": req.params.student,
-        "courseId": req.params.course,
-        "periodId": 71
+        "id": req.params.id
     };
-    getShit("/kzo/gradebook/ajax-list-get-grades", body).then((r) => {
-        console.log(JSON.parse(r).data);
+    getShit("/kzo/list/get-person-name", body).then((r) => {
         res.send(JSON.parse(r).data);
     });
 });
