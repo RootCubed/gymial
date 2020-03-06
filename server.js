@@ -146,7 +146,7 @@ app.get("/getName/:id", function (req, res) {
         "id": req.params.id
     };
     getShit("/kzo/list/get-person-name", body).then((r) => {
-        res.send(JSON.parse(r).data);
+        res.send(r);
     });
 });
 
