@@ -6,12 +6,12 @@ const nodeFetch = require("node-fetch");
 
 let headers = {
     "Connection": "keep-alive",
-    "accept": "application/json, text/javascript, */*; q=0.01",
+    "Accept": "application/json, text/javascript, */*; q=0.01",
     "Origin": "https://intranet.tam.ch",
-    "x-requested-with": "XMLHttpRequest",
-    "accept-language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7,ja;q=0.6",
+    "X-Requested-With": "XMLHttpRequest",
+    "Accept-language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7,ja;q=0.6",
     "User-Agent": "Node.js application",
-    "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
     "Host": "intranet.tam.ch",
     "Sec-Fetch-Site": "same-origin",
     "Sec-Fetch-Mode": "cors",
@@ -28,6 +28,8 @@ let options = {
     method: "POST",
     headers: headers,
 };
+
+let token = "";
 
 const periods = [
     {
@@ -52,10 +54,12 @@ function login() {
     
         let req = https.request(options, res => {
             let setCookies = res.headers["set-cookie"];
-            for (let c of setCookies) {
-                let sturmsession = c.match(/sturmsession=[0-9a-z]+/);
-                if (sturmsession != null) {
-                    headers["Cookie"] = "username=liam.braun; school=kzo; sturmuser=liam.braun; " + sturmsession;
+            if (setCookies) {
+                for (let c of setCookies) {
+                    let sturmsession = c.match(/sturmsession=[0-9a-z]+/);
+                    if (sturmsession != null) {
+                        headers["Cookie"] = "username=liam.braun; school=kzo; sturmuser=liam.braun; " + sturmsession;
+                    }
                 }
             }
             resolve();
@@ -68,6 +72,7 @@ function login() {
 
 function getShit(endpoint, body) {
     options.path = endpoint;
+    body.csrfToken = token;
     return new Promise(function(resolve) {
         let str = "";
 
@@ -76,11 +81,14 @@ function getShit(endpoint, body) {
                 str += d.toString();
             });
             res.on("end", function() {
-                if (str[0] === "<") { // invalid session
+                if (str[0] === "<" || str.length == 0) { // invalid session
                     console.log("logging in...");
                     login().then(() => {
-                        getShit(endpoint, body).then(r => {
-                            resolve(r);
+                        nodeFetch("https://intranet.tam.ch/kzo", {headers: headers}).then(r => r.text()).then(r => {
+                            token = r.match(/csrfToken='([0-z]+)/)[1];
+                            getShit(endpoint, body).then(r => {
+                                resolve(r);
+                            });
                         });
                     });
                 } else {
@@ -135,8 +143,10 @@ app.get("/getIDs/:time", function (req, res) {
             break;
         }
     }
-    let body = {};
-    getShit("/kzo/timetable/ajax-get-resources/period/" + currPeriod, body).then(r => {
+    let body = {
+        "periodId": 72
+    };
+    getShit("/kzo/timetable/ajax-get-resources/", body).then(r => {
         res.send([...JSON.parse(r).data.classes, ...JSON.parse(r).data.teachers]);
     });
 });
