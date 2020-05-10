@@ -106,7 +106,8 @@ app.get("/getTimetable/:type/:id/:time", function (req, res) {
     let body = {
         "startDate": req.params.time,
         "endDate": parseInt(req.params.time) + 4 * 24 * 60 * 60 * 1000,
-        "holidaysOnly": 0
+        "holidaysOnly": 0,
+        "method": "POST"
     };
     body[req.params.type + "Id[]"] = req.params.id;
     getShit("/kzo/timetable/ajax-get-timetable", body).then(r => {
@@ -116,7 +117,8 @@ app.get("/getTimetable/:type/:id/:time", function (req, res) {
 
 app.get("/getPicture/:id", function (req, res) {
     let body = {
-        "person": req.params.id
+        "person": req.params.id,
+        "method": "POST"
     };
     getShit("/kzo/list/get-person-picture", body).then((r) => {
         res.writeHead(200, {
@@ -144,7 +146,8 @@ app.get("/getIDs/:time", function (req, res) {
         }
     }
     let body = {
-        "periodId": 72
+        "periodId": 72,
+        "method": "POST"
     };
     getShit("/kzo/timetable/ajax-get-resources/", body).then(r => {
         res.send([...JSON.parse(r).data.classes, ...JSON.parse(r).data.teachers]);
@@ -153,7 +156,8 @@ app.get("/getIDs/:time", function (req, res) {
 
 app.get("/getName/:id", function (req, res) {
     let body = {
-        "id": req.params.id
+        "id": req.params.id,
+        "method": "POST"
     };
     getShit("/kzo/list/get-person-name", body).then((r) => {
         res.send(r);
@@ -161,9 +165,31 @@ app.get("/getName/:id", function (req, res) {
 });
 
 app.get("/getAllStudents/:period", function (req, res) {
-    let body = {};
-    getShit("/kzo/timetable/ajax-get-resources/period/" + req.params.period, body).then(r => {
+    let body = {
+        "periodId": req.params.period,
+        "method": "POST"
+    };
+    getShit("/kzo/timetable/ajax-get-resources/", body).then(r => {
         res.send([...JSON.parse(r).data.students]);
+    });
+});
+
+app.get("/getAllClasses/:period", function (req, res) {
+    let body = {
+        "periodId": req.params.period,
+        "method": "POST"
+    };
+    getShit("/kzo/timetable/ajax-get-resources/", body).then(r => {
+        res.send(JSON.parse(r).data.classes);
+    });
+});
+
+app.get("/getClass/:classID", function (req, res) {
+    let body = {
+        "method": "GET"
+    };
+    getShit("/kzo/list/getlist/list/12/id/" + req.params.classID + "/period/72", body).then(r => {
+        res.send(r);
     });
 });
 

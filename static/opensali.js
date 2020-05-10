@@ -29,6 +29,20 @@ let classList = [];
 
 let weekOffset = 0;
 
+// You're a sneaky one... please don't use this function too much, as it makes a lot of requests to the server. Thanks!
+async function getAllDetailsOfEveryone() {
+    let finalData = [];
+    let allClasses = await fetch(`/getAllClasses/72`);
+    let aCJson = await allClasses.json();
+    for (let cl of aCJson) {
+        let clList = await fetch(`/getClass/${cl.classId}`);
+        let cJson = await clList.json();
+        finalData.push(...cJson.data);
+    }
+    console.log("Here you go ;) Use it responsibly.");
+    console.log(finalData);
+}
+
 $(document).ready(() => {
     $("#today").attr("data-content", weekOffset);
     $(document).on("click", ".timetable-entry:not(.empty):not(.timetable-time)", (el) => {
@@ -103,28 +117,17 @@ $(document).ready(() => {
     $("#current-class").on("click", () => {
         $("#overlay-lesson-tabs, #room-detail, #teacher-detail, #personal-shit").html("");
         $("#margin-details").fadeIn();
-        let index = 0;
-        while (rawData[index].classId.length !== 1 || rawData[index].classId[0] !== classID) {
-            index++;
-        }
-        fetch(`/getClassNumPeople/${rawData[index].className}`)
-        .then(response => response.text())
+        fetch(`/getClass/${classID}`)
+        .then(response => response.json())
         .then(res => {
-            res = parseInt(res);
-            let clList = [];
-            for (let c of rawData) {
-                if (c.student.length === res) {
-                    clList = c.student;
-                }
-            }
-            for (let student of clList) {
+            for (let student of res.data) {
                 let img = new Image();
-                img.src = "/getPicture/" + student.studentId;
+                img.src = "/getPicture/" + student.PersonID;
                 img.onload = () => {
-                    $(`#sdPic${student.studentId}`).attr("src", "/getPicture/" + student.studentId);
+                    $(`#sdPic${student.PersonID}`).attr("src", "/getPicture/" + student.PersonID);
                 };
                 $("#personal-shit").append(
-                    `<div class="student"><img id="sdPic${student.studentId}" src="spinner.svg"><p class="studentName">${student.studentName}</p></div>`
+                    `<div class="student"><img id="sdPic${student.PersonID}" src="spinner.svg"><p class="studentName">${student.Vorname} ${student.Nachname}</p></div>`
                 );
             }
         })

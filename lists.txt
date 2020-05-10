@@ -4,8 +4,12 @@
 45: own class
 46: own courses
 
+need /list/getlist
+12: get class list (id: class id)
+40: Course participants (id: course id)
+
 empty data:
-12, 34, 40
+34
 
 error reading data:
 17, 32, 36, 37
