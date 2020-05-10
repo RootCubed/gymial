@@ -209,7 +209,7 @@ span.entry-title {
     top: 0;
     left: 0;
     padding: 10vh 10vw;
-    display: none;
+    z-index: 2;
 }
 
 #details-overlay {

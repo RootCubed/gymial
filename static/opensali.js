@@ -117,20 +117,31 @@ $(document).ready(() => {
     $("#current-class").on("click", () => {
         $("#overlay-lesson-tabs, #room-detail, #teacher-detail, #personal-shit").html("");
         $("#margin-details").fadeIn();
-        fetch(`/getClass/${classID}`)
-        .then(response => response.json())
-        .then(res => {
-            for (let student of res.data) {
-                let img = new Image();
-                img.src = "/getPicture/" + student.PersonID;
-                img.onload = () => {
-                    $(`#sdPic${student.PersonID}`).attr("src", "/getPicture/" + student.PersonID);
-                };
-                $("#personal-shit").append(
-                    `<div class="student"><img id="sdPic${student.PersonID}" src="spinner.svg"><p class="studentName">${student.Vorname} ${student.Nachname}</p></div>`
-                );
-            }
-        })
+        if (IDType == "class") {
+            fetch(`/getClass/${classID}`)
+            .then(response => response.json())
+            .then(res => {
+                for (let student of res.data) {
+                    let img = new Image();
+                    img.src = "/getPicture/" + student.PersonID;
+                    img.onload = () => {
+                        $(`#sdPic${student.PersonID}`).attr("src", "/getPicture/" + student.PersonID);
+                    };
+                    $("#personal-shit").append(
+                        `<div class="student"><img id="sdPic${student.PersonID}" src="spinner.svg"><p class="studentName">${student.Vorname} ${student.Nachname}</p></div>`
+                    );
+                }
+            });
+        } else {
+            let img = new Image();
+            img.src = "/getPicture/" + classID;
+            img.onload = () => {
+                $(`#sdPic${classID}`).attr("src", "/getPicture/" + classID);
+            };
+            $("#personal-shit").append(
+                `<div class="student"><img id="sdPic${classID}" src="spinner.svg"><p class="studentName">${$("#current-class").text()}</p></div>`
+            );
+        }
     });
     $(document).on("click", ".searchResult", el => {
         $("#current-class").text(el.target.innerText);
@@ -141,6 +152,9 @@ $(document).ready(() => {
                 break;
             case 't':
                 IDType = "teacher";
+                break;
+            case 's':
+                IDType = "student";
                 break;
         }
         classID = parseInt(classID.substr(1));
@@ -159,7 +173,6 @@ function init() {
         let oldClassList = classList;
         classList = classes;
         if (oldClassList[0]) {
-            console.log(classes[0].classId, oldClassList[0].classId);
             if (classes[0].classId != oldClassList[0].classId) {
                 classID = classes[0].classId;
                 $("#current-class").text(classes[0].className.replace(' ', ''));
@@ -375,8 +388,10 @@ function filterObjects() {
     for (let found of t) {
         if (found.classId) {
             $("#search-results").append(`<span class="searchResult" data="c${found.classId}">${found.className.replace(' ', '')}</span>`);
-        } else {
+        } else if (found.teacherId) {
             $("#search-results").append(`<span class="searchResult" data="t${found.personId}">${found.name.replace(/\(.+?\)/, '')}</span>`);
+        } else {
+            $("#search-results").append(`<span class="searchResult" data="s${found.personId}">${found.name.replace(/\(.+?\)/, '')}</span>`);
         }
     }
 }

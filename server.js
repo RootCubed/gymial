@@ -150,7 +150,7 @@ app.get("/getIDs/:time", function (req, res) {
         "method": "POST"
     };
     getShit("/kzo/timetable/ajax-get-resources/", body).then(r => {
-        res.send([...JSON.parse(r).data.classes, ...JSON.parse(r).data.teachers]);
+        res.send([...JSON.parse(r).data.classes, ...JSON.parse(r).data.teachers, ...JSON.parse(r).data.students]);
     });
 });
 
