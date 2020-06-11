@@ -48,18 +48,18 @@
                 <input id="classSelect" placeholder="Suche" onkeyup="filterObjects()"/>
                 <div id="search-results"></div>
             </div>
-            <span class="sidebar-link active">Stundenplan</span>
+            <span id="link-timetable" class="sidebar-link active">Stundenplan</span>
+            <span id="link-account" class="sidebar-link">Mein Account</span>
             <div id="sidebar-bottom">
                 <a class="sidebar-link bottom" href="https://discord.gg/wM4Wsts" target="_blank">Entwicklungs-Discord-Server</a>
                 <a class="sidebar-link bottom" href="https://github.com/LetsPlentendo-CH/opensali" target="_blank">OpenSali auf GitHub</a>
-                <!--<span id="logout" class="sidebar-link">Login<br>(Coming Soon!)</span>-->
             </div>
         </div>
         <table id="timetable">
             <tbody></tbody>
         </table>
     </div>
-    <div id="margin-details">
+    <div id="margin-details" class="overlay-window">
         <div id="details-overlay">
             <span class="icon-x"></span>
             <div id="overlay-lesson-tabs"></div>
@@ -70,6 +70,20 @@
                     <img src="spinner.svg" alt="Loading spinner">
                 </div>
             </div>
+        </div>
+    </div>
+    <div id="login-window" class="overlay-window">
+        <div id="login-window-content">
+            <span class="icon-x"></span>
+            <form>
+                <label for="login-user">Name (vorname.nachname)</label>
+                <input id="login-user" type="text" placeholder="Name" required>
+
+                <label for="login-pw">Passwort für das Intranet</label>
+                <input id="login-pw" type="password" placeholder="Passwort" required>
+
+                <button id="login-submit">Einloggen</button>
+            </form>
         </div>
     </div>
 </body>

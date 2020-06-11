@@ -22,6 +22,7 @@ let rawData, timetableData;
 
 let IDType = "class";
 let classID = 2421;
+let currPeriod = 72;
 
 let currTime = getFirstDayOfWeek(new Date()).getTime();
 
@@ -90,6 +91,9 @@ $(document).ready(() => {
         $("#mainWindow").toggleClass("toRight");
         $("#sidebar").toggleClass("visible");
     });
+    $("#link-account").on("click", () => {
+        $("#login-window").fadeIn();
+    });
     let swipeStartX = 0;
     let swipeStartY = 0;
     document.addEventListener("touchstart", event => {
@@ -109,9 +113,12 @@ $(document).ready(() => {
             }
         }
     });
-    $(document).on("click", "#margin-details", event => {
-        if ($(event.target).is("#margin-details, .icon-x")) {
-            $("#margin-details").fadeOut();
+    $(document).on("click", ".overlay-window", event => {
+        if ($(event.target).is(".overlay-window")) {
+            $(event.target).fadeOut();
+        }
+        if ($(event.target).is(".icon-x")) {
+            $(event.target).parent().parent().fadeOut();
         }
     });
     $("#current-class").on("click", () => {
@@ -183,74 +190,84 @@ function init() {
 }
 
 function loadClass() {
+    $("#timetable tbody").html("");
     progress(40);
-    let mainDiv = $("#timetable tbody");
-    mainDiv.html("");
-    fetch(`/getTimetable/${IDType}/${classID}/${currTime}`).then(response => {
-        progress(50);
-        return response.json();
-    }).then(json => {
-        progress(60);
-        rawData = json;
-        timetableData = convertToUsable(json);
-        let dates = "";
-        for (let day in timetableData) {
-            dates += `<th class="timetable-date">${day}</th>`;
+    fetch(`/periodID/${currTime}`)
+    .then(r => r.json())
+    .then(perID => {
+        if (parseInt(perID) != currPeriod) {
+            currPeriod = parseInt(perID);
+            init();
+            return;
         }
-        mainDiv.append(`<tr><td class="timetable-time"></td>${dates}</tr>`);
-        for (let i = 0; i < times.length; i++) {
-            let timeRows = times[i];
-            mainDiv.append(
-                `<tr class="time-row"><td class="timetable-entry timetable-time">${timeRows}</td></tr>`
-            );
+        fetch(`/getTimetable/${IDType}/${classID}/${currTime}`).then(response => {
+            progress(50);
+            return response.json();
+        }).then(json => {
+            let mainDiv = $("#timetable tbody");
+            mainDiv.html("");
+            progress(60);
+            rawData = json;
+            timetableData = convertToUsable(json);
+            let dates = "";
             for (let day in timetableData) {
-                let lessons = "";
-                for (let lesson of timetableData[day][i]) {
-                    let modText = "";
-                    if (lesson.special) modText = "special";
-                    if (lesson.cancelled) modText = "cancelled";
-                    lessons += `<div class="${modText}"><span class="entry-title">${lesson.cName}</span>`;
-                    if (lesson.room != "") {
-                        lessons += `<span class="entry-room">${lesson.room}</span>`;
-                    }
-                    if (lesson.tAcronym != "") {
-                        lessons += `<span class="entry-teacher">${lesson.tAcronym}</span>`;
-                    }
-                    if (lesson.sNames != undefined && lesson.sNames.length > 0) {
-                        lessons += (lesson.cName == "IU") ? `<br><span class="entry-instrName">${lesson.sNames[0].studentName}</span>` : "";
-                    }
-                    lessons += "</div>";
-                }
-                if (!timetableData[day][i][0]) {
-                    $(".time-row").last().append(`<td class="timetable-entry empty"><div class="sc_cont"></div></td>`);
-                } else {
-                    let stLength = timetableData[day][i][0].lessonLength;
-                    for (let j = 0; j < timetableData[day][i].length; j++) {
-                        if (timetableData[day][i][j].lessonLength != stLength) {
-                            ignoreDouble = true;
-                            break;
+                dates += `<th class="timetable-date">${day}</th>`;
+            }
+            mainDiv.append(`<tr><td class="timetable-time"></td>${dates}</tr>`);
+            for (let i = 0; i < times.length; i++) {
+                let timeRows = times[i];
+                mainDiv.append(
+                    `<tr class="time-row"><td class="timetable-entry timetable-time">${timeRows}</td></tr>`
+                );
+                for (let day in timetableData) {
+                    let lessons = "";
+                    for (let lesson of timetableData[day][i]) {
+                        let modText = "";
+                        if (lesson.special) modText = "special";
+                        if (lesson.cancelled) modText = "cancelled";
+                        lessons += `<div class="${modText}"><span class="entry-title">${lesson.cName}</span>`;
+                        if (lesson.room != "") {
+                            lessons += `<span class="entry-room">${lesson.room}</span>`;
                         }
+                        if (lesson.tAcronym != "") {
+                            lessons += `<span class="entry-teacher">${lesson.tAcronym}</span>`;
+                        }
+                        if (lesson.sNames != undefined && lesson.sNames.length > 0) {
+                            lessons += (lesson.cName == "IU") ? `<br><span class="entry-instrName">${lesson.sNames[0].studentName}</span>` : "";
+                        }
+                        lessons += "</div>";
                     }
-                    if (timetableData[day][i][0].hideForMultiple) {
-                        continue;
+                    if (!timetableData[day][i][0]) {
+                        $(".time-row").last().append(`<td class="timetable-entry empty"><div class="sc_cont"></div></td>`);
+                    } else {
+                        let stLength = timetableData[day][i][0].lessonLength;
+                        for (let j = 0; j < timetableData[day][i].length; j++) {
+                            if (timetableData[day][i][j].lessonLength != stLength) {
+                                ignoreDouble = true;
+                                break;
+                            }
+                        }
+                        if (timetableData[day][i][0].hideForMultiple) {
+                            continue;
+                        }
+                        let lLength = timetableData[day][i][0].lessonLength;
+                        let lengthName = "";
+                        if (lLength == 2) {
+                            lengthName = "double";
+                        }
+                        $(".time-row").last().append(`
+                            <td rowspan=${lLength} class="timetable-entry" data="${day + ";" + i}"><div class="sc_cont ${lengthName}"><div class="scroller">${lessons}</div></div></td>
+                        `);
                     }
-                    let lLength = timetableData[day][i][0].lessonLength;
-                    let lengthName = "";
-                    if (lLength == 2) {
-                        lengthName = "double";
+                    let scrollerEl = $(".time-row .scroller").last();
+                    if (scrollerEl.height() > scrollerEl.parent().height() && !$(".time-row .scroller").last().hasClass("scrolling")) {
+                        scrollerEl.addClass("scrolling");
+                        scrollerEl.last().html(scrollerEl.html() + scrollerEl.html());
                     }
-                    $(".time-row").last().append(`
-                        <td rowspan=${lLength} class="timetable-entry" data="${day + ";" + i}"><div class="sc_cont ${lengthName}"><div class="scroller">${lessons}</div></div></td>
-                    `);
-                }
-                let scrollerEl = $(".time-row .scroller").last();
-                if (scrollerEl.height() > scrollerEl.parent().height() && !$(".time-row .scroller").last().hasClass("scrolling")) {
-                    scrollerEl.addClass("scrolling");
-                    scrollerEl.last().html(scrollerEl.html() + scrollerEl.html());
                 }
             }
-        }
-        progress(100);
+            progress(100);
+        });
     });
 }
 

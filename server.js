@@ -33,6 +33,10 @@ let token = "";
 
 const periods = [
     {
+        "period": 73,
+        "startTime": 1597615200000
+    },
+    {
         "period": 72,
         "startTime": 1582498800000
     },
@@ -102,6 +106,17 @@ function getShit(endpoint, body) {
     });
 }
 
+function getPeriod(time) {
+    let currPeriod;
+    for (period of periods) {
+        if (time > period.startTime) {
+            currPeriod = period.period;
+            break;
+        }
+    }
+    return currPeriod;
+}
+
 app.get("/getTimetable/:type/:id/:time", function (req, res) {
     let body = {
         "startDate": req.params.time,
@@ -138,19 +153,28 @@ app.get("/getClassNumPeople/:className", function (req, res) {
 });
 
 app.get("/getIDs/:time", function (req, res) {
-    let currPeriod;
-    for (period of periods) {
-        if (req.params.time > period.startTime) {
-            currPeriod = period.period;
-            break;
-        }
-    }
+    console.log("period", getPeriod(req.params.time));
     let body = {
-        "periodId": 72,
+        "periodId": getPeriod(req.params.time),
         "method": "POST"
     };
     getShit("/kzo/timetable/ajax-get-resources/", body).then(r => {
-        res.send([...JSON.parse(r).data.classes, ...JSON.parse(r).data.teachers, ...JSON.parse(r).data.students]);
+        if (getPeriod(req.params.time) == 73) { // temporary hack until everything works
+            res.send([
+                {
+                    "classId": 2497,
+                    "className": "C 6c",
+                    "classShort": "C 6c",
+                    "classCommonName": "C2017c",
+                    "periodId": 73,
+                    "classLevel": "6",
+                    "occupied": 0
+                },
+                ...JSON.parse(r).data.teachers, ...JSON.parse(r).data.students
+            ]);
+        } else {
+            res.send([...JSON.parse(r).data.classes, ...JSON.parse(r).data.teachers, ...JSON.parse(r).data.students]);
+        }
     });
 });
 
@@ -191,6 +215,10 @@ app.get("/getClass/:classID", function (req, res) {
     getShit("/kzo/list/getlist/list/12/id/" + req.params.classID + "/period/72", body).then(r => {
         res.send(r);
     });
+});
+
+app.get("/periodID/:time", function (req, res) {
+    res.end(getPeriod(req.params.time).toString());
 });
 
 app.use(express.static("static"));
