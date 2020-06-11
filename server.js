@@ -170,6 +170,33 @@ app.get("/getIDs/:time", function (req, res) {
                     "classLevel": "6",
                     "occupied": 0
                 },
+                {
+                    "classId": 2488,
+                    "className": "A 6",
+                    "classShort": "A 6",
+                    "classCommonName": "A2017",
+                    "periodId": 73,
+                    "classLevel": "6",
+                    "occupied": 0
+                },
+                {
+                    "classId": 2489,
+                    "className": "M 6a",
+                    "classShort": "M 6a",
+                    "classCommonName": "M2017a",
+                    "periodId": 73,
+                    "classLevel": "6",
+                    "occupied": 0
+                },
+                {
+                    "classId": 2461,
+                    "className": "U 2c",
+                    "classShort": "U 2c",
+                    "classCommonName": "U2018c",
+                    "periodId": 73,
+                    "classLevel": "2",
+                    "occupied": 0
+                },
                 ...JSON.parse(r).data.teachers, ...JSON.parse(r).data.students
             ]);
         } else {
@@ -212,7 +239,9 @@ app.get("/getClass/:classID", function (req, res) {
     let body = {
         "method": "GET"
     };
-    getShit("/kzo/list/getlist/list/12/id/" + req.params.classID + "/period/72", body).then(r => {
+    let period = 72;
+    if (req.params.classID > 2450) period = 73;
+    getShit("/kzo/list/getlist/list/12/id/" + req.params.classID + "/period/" + period, body).then(r => {
         res.send(r);
     });
 });
