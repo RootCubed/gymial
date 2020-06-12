@@ -3,6 +3,9 @@ const https = require("https");
 const express = require("express");
 const app = express();
 const nodeFetch = require("node-fetch");
+const cors = require("cors");
+
+app.use(cors());
 
 let headers = {
     "Connection": "keep-alive",
