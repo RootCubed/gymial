@@ -1,4 +1,6 @@
-/*const times = [
+const { parse } = require("querystring");
+
+const timesPre73 = [
     "07:30-08:15",
     "08:25-09:10",
     "09:20-10:05",
@@ -11,8 +13,9 @@
     "16:05-16:50",
     "16:55-17:40"
 ];
-const shortTimes = [730, 825, 920, 1025, 1120, 1225, 1320, 1415, 1510, 1605, 1655];*/
-const times = [
+const shortTimesPre73 = [730, 825, 920, 1025, 1120, 1225, 1320, 1415, 1510, 1605, 1655];
+
+const timesPost73 = [
     "07:30-08:15",
     "08:25-09:10",
     "09:30-10:15",
@@ -25,7 +28,10 @@ const times = [
     "16:35-17:20",
     "17:20-18:05"
 ];
-const shortTimes = [730, 825, 920, 1035, 1140, 1235, 1340, 1445, 1540, 1635, 1720];
+const shortTimesPost73 = [730, 825, 920, 1035, 1140, 1235, 1340, 1445, 1540, 1635, 1720];
+
+let times = timesPre73;
+let shortTimes = shortTimesPre73;
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -209,6 +215,13 @@ function loadClass() {
     fetch(`/periodID/${currTime}`)
     .then(r => r.json())
     .then(perID => {
+        if (parseInt(perID) >= 73) {
+            times = timesPost73;
+            shortTimes = shortTimesPost73;
+        } else {
+            times = timesPre3;
+            shortTimes = shortTimesPre73;
+        }
         if (parseInt(perID) != currPeriod) {
             currPeriod = parseInt(perID);
             init();
