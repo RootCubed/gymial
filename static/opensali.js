@@ -1,5 +1,3 @@
-const { parse } = require("querystring");
-
 const timesPre73 = [
     "07:30-08:15",
     "08:25-09:10",
@@ -219,7 +217,7 @@ function loadClass() {
             times = timesPost73;
             shortTimes = shortTimesPost73;
         } else {
-            times = timesPre3;
+            times = timesPre73;
             shortTimes = shortTimesPre73;
         }
         if (parseInt(perID) != currPeriod) {
