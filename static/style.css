@@ -296,7 +296,7 @@ img.teacher {
 
 #week-back, #week-forward, #today {
     float: right;
-    margin-left: 10px;
+    margin-left: 15px;
 }
 
 #today::before {

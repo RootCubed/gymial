@@ -131,7 +131,7 @@ $(document).ready(() => {
             }
         }
     });
-    $(document).on("click", ".overlay-window", event => {
+    $(document).on("mousedown", ".overlay-window", event => {
         if ($(event.target).is(".overlay-window")) {
             $(event.target).fadeOut();
         }
@@ -140,6 +140,7 @@ $(document).ready(() => {
         }
     });
     $("#current-class").on("click", () => {
+        if ($("#margin-details").is(":visible")) return;
         $("#overlay-lesson-tabs, #room-detail, #teacher-detail, #personal-shit").html("");
         $("#margin-details").fadeIn();
         if (IDType == "class") {
@@ -190,10 +191,12 @@ $(document).ready(() => {
         $("#search-dropdown span").remove();
         init();
     });
+    $(window).resize(applyScrolling);
 });
 
 function init() {
-    progress(0);
+    progress(10);
+    $("#timetable tbody").html("");
     fetch(`/resources/${currTime}`).then(response => {
         return response.json();
     }).then(classes => {
@@ -211,7 +214,6 @@ function init() {
 }
 
 function loadClass() {
-    $("#timetable tbody").html("");
     progress(40);
     fetch(`/period-from-time/${currTime}`)
     .then(r => r.json())
@@ -284,18 +286,26 @@ function loadClass() {
                             lengthName = "double";
                         }
                         $(".time-row").last().append(`
-                            <td rowspan=${lLength} class="timetable-entry" data="${day + ";" + i}"><div class="sc_cont ${lengthName}"><div class="scroller">${lessons}</div></div></td>
+                            <td rowspan=${lLength} class="timetable-entry" data="${day + ";" + i}"><div class="sc_cont ${lengthName}"><div class="scroller">${lessons}<div class="addScroller"></div></div></div></td>
                         `);
                     }
-                    let scrollerEl = $(".time-row .scroller").last();
-                    if (scrollerEl.height() > scrollerEl.parent().height() && !$(".time-row .scroller").last().hasClass("scrolling")) {
-                        scrollerEl.addClass("scrolling");
-                        scrollerEl.last().html(scrollerEl.html() + scrollerEl.html());
-                    }
                 }
+                applyScrolling();
             }
             progress(100);
         });
+    });
+}
+
+function applyScrolling() {
+    $(".time-row .scroller").each(function(index) {
+        let scrollerEl = $(this);
+        scrollerEl.removeClass("scrolling");
+        scrollerEl.children().last().html("");
+        if (scrollerEl.height() > scrollerEl.parent().height()) {
+            scrollerEl.addClass("scrolling");
+            scrollerEl.children().last().html(scrollerEl.html());
+        }
     });
 }
 
