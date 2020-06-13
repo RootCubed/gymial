@@ -51,8 +51,8 @@ let weekOffset = 0;
 // You're a sneaky one... please don't use this function too much, as it makes a lot of requests to the server. Thanks!
 async function getAllDetailsOfEveryone() {
     let finalData = [];
-    let allClasses = await fetch(`/getAllClasses/72`);
-    let aCJson = await allClasses.json();
+    let allClasses = await fetch(`/getIDs/72`);
+    let aCJson = await allClasses.json().data.classes;
     for (let cl of aCJson) {
         let clList = await fetch(`/getClass/${cl.classId}`);
         let cJson = await clList.json();

@@ -223,14 +223,6 @@ app.get("/getPicture/:id", function (req, res) {
     });
 });
 
-app.get("/getClassNumPeople/:className", function (req, res) {
-    nodeFetch("https://www.kzo.ch/fileadmin/scripts/personen/klassenliste_ajax_include.php?klasse=" + req.params.className)
-    .then(res => res.text())
-    .then(body => {
-        res.end(body.match(/Anzahl Sch&uuml;lerInnen: \d+/)[0].slice(-2));
-    });
-});
-
 app.get("/getIDs/:time", function (req, res) {
     console.log("period", getPeriod(req.params.time));
     let body = {
@@ -256,26 +248,6 @@ app.get("/getName/:id", function (req, res) {
     };
     getShit("/kzo/list/get-person-name", body).then((r) => {
         res.send(r);
-    });
-});
-
-app.get("/getAllStudents/:period", function (req, res) {
-    let body = {
-        "periodId": req.params.period,
-        "method": "POST"
-    };
-    getShit("/kzo/timetable/ajax-get-resources/", body).then(r => {
-        res.send([...JSON.parse(r).data.students]);
-    });
-});
-
-app.get("/getAllClasses/:period", function (req, res) {
-    let body = {
-        "periodId": req.params.period,
-        "method": "POST"
-    };
-    getShit("/kzo/timetable/ajax-get-resources/", body).then(r => {
-        res.send(JSON.parse(r).data.classes);
     });
 });
 
