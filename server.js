@@ -12,7 +12,7 @@ let headers = {
     "Accept": "application/json, text/javascript, */*; q=0.01",
     "Origin": "https://intranet.tam.ch",
     "X-Requested-With": "XMLHttpRequest",
-    "Accept-language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7,ja;q=0.6",
+    "Accept-language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7",
     "User-Agent": "Node.js application",
     "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
     "Host": "intranet.tam.ch",
@@ -195,21 +195,30 @@ function getPeriod(time) {
     return currPeriod;
 }
 
-app.get("/getTimetable/:type/:id/:time", function (req, res) {
+app.get("/timetable/:type/:id/:time", function (req, res) {
     let body = {
         "startDate": req.params.time,
         "endDate": parseInt(req.params.time) + 4 * 24 * 60 * 60 * 1000,
         "holidaysOnly": 0,
         "method": "POST"
     };
-    // TODO: make sure that no bad things can happen here
+    switch (req.params.type) {
+        case "class":
+        case "teacher":
+        case "student":
+        case "room":
+            break;
+        default:
+            res.status(400).end();
+            return;
+    }
     body[req.params.type + "Id[]"] = req.params.id;
     getShit("/kzo/timetable/ajax-get-timetable", body).then(r => {
         res.send(JSON.parse(r).data);
     });
 });
 
-app.get("/getPicture/:id", function (req, res) {
+app.get("/picture/:id", function (req, res) {
     let body = {
         "person": req.params.id,
         "method": "POST"
@@ -223,7 +232,7 @@ app.get("/getPicture/:id", function (req, res) {
     });
 });
 
-app.get("/getIDs/:time", function (req, res) {
+app.get("/resources/:time", function (req, res) {
     console.log("period", getPeriod(req.params.time));
     let body = {
         "periodId": getPeriod(req.params.time),
@@ -251,7 +260,7 @@ app.get("/getName/:id", function (req, res) {
     });
 });
 
-app.get("/getClass/:classID", function (req, res) {
+app.get("/class-personal-details/:classID", function (req, res) {
     let body = {
         "method": "GET"
     };
@@ -262,7 +271,7 @@ app.get("/getClass/:classID", function (req, res) {
     });
 });
 
-app.get("/periodID/:time", function (req, res) {
+app.get("/period-from-time/:time", function (req, res) {
     res.end(getPeriod(req.params.time).toString());
 });
 

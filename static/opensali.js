@@ -51,10 +51,10 @@ let weekOffset = 0;
 // You're a sneaky one... please don't use this function too much, as it makes a lot of requests to the server. Thanks!
 async function getAllDetailsOfEveryone() {
     let finalData = [];
-    let allClasses = await fetch(`/getIDs/72`);
+    let allClasses = await fetch(`/resources/72`);
     let aCJson = await allClasses.json().data.classes;
     for (let cl of aCJson) {
-        let clList = await fetch(`/getClass/${cl.classId}`);
+        let clList = await fetch(`/class-personal-details/${cl.classId}`);
         let cJson = await clList.json();
         finalData.push(...cJson.data);
     }
@@ -143,29 +143,29 @@ $(document).ready(() => {
         $("#overlay-lesson-tabs, #room-detail, #teacher-detail, #personal-shit").html("");
         $("#margin-details").fadeIn();
         if (IDType == "class") {
-            fetch(`/getClass/${classID}`)
+            fetch(`/class-personal-details/${classID}`)
             .then(response => response.json())
             .then(res => {
                 for (let student of res.data) {
-                    let img = new Image();
-                    img.src = "/getPicture/" + student.PersonID;
-                    img.onload = () => {
-                        $(`#sdPic${student.PersonID}`).attr("src", "/getPicture/" + student.PersonID);
-                    };
                     $("#personal-shit").append(
                         `<div class="student"><img id="sdPic${student.PersonID}" src="spinner.svg"><p class="studentName">${student.Vorname} ${student.Nachname}</p></div>`
                     );
+                    let img = new Image();
+                    img.src = "/picture/" + student.PersonID;
+                    img.onload = () => {
+                        $(`#sdPic${student.PersonID}`).attr("src", "/picture/" + student.PersonID);
+                    };
                 }
             });
         } else {
-            let img = new Image();
-            img.src = "/getPicture/" + classID;
-            img.onload = () => {
-                $(`#sdPic${classID}`).attr("src", "/getPicture/" + classID);
-            };
             $("#personal-shit").append(
                 `<div class="student"><img id="sdPic${classID}" src="spinner.svg"><p class="studentName">${$("#current-class").text()}</p></div>`
             );
+            let img = new Image();
+            img.src = "/picture/" + classID;
+            img.onload = () => {
+                $(`#sdPic${classID}`).attr("src", "/picture/" + classID);
+            };
         }
     });
     $(document).on("click", ".searchResult", el => {
@@ -194,7 +194,7 @@ $(document).ready(() => {
 
 function init() {
     progress(0);
-    fetch(`/getIDs/${currTime}`).then(response => {
+    fetch(`/resources/${currTime}`).then(response => {
         return response.json();
     }).then(classes => {
         progress(20);
@@ -213,7 +213,7 @@ function init() {
 function loadClass() {
     $("#timetable tbody").html("");
     progress(40);
-    fetch(`/periodID/${currTime}`)
+    fetch(`/period-from-time/${currTime}`)
     .then(r => r.json())
     .then(perID => {
         if (parseInt(perID) >= 73) {
@@ -228,7 +228,7 @@ function loadClass() {
             init();
             return;
         }
-        fetch(`/getTimetable/${IDType}/${classID}/${currTime}`).then(response => {
+        fetch(`/timetable/${IDType}/${classID}/${currTime}`).then(response => {
             progress(50);
             return response.json();
         }).then(json => {
@@ -304,9 +304,9 @@ function setLessonData(lesson) {
     $("#personal-shit").html("<img>");
     $("#personal-shit img").attr("src", "spinner.svg");
     let img = new Image();
-    img.src = "/getPicture/" + lesson.tId;
+    img.src = "/picture/" + lesson.tId;
     img.onload = () => {
-        $("#personal-shit img").addClass("teacher").attr("src", "/getPicture/" + lesson.tId);
+        $("#personal-shit img").addClass("teacher").attr("src", "/picture/" + lesson.tId);
     }
 }
 
