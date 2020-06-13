@@ -210,6 +210,33 @@ app.get("/getIDs/:time", function (req, res) {
                     "classLevel": "2",
                     "occupied": 0
                 },
+                {
+                    "classId": 2454,
+                    "className": "N 3b",
+                    "classShort": "N 3b",
+                    "classCommonName": "N2020b",
+                    "periodId": 73,
+                    "classLevel": "3",
+                    "occupied": 0
+                },
+                {
+                    "classId": 2457,
+                    "className": "W 3b",
+                    "classShort": "W 3b",
+                    "classCommonName": "W2020b",
+                    "periodId": 73,
+                    "classLevel": "3",
+                    "occupied": 0
+                },
+                {
+                    "classId": 2458,
+                    "className": "N 3c",
+                    "classShort": "N 3c",
+                    "classCommonName": "N2020c",
+                    "periodId": 73,
+                    "classLevel": "3",
+                    "occupied": 0
+                },
                 ...JSON.parse(r).data.teachers, ...JSON.parse(r).data.students, ...JSON.parse(r).data.rooms
             ]);
         } else {
