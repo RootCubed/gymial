@@ -4,9 +4,12 @@ const express = require("express");
 const app = express();
 const nodeFetch = require("node-fetch");
 const cors = require("cors");
-var crypto = require("crypto");
+const crypto = require("crypto");
+const compression = require('compression')
 
 app.use(cors());
+app.use(compression());
+app.use(express.static("static"));
 
 let headers = {
     "Connection": "keep-alive",
@@ -314,5 +317,4 @@ app.get("/period-from-time/:time", function (req, res) {
     res.end(getPeriod(req.params.time).toString());
 });
 
-app.use(express.static("static"));
 app.listen(PORT, () => console.log("Web server is up and running on port " + PORT));

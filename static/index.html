@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="style.css">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="Description" content="OpenSali, der open-source KZO Stundenplan.">
     <title>OpenSali</title>
 </head>
 <body onload="init();">
@@ -21,7 +22,7 @@
                     <line x1="2" y1="25" x2="28" y2="25" style="stroke:rgb(255,255,255); stroke-width:2"></line>
                 </svg>
             </span>
-            <span id="current-class">C5c</span>
+            <h1 id="current-class">C5c</h1>
             <span id="week-forward" class="buttonSpan">
                 <svg width="30" height="30">
                     <line x1="28" y1="15" x2="15" y2="5" style="stroke:rgb(255,255,255); stroke-width:2"></line>
@@ -45,7 +46,10 @@
         </div>
         <div id="sidebar">
             <div id="search-dropdown" class="dropdown-content">
-                <input id="classSelect" placeholder="Suche" onkeyup="filterObjects()"/>
+                <label>
+                    <span aria-hidden="false" style="display: none;">Suche nach Klasse, Raum oder Person</span>
+                    <input id="classSelect" placeholder="Suche" onkeyup="filterObjects()"/>
+                </label>
                 <div id="search-results"></div>
             </div>
             <span id="link-timetable" class="sidebar-link active">Stundenplan</span>
@@ -76,11 +80,15 @@
         <div id="login-window-content">
             <span class="icon-x"></span>
             <form action="/auth" method="POST">
-                <label for="login-user">Name (vorname.nachname)</label>
-                <input id="login-user" name="user" type="text" placeholder="Name" required>
+                <label>
+                    Name (vorname.nachname)
+                    <input id="login-user" name="user" type="text" placeholder="Name" required>
+                </label>
 
-                <label for="login-pw">Passwort für das Intranet</label>
-                <input id="login-pw" name="pass" type="password" placeholder="Passwort" required>
+                <label>
+                    Passwort für das Intranet
+                    <input id="login-pw" name="pass" type="password" placeholder="Passwort" required>
+                </label>
 
                 <button id="login-submit">Einloggen</button>
             </form>
