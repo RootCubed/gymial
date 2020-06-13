@@ -189,6 +189,15 @@ app.get("/getIDs/:time", function (req, res) {
                     "occupied": 0
                 },
                 {
+                    "classId": 2493,
+                    "className": "M 6b",
+                    "classShort": "M 6b",
+                    "classCommonName": "M2017b",
+                    "periodId": 73,
+                    "classLevel": "6",
+                    "occupied": 0
+                },
+                {
                     "classId": 2461,
                     "className": "U 2c",
                     "classShort": "U 2c",
@@ -240,7 +249,7 @@ app.get("/getClass/:classID", function (req, res) {
         "method": "GET"
     };
     let period = 72;
-    if (req.params.classID > 2450) period = 73;
+    if (req.params.classID >= 2438) period = 73;
     getShit("/kzo/list/getlist/list/12/id/" + req.params.classID + "/period/" + period, body).then(r => {
         res.send(r);
     });
