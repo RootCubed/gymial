@@ -49,6 +49,81 @@ const periods = [
     }
 ];
 
+const tmpClassesP73 = [
+    {
+        "classId": 2497,
+        "className": "C 6c"
+    },
+    {
+        "classId": 2488,
+        "className": "A 6"
+    },
+    {
+        "classId": 2489,
+        "className": "M 6a"
+    },
+    {
+        "classId": 2493,
+        "className": "M 6b"
+    },
+    {
+        "classId": 2447,
+        "className": "A 3"
+    },
+    {
+        "classId": 2448,
+        "className": "M 3"
+    },
+    {
+        "classId": 2449,
+        "className": "C 3a"
+    },
+    {
+        "classId": 2450,
+        "className": "C 3b"
+    },
+    {
+        "classId": 2451,
+        "className": "C 3c"
+    },
+    {
+        "classId": 2452,
+        "className": "CM3"
+    },
+    {
+        "classId": 2453,
+        "className": "N 3a"
+    },
+    {
+        "classId": 2454,
+        "className": "N 3b"
+    },
+    {
+        "classId": 2456,
+        "className": "W 3a"
+    },
+    {
+        "classId": 2457,
+        "className": "W 3b"
+    },
+    {
+        "classId": 2458,
+        "className": "N 3c"
+    },
+    {
+        "classId": 2459,
+        "className": "U 2a"
+    },
+    {
+        "classId": 2460,
+        "className": "U 2b"
+    },
+    {
+        "classId": 2461,
+        "className": "U 2c"
+    },
+];
+
 function login() {
     return new Promise((resolve) => {
         let body = {
@@ -165,78 +240,7 @@ app.get("/getIDs/:time", function (req, res) {
     getShit("/kzo/timetable/ajax-get-resources/", body).then(r => {
         if (getPeriod(req.params.time) == 73) { // temporary hack until everything works
             res.send([
-                {
-                    "classId": 2497,
-                    "className": "C 6c",
-                    "classShort": "C 6c",
-                    "classCommonName": "C2017c",
-                    "periodId": 73,
-                    "classLevel": "6",
-                    "occupied": 0
-                },
-                {
-                    "classId": 2488,
-                    "className": "A 6",
-                    "classShort": "A 6",
-                    "classCommonName": "A2017",
-                    "periodId": 73,
-                    "classLevel": "6",
-                    "occupied": 0
-                },
-                {
-                    "classId": 2489,
-                    "className": "M 6a",
-                    "classShort": "M 6a",
-                    "classCommonName": "M2017a",
-                    "periodId": 73,
-                    "classLevel": "6",
-                    "occupied": 0
-                },
-                {
-                    "classId": 2493,
-                    "className": "M 6b",
-                    "classShort": "M 6b",
-                    "classCommonName": "M2017b",
-                    "periodId": 73,
-                    "classLevel": "6",
-                    "occupied": 0
-                },
-                {
-                    "classId": 2461,
-                    "className": "U 2c",
-                    "classShort": "U 2c",
-                    "classCommonName": "U2018c",
-                    "periodId": 73,
-                    "classLevel": "2",
-                    "occupied": 0
-                },
-                {
-                    "classId": 2454,
-                    "className": "N 3b",
-                    "classShort": "N 3b",
-                    "classCommonName": "N2020b",
-                    "periodId": 73,
-                    "classLevel": "3",
-                    "occupied": 0
-                },
-                {
-                    "classId": 2457,
-                    "className": "W 3b",
-                    "classShort": "W 3b",
-                    "classCommonName": "W2020b",
-                    "periodId": 73,
-                    "classLevel": "3",
-                    "occupied": 0
-                },
-                {
-                    "classId": 2458,
-                    "className": "N 3c",
-                    "classShort": "N 3c",
-                    "classCommonName": "N2020c",
-                    "periodId": 73,
-                    "classLevel": "3",
-                    "occupied": 0
-                },
+                ...tmpClassesP73,
                 ...JSON.parse(r).data.teachers, ...JSON.parse(r).data.students, ...JSON.parse(r).data.rooms
             ]);
         } else {
