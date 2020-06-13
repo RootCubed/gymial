@@ -181,6 +181,9 @@ $(document).ready(() => {
             case 's':
                 IDType = "student";
                 break;
+            case 'r':
+                IDType = "room";
+                break;
         }
         classID = parseInt(classID.substr(1));
         $("#classSelect").val("");
@@ -423,6 +426,8 @@ function filterObjects() {
     let t = classList.filter(val => {
         if (val.className) {
             return val.className.toLowerCase().replace(' ', '').includes(input);
+        } else if (val.room) {
+            return val.room.toLowerCase().includes(input);
         } else {
             return val.name.toLowerCase().includes(input);
         }
@@ -430,8 +435,10 @@ function filterObjects() {
     for (let found of t) {
         if (found.classId) {
             $("#search-results").append(`<span class="searchResult" data="c${found.classId}">${found.className.replace(' ', '')}</span>`);
-        } else if (found.teacherId) {
+        } else if (found.acronym) {
             $("#search-results").append(`<span class="searchResult" data="t${found.personId}">${found.name.replace(/\(.+?\)/, '')}</span>`);
+        } else if (found.room) {
+            $("#search-results").append(`<span class="searchResult" data="r${found.roomId}">${found.room}</span>`);
         } else {
             $("#search-results").append(`<span class="searchResult" data="s${found.personId}">${found.name.replace(/\(.+?\)/, '')}</span>`);
         }

@@ -127,6 +127,7 @@ app.get("/getTimetable/:type/:id/:time", function (req, res) {
         "holidaysOnly": 0,
         "method": "POST"
     };
+    // TODO: make sure that no bad things can happen here
     body[req.params.type + "Id[]"] = req.params.id;
     getShit("/kzo/timetable/ajax-get-timetable", body).then(r => {
         res.send(JSON.parse(r).data);
@@ -209,10 +210,10 @@ app.get("/getIDs/:time", function (req, res) {
                     "classLevel": "2",
                     "occupied": 0
                 },
-                ...JSON.parse(r).data.teachers, ...JSON.parse(r).data.students
+                ...JSON.parse(r).data.teachers, ...JSON.parse(r).data.students, ...JSON.parse(r).data.rooms
             ]);
         } else {
-            res.send([...JSON.parse(r).data.classes, ...JSON.parse(r).data.teachers, ...JSON.parse(r).data.students]);
+            res.send([...JSON.parse(r).data.classes, ...JSON.parse(r).data.teachers, ...JSON.parse(r).data.students, ...JSON.parse(r).data.rooms]);
         }
     });
 });
