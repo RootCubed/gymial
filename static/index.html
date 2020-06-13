@@ -75,12 +75,12 @@
     <div id="login-window" class="overlay-window">
         <div id="login-window-content">
             <span class="icon-x"></span>
-            <form>
+            <form action="/auth" method="POST">
                 <label for="login-user">Name (vorname.nachname)</label>
-                <input id="login-user" type="text" placeholder="Name" required>
+                <input id="login-user" name="user" type="text" placeholder="Name" required>
 
                 <label for="login-pw">Passwort für das Intranet</label>
-                <input id="login-pw" type="password" placeholder="Passwort" required>
+                <input id="login-pw" name="pass" type="password" placeholder="Passwort" required>
 
                 <button id="login-submit">Einloggen</button>
             </form>

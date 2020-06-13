@@ -4,6 +4,7 @@ const express = require("express");
 const app = express();
 const nodeFetch = require("node-fetch");
 const cors = require("cors");
+var crypto = require("crypto");
 
 app.use(cors());
 
@@ -124,27 +125,32 @@ const tmpClassesP73 = [
     },
 ];
 
-function login() {
+function generateAPIKey() {
+    return crypto.randomBytes(16).toString("hex");
+}
+
+function login(username, password) {
     return new Promise((resolve) => {
         let body = {
-            loginuser: process.env.user,
-            loginpassword: process.env.password,
+            loginuser: username,
+            loginpassword: password,
             loginschool: "kzo"
         };
     
         options.path = "/kzo";
+
+        let optWithoutCookies = options;
+        optWithoutCookies.headers["Cookie"] = null;
     
-        let req = https.request(options, res => {
+        let req = https.request(optWithoutCookies, res => {
             let setCookies = res.headers["set-cookie"];
+            let sturmsession;
             if (setCookies) {
                 for (let c of setCookies) {
-                    let sturmsession = c.match(/sturmsession=[0-9a-z]+/);
-                    if (sturmsession != null) {
-                        headers["Cookie"] = "username=liam.braun; school=kzo; sturmuser=liam.braun; " + sturmsession;
-                    }
+                    sturmsession = c.match(/sturmsession=[0-9a-z]+/);
                 }
             }
-            resolve();
+            resolve(sturmsession);
         });
     
         req.write(querystring.stringify(body));
@@ -165,7 +171,10 @@ function getShit(endpoint, body) {
             res.on("end", function() {
                 if (str[0] === "<" || str.length == 0) { // invalid session
                     console.log("logging in...");
-                    login().then(() => {
+                    login(process.env.user, process.env.password).then((sessionToken) => {
+                        if (sessionToken != null) {
+                            headers["Cookie"] = "username=liam.braun; school=kzo; sturmuser=liam.braun; " + sessionToken;
+                        }
                         nodeFetch("https://intranet.tam.ch/kzo", {headers: headers}).then(r => r.text()).then(r => {
                             token = r.match(/csrfToken='([0-z]+)/)[1];
                             getShit(endpoint, body).then(r => {
@@ -184,6 +193,14 @@ function getShit(endpoint, body) {
     });
 }
 
+let apiTokens = {};
+
+async function verifyAuthentication(username, password) {
+    let token = await login(username, password);
+    console.log(token);
+    return !!(token);
+}
+
 function getPeriod(time) {
     let currPeriod;
     for (period of periods) {
@@ -194,6 +211,28 @@ function getPeriod(time) {
     }
     return currPeriod;
 }
+
+app.post("/auth", function (req, res) {
+    var body = "";
+    req.on("data", chunk => {
+        body += chunk.toString();
+    });
+    req.on("end", () => {
+        let bodySplitted = body.split('&');
+        let bodyJSON = {};
+        for (let arg of bodySplitted) {
+            bodyJSON[arg.split('=')[0]] = arg.split('=')[1];
+        }
+        verifyAuthentication(bodyJSON.user, bodyJSON.pass).then(r => {
+            if (r) {
+                apiTokens[bodyJSON.user] = generateAPIKey();
+                res.send(apiTokens[bodyJSON.user]).end();
+                return;
+            }
+            res.status(401).end();
+        });
+    });
+});
 
 app.get("/timetable/:type/:id/:time", function (req, res) {
     let body = {
