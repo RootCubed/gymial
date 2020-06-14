@@ -8,6 +8,7 @@ const URLS_CACHE = [
     "/opensali.js",
     "/manifest.webmanifest",
     "/apple-touch-icon.png",
+    "/logo_512.png",
     "/favicon.ico"
 ];
 
