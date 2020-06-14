@@ -7,6 +7,14 @@ const cors = require("cors");
 const crypto = require("crypto");
 const compression = require("compression");
 
+app.use((req, res, next) => {
+    if (req.header("x-forwarded-proto") !== "https" && req.hostname !== "localhost") {
+        res.redirect(301, `https://${req.header("host")}${req.url}`);
+    } else {
+        next();
+    }
+});
+
 app.use(cors());
 app.use(compression());
 app.use(express.static("static"));
@@ -214,14 +222,6 @@ function getPeriod(time) {
     }
     return currPeriod;
 }
-
-app.use((req, res, next) => {
-    if (req.header("x-forwarded-proto") !== "https" && req.hostname !== "localhost") {
-        res.redirect(`https://${req.header("host")}${req.url}`);
-    } else {
-        next();
-    }
-});
 
 app.post("/auth", function (req, res) {
     var body = "";
