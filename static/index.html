@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=0.7">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="jquery-3.4.1.min.js"></script>
-    <script src="opensali.js"></script>
+    <script defer src="jquery-3.4.1.min.js"></script>
+    <script defer src="opensali.js"></script>
     <link rel="stylesheet" href="style.css">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -47,7 +47,7 @@
         <div id="sidebar">
             <div id="search-dropdown" class="dropdown-content">
                 <label>
-                    <span aria-hidden="false" style="display: none;">Suche nach Klasse, Raum oder Person</span>
+                    <span aria-label="Search" style="display: none;">Suche nach Klasse, Raum oder Person</span>
                     <input id="classSelect" placeholder="Suche" onkeyup="filterObjects()"/>
                 </label>
                 <div id="search-results"></div>
@@ -55,12 +55,14 @@
             <span id="link-timetable" class="sidebar-link active">Stundenplan</span>
             <span id="link-account" class="sidebar-link">Mein Account</span>
             <div id="sidebar-bottom">
-                <a class="sidebar-link bottom" href="https://discord.gg/wM4Wsts" target="_blank">Entwicklungs-Discord-Server</a>
-                <a class="sidebar-link bottom" href="https://github.com/LetsPlentendo-CH/opensali" target="_blank">OpenSali auf GitHub</a>
+                <a class="sidebar-link bottom" href="https://discord.gg/wM4Wsts" rel="noopener" target="_blank">Entwicklungs-Discord-Server</a>
+                <a class="sidebar-link bottom" href="https://github.com/LetsPlentendo-CH/opensali" rel="noopener" target="_blank">OpenSali auf GitHub</a>
             </div>
         </div>
         <table id="timetable">
-            <tbody></tbody>
+            <tbody>
+                <noscript>JavaScript wird für diese Website benötigt. Bitte aktiviere es</noscript>
+            </tbody>
         </table>
     </div>
     <div id="margin-details" class="overlay-window">

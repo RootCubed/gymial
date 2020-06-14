@@ -290,8 +290,8 @@ function loadClass() {
                         `);
                     }
                 }
-                applyScrolling();
             }
+            applyScrolling();
             progress(100);
         });
     });
