@@ -215,13 +215,13 @@ function getPeriod(time) {
     return currPeriod;
 }
 
-app.get("*", (req, res, next) => {
+/*app.get("*", (req, res, next) => {
     if (req.protocol.headers["x-forwarded-proto"] != "https" || req.hostname == "localhost") {
         next();
     } else {
         res.redirect("https://" + req.headers.host + req.url);
     }
-});
+});*/
 
 app.post("/auth", function (req, res) {
     var body = "";
