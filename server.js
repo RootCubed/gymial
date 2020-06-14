@@ -215,6 +215,7 @@ function getPeriod(time) {
     return currPeriod;
 }
 
+app.enable("trust proxy");
 app.use((req, res, next) => {
     if (req.secure || req.hostname == "localhost") {
         next();
