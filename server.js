@@ -215,12 +215,11 @@ function getPeriod(time) {
     return currPeriod;
 }
 
-app.enable("trust proxy");
 app.use((req, res, next) => {
-    if (req.secure || req.hostname == "localhost") {
-        next();
+    if (req.header("x-forwarded-proto") !== "https" && req.hostname !== "localhost") {
+        res.redirect(`https://${req.header("host")}${req.url}`);
     } else {
-        res.redirect("https://" + req.headers.host + req.url);
+        next();
     }
 });
 
