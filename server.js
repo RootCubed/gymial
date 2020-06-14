@@ -5,7 +5,8 @@ const app = express();
 const nodeFetch = require("node-fetch");
 const cors = require("cors");
 const crypto = require("crypto");
-const compression = require('compression')
+const compression = require("compression");
+const sslRedirect = require("heroku-ssl-redirect");
 
 app.use(cors());
 app.use(compression());
@@ -215,13 +216,7 @@ function getPeriod(time) {
     return currPeriod;
 }
 
-app.use((req, res, next) => {
-    if (req.protocol == "https" || req.hostname == "localhost") {
-        next();
-    } else {
-        res.redirect("https://" + req.headers.host + req.url);
-    }
-});
+app.use(sslRedirect());
 
 app.post("/auth", function (req, res) {
     var body = "";
