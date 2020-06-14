@@ -8,7 +8,7 @@ const crypto = require("crypto");
 const compression = require("compression");
 
 app.use((req, res, next) => {
-    if (req.header("x-forwarded-proto") !== "https" && req.hostname !== "localhost") {
+    if (req.header("x-forwarded-proto") !== "https" && req.hostname !== "localhost" && !req.hostname.includes("192.168")) {
         res.redirect(301, `https://${req.header("host")}${req.url}`);
     } else {
         next();

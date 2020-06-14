@@ -213,6 +213,7 @@ span.entry-title {
 }
 
 #details-overlay {
+    position: relative;
     width: 100%;
     height: 100%;
     background-color: #222222f8;
@@ -225,7 +226,9 @@ span.entry-title {
     color: #fff;
     font-weight: 300;
     font-size: xx-large;
-    float: right;
+    position: absolute;
+    right: 0;
+    z-index: 2;
     margin: 10px;
     cursor: pointer;
 }
@@ -317,14 +320,15 @@ img.teacher {
     display: none;
     position: fixed;
     width: 80%;
-    height: 80%;
+    height: 60%;
     top: 0;
     left: 0;
-    padding: 10vh 10vw;
+    padding: 20vh 10vw;
     z-index: 2;
 }
 
 #login-window-content {
+    position: relative;
     width: 100%;
     height: 100%;
     background-color: #222222f8;
@@ -340,8 +344,17 @@ form {
     height: calc(100% - 40px);
 }
 
+@media only screen and (max-width: 600px) {
+    form button {
+        font-size: 20px;
+    }
+    form input {
+        font-size: 20px;
+    }
+}
+
 label {
-    padding: 12px 12px 12px 0;
+    padding: 12px 0px 12px 0;
     display: inline-block;
 }
 
@@ -353,12 +366,12 @@ input[type=text], input[type=password] {
 }
 
 form button {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin: 0 auto;
     padding: 12px;
+    background-color: #dddddd;
+    border-radius: 0;
+    display: block;
+    margin: 20px auto;
+    -webkit-appearance: none;
 }
 
 @keyframes scroll {

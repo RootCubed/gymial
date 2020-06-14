@@ -197,6 +197,24 @@ $(document).ready(() => {
         $("#search-dropdown span").remove();
         init();
     });
+
+    // logging in
+    $("#login-form").on("submit", ev => {
+        ev.preventDefault();
+        fetch("/auth", {
+            method: "post",
+            body: `user=${$("#login-user").val()}&pass=${$("#login-pw").val()}`
+        }).then(token => {
+            console.log(token);
+        }).catch(err => {
+            if (res.status == 401) {
+                // Unsuccessful authentication
+
+            }
+        });
+        return false;
+    });
+
     $(window).resize(applyScrolling);
 
     // web worker
