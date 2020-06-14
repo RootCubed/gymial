@@ -215,6 +215,14 @@ function getPeriod(time) {
     return currPeriod;
 }
 
+app.use((req, res, next) => {
+    if (req.secure || req.hostname == "localhost") {
+        next();
+    } else {
+        res.redirect("https://" + req.headers.host + req.url);
+    }
+});
+
 app.post("/auth", function (req, res) {
     var body = "";
     req.on("data", chunk => {
