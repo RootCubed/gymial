@@ -215,9 +215,8 @@ function getPeriod(time) {
     return currPeriod;
 }
 
-app.enable("trust proxy");
 app.use((req, res, next) => {
-    if (req.secure || req.hostname == "localhost") {
+    if (req.protocol == "https" || req.hostname == "localhost") {
         next();
     } else {
         res.redirect("https://" + req.headers.host + req.url);
