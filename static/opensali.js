@@ -112,6 +112,8 @@ $(document).ready(() => {
     $("#link-account").on("click", () => {
         $("#login-window").fadeIn();
     });
+
+    // swiping for side panel
     let swipeStartX = 0;
     let swipeStartY = 0;
     document.addEventListener("touchstart", event => {
@@ -139,6 +141,8 @@ $(document).ready(() => {
             $(event.target).parent().parent().fadeOut();
         }
     });
+
+    // clicking on class name
     $("#current-class").on("click", () => {
         if ($("#margin-details").is(":visible")) return;
         $("#overlay-lesson-tabs, #room-detail, #teacher-detail, #personal-shit").html("");
@@ -169,6 +173,8 @@ $(document).ready(() => {
             };
         }
     });
+
+    // clicking on search result
     $(document).on("click", ".searchResult", el => {
         $("#current-class").text(el.target.innerText);
         classID = el.target.getAttribute("data");
@@ -192,6 +198,13 @@ $(document).ready(() => {
         init();
     });
     $(window).resize(applyScrolling);
+
+    // web worker
+    if (navigator.serviceWorker) {
+        navigator.serviceWorker.register("service-worker.js");
+    }
+
+    init();
 });
 
 function init() {
@@ -201,6 +214,12 @@ function init() {
         return response.json();
     }).then(classes => {
         progress(20);
+        if (classes.offline) {
+            $("#current-class").text("Offline");
+            progress(0);
+            return;
+        }
+        classes = classes.data;
         let oldClassList = classList;
         classList = classes;
         if (oldClassList[0]) {

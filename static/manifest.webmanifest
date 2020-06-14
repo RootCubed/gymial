@@ -1,0 +1,15 @@
+{
+    "short_name": "OpenSali",
+    "name": "OpenSali - der open-source KZO-Stundenplan",
+    "icons": [
+        {
+            "src": "/apple-touch-icon.png",
+            "type": "image/png",
+            "sizes": "256x256"
+        }
+    ],
+    "start_url": "/",
+    "background_color": "#333",
+    "theme_color": "#333",
+    "display": "standalone"
+}
