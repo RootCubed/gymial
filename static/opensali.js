@@ -48,6 +48,10 @@ let classList = [];
 
 let weekOffset = 0;
 
+let currentView = 0;
+const VIEW_NAMES = ["Stundenplan", "Mein Account"];
+let timetableViewClassName = "C5c";
+
 // You're a sneaky one... please don't use this function too much, as it makes a lot of requests to the server. Thanks!
 async function getAllDetailsOfEveryone() {
     let finalData = [];
@@ -200,19 +204,58 @@ $(document).ready(() => {
 
     // logging in
     $("#login-form").on("submit", ev => {
+        $("#invalid-login").hide();
+        $("#login-submit").hide();
+        $("#button-spinner img").show();
         ev.preventDefault();
         fetch("/auth", {
             method: "post",
             body: `user=${$("#login-user").val()}&pass=${$("#login-pw").val()}`
-        }).then(token => {
-            console.log(token);
-        }).catch(err => {
+        }).then(res => {
             if (res.status == 401) {
                 // Unsuccessful authentication
-
+                $("#invalid-login").show();
+                $("#login-submit").show();
+                $("#button-spinner img").hide();
+                return;
             }
+            return res.text();
+        }).then(token => {
+            if (!token) return;
+            Cookies.set("username", $("#login-user").val());
+            Cookies.set("apiToken", token);
+            $("#login-form").hide();
+            $("#accountinfo").show();
+            $("#ownName").text("Hallo, " + $("#login-user").val());
         });
         return false;
+    });
+
+    // sidebar link
+    $(".sidebar-link").click(el => {
+
+        switch(el.target.innerText) {
+            case VIEW_NAMES[0]:
+                $("#current-class").text(timetableViewClassName);
+                $("#timetable").removeClass();
+                $("#timetable").addClass("scrollTimetable");
+                $("#link-timetable").addClass("active");
+                $("#link-account").removeClass("active");
+                currentView = 0;
+                break;
+            case VIEW_NAMES[1]:
+                timetableViewClassName = $("#current-class").text();
+                $("#current-class").text("Mein Account");
+                $("#timetable").removeClass();
+                $("#timetable").addClass("scrollLogin");
+                $("#link-timetable").removeClass("active");
+                $("#link-account").addClass("active");
+                currentView = 1;
+                break;
+        }
+        $("#mainWindow").delay(500).removeClass("toRight");
+        $("#sidebar").delay(500).removeClass("visible");
+        return;
     });
 
     $(window).resize(applyScrolling);

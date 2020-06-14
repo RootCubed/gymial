@@ -12,6 +12,7 @@ body {
 
 #scrollLimiter {
     overflow: hidden;
+    background-color: #333;
 }
 
 #selection {
@@ -55,6 +56,9 @@ body {
     width: 100%;
     table-layout: fixed;
     border-spacing: 4px;
+    transition-property: margin-top;
+    transition-duration: 0.5s;
+    height: calc(100vh - 70px);
 }
 
 .class-col {
@@ -92,6 +96,7 @@ body {
     text-align: center;
     cursor: pointer;
     color: #a0c8ff;
+    transition: background-color 0.5s, color 0.5s;
 }
 
 .sidebar-link.active {
@@ -316,32 +321,14 @@ img.teacher {
     margin-right: 10px;
 }
 
-#login-window {
-    display: none;
-    position: fixed;
-    width: 80%;
-    height: 60%;
-    top: 0;
-    left: 0;
-    padding: 20vh 10vw;
-    z-index: 2;
-}
-
-#login-window-content {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    background-color: #222222f8;
-    border-radius: 5px;
-    overflow: auto;
-}
-
 form {
     margin: 20px;
     display: block;
     color: white;
     position: relative;
     height: calc(100% - 40px);
+    max-width: 50vw;
+    margin: 20px auto;
 }
 
 @media only screen and (max-width: 600px) {
@@ -365,13 +352,56 @@ input[type=text], input[type=password] {
     box-sizing: border-box;
 }
 
-form button {
+#button-spinner {
+    text-align: center;
+}
+
+#button-spinner img {
+    margin: 20px auto;
     padding: 12px;
-    background-color: #dddddd;
-    border-radius: 0;
     display: block;
+    width: 60px;
+}
+
+form button {
     margin: 20px auto;
     -webkit-appearance: none;
+    background-color: #dddddd;
+    border-radius: 0;
+    padding: 12px;
+    display: block;
+}
+
+#panels {
+    position: absolute;
+    z-index: -1;
+    margin-top: 0;
+    max-height: calc(100vh - 70px);
+    overflow: hidden;
+}
+
+#timetable.scrollTimetable {
+    margin-top: 0;
+}
+
+#timetable.scrollLogin {
+    margin-top: calc(-100vh + 70px);
+}
+
+#invalid-login {
+    color: #ff4b4b;
+}
+
+#login-window {
+    display: none;
+    padding: 20vh 10vw;
+    background-color: #222222;
+    height: calc(60vh - 70px);
+}
+
+#accountinfo {
+    color: white;
+    text-align: center;
 }
 
 @keyframes scroll {

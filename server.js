@@ -141,6 +141,7 @@ function generateAPIKey() {
 }
 
 function login(username, password) {
+    console.log("ok");
     return new Promise((resolve) => {
         let body = {
             loginuser: username,
@@ -148,12 +149,12 @@ function login(username, password) {
             loginschool: "kzo"
         };
     
-        options.path = "/kzo";
+        options.path = "/kzo/";
 
-        let optWithoutCookies = options;
-        optWithoutCookies.headers["Cookie"] = null;
+        let tmpOptions = JSON.parse(JSON.stringify(options));
+        tmpOptions.headers["Cookie"] = null;
     
-        let req = https.request(optWithoutCookies, res => {
+        let req = https.request(tmpOptions, res => {
             let setCookies = res.headers["set-cookie"];
             let sturmsession;
             if (setCookies) {
@@ -223,6 +224,19 @@ function getPeriod(time) {
     return currPeriod;
 }
 
+function isAuthorized(cookie) {
+    let splitCookie = cookie.replace(' ', '').split(";");
+    let cookies = {};
+    for (let value of splitCookie) {
+        if (value.split('=').length == 2) {
+            cookies[value.split('=')[0]] = value.split('=')[1];
+        }
+    }
+    console.log(apiTokens);
+    console.log(cookies);
+    return (cookies.username && cookies.apiToken && apiTokens[cookies.username] == cookies.apiToken);
+}
+
 app.post("/auth", function (req, res) {
     var body = "";
     req.on("data", chunk => {
@@ -269,6 +283,10 @@ app.get("/timetable/:type/:id/:time", function (req, res) {
 });
 
 app.get("/picture/:id", function (req, res) {
+    if (!isAuthorized(req.headers.cookie)) {
+        res.status(401).end();
+        return;
+    }
     let body = {
         "person": req.params.id,
         "method": "POST"
