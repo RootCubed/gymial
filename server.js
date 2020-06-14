@@ -216,7 +216,7 @@ function getPeriod(time) {
 }
 
 app.get("*", (req, res, next) => {
-    if (req.protocol == "https" || req.hostname == "localhost") {
+    if (req.protocol.headers["x-forwarded-proto"] != "https" || req.hostname == "localhost") {
         next();
     } else {
         res.redirect("https://" + req.headers.host + req.url);
