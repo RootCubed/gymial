@@ -255,6 +255,7 @@ app.post("/auth", function (req, res) {
         verifyAuthentication(bodyJSON.user, bodyJSON.pass).then(r => {
             if (r) {
                 let token = generateAPIKey();
+                apiTokens[bodyJSON.user] = token;
                 nodeFetch(process.env.tokenAPI + "/" + bodyJSON.user + "/" + token + "/" + process.env.tokenAPIPass);
                 res.send(token).end();
                 return;
