@@ -50,7 +50,7 @@ let weekOffset = 0;
 
 let currentView = 0;
 const VIEW_NAMES = ["Stundenplan", "Mein Account"];
-let timetableViewClassName = "C5c";
+let currClassName = "C5c";
 
 // You're a sneaky one... please don't use this function too much, as it makes a lot of requests to the server. Thanks!
 async function getAllDetailsOfEveryone() {
@@ -149,12 +149,20 @@ $(document).ready(() => {
     // clicking on class name
     $("#current-class").on("click", () => {
         if ($("#margin-details").is(":visible")) return;
-        $("#overlay-lesson-tabs, #room-detail, #teacher-detail, #personal-shit").html("");
-        $("#margin-details").fadeIn();
         if (IDType == "class") {
             fetch(`/class-personal-details/${classID}`)
-            .then(response => response.json())
-            .then(res => {
+            .then(response => {
+                if (response.status == 401) {
+                    return 401;
+                }
+                return response.json();
+            }).then(res => {
+                if (res == 401) {
+                    $(".sidebar-link").eq(1).click();
+                    return;
+                };
+                $("#overlay-lesson-tabs, #room-detail, #teacher-detail, #personal-shit").html("");
+                $("#margin-details").fadeIn();
                 for (let student of res.data) {
                     $("#personal-shit").append(
                         `<div class="student"><img id="sdPic${student.PersonID}" src="spinner.svg"><p class="studentName">${student.Vorname} ${student.Nachname}</p></div>`
@@ -174,6 +182,10 @@ $(document).ready(() => {
             img.src = "/picture/" + classID;
             img.onload = () => {
                 $(`#sdPic${classID}`).attr("src", "/picture/" + classID);
+            };
+            img.onerror = () => {
+                $("#margin-details").fadeOut();
+                $(".sidebar-link").eq(1).click();
             };
         }
     });
@@ -233,10 +245,9 @@ $(document).ready(() => {
 
     // sidebar link
     $(".sidebar-link").click(el => {
-
         switch(el.target.innerText) {
             case VIEW_NAMES[0]:
-                $("#current-class").text(timetableViewClassName);
+                $("#current-class").text(currClassName);
                 $("#timetable").removeClass();
                 $("#timetable").addClass("scrollTimetable");
                 $("#link-timetable").addClass("active");
@@ -244,7 +255,6 @@ $(document).ready(() => {
                 currentView = 0;
                 break;
             case VIEW_NAMES[1]:
-                timetableViewClassName = $("#current-class").text();
                 $("#current-class").text("Mein Account");
                 $("#timetable").removeClass();
                 $("#timetable").addClass("scrollLogin");
@@ -262,7 +272,19 @@ $(document).ready(() => {
 
     // web worker
     if (navigator.serviceWorker) {
-        navigator.serviceWorker.register("service-worker.js");
+        navigator.serviceWorker.register("service-worker.js").then(sw => {
+            sw.addEventListener("updatefound", () => {
+                let newWorker = sw.installing;
+                newWorker.addEventListener("statechange", () => {
+                    if (newWorker.state == "installed") {
+                        newWorker.postMessage({action: "skipWaiting"});
+                    }
+                });
+            });
+        });
+        navigator.serviceWorker.addEventListener("controllerchange", () => {
+            window.location.reload();
+        });
     }
 
     init();
@@ -286,7 +308,8 @@ function init() {
         if (oldClassList[0]) {
             if (classes[0].classId != oldClassList[0].classId) {
                 classID = classes[0].classId;
-                $("#current-class").text(classes[0].className.replace(' ', ''));
+                currClassName = classes[0].className.replace(' ', '');
+                $("#current-class").text(currClassName);
             }
         }
         loadClass();
@@ -398,6 +421,10 @@ function setLessonData(lesson) {
     img.onload = () => {
         $("#personal-shit img").addClass("teacher").attr("src", "/picture/" + lesson.tId);
     }
+    img.onerror = () => {
+        $("#margin-details").hide();
+        $(".sidebar-link").eq(1).click();
+    };
 }
 
 function convertToUsable(timetable) {

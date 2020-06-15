@@ -325,6 +325,10 @@ app.get("/resources/:time", function (req, res) {
 });
 
 app.get("/getName/:id", function (req, res) {
+    if (!isAuthorized(req.headers.cookie)) {
+        res.status(401).end();
+        return;
+    }
     let body = {
         "id": req.params.id,
         "method": "POST"
@@ -335,6 +339,10 @@ app.get("/getName/:id", function (req, res) {
 });
 
 app.get("/class-personal-details/:classID", function (req, res) {
+    if (!isAuthorized(req.headers.cookie)) {
+        res.status(401).end();
+        return;
+    }
     let body = {
         "method": "GET"
     };

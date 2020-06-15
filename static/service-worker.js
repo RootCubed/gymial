@@ -12,6 +12,13 @@ const URLS_CACHE = [
     "/favicon.ico"
 ];
 
+self.addEventListener("message", function (event) {
+    console.log("msg", event)
+    if (event.data.action == "skipWaiting") {
+        self.skipWaiting();
+    }
+});
+
 self.addEventListener("install", ev => {
     console.log("Install:", ev);
     ev.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(URLS_CACHE)));

@@ -49,10 +49,7 @@
         </div>
         <div id="sidebar">
             <div id="search-dropdown" class="dropdown-content">
-                <label>
-                    <span aria-label="Search" style="display: none;">Suche nach Klasse, Raum oder Person</span>
-                    <input id="classSelect" placeholder="Suche" onkeyup="filterObjects()"/>
-                </label>
+                <input id="classSelect" placeholder="Suche" onkeyup="filterObjects()"/>
                 <div id="search-results"></div>
             </div>
             <span id="link-timetable" class="sidebar-link active">Stundenplan</span>
@@ -70,6 +67,7 @@
             </table>
             <div id="login-window">
                 <form id="login-form" method="post" onsubmit="return false">
+                    <h2 style="text-align: center; margin-bottom: 20px;">Melde dich an, um Klassenlisten zu sehen.</h2>
                     <label id="label-user">Name (vorname.nachname)</label>
                     <input id="login-user" name="user" type="text" placeholder="Name" aria-labelledby="label-user" required>
 
