@@ -46,6 +46,13 @@ let options = {
 
 let token = "";
 
+let apiTokens = {};
+// I am using an external server to store the tokens, since I don't have persistent storage on heroku.
+nodeFetch(process.env.tokenAPI + "/tokens/" + process.env.tokenAPIPass).then(res => res.json()).then(res => {
+    console.log(res);
+    apiTokens = res;
+});
+
 const periods = [
     {
         "period": 73,
@@ -205,8 +212,6 @@ function getShit(endpoint, body) {
     });
 }
 
-let apiTokens = {};
-
 async function verifyAuthentication(username, password) {
     let token = await login(username, password);
     console.log(token);
@@ -233,8 +238,6 @@ function isAuthorized(cookie) {
             cookies[value.split('=')[0]] = value.split('=')[1];
         }
     }
-    console.log(apiTokens);
-    console.log(cookies);
     return (cookies.username && cookies.apiToken && apiTokens[cookies.username] == cookies.apiToken);
 }
 
@@ -251,8 +254,9 @@ app.post("/auth", function (req, res) {
         }
         verifyAuthentication(bodyJSON.user, bodyJSON.pass).then(r => {
             if (r) {
-                apiTokens[bodyJSON.user] = generateAPIKey();
-                res.send(apiTokens[bodyJSON.user]).end();
+                let token = generateAPIKey();
+                nodeFetch(process.env.tokenAPI + "/" + bodyJSON.user + "/" + token + "/" + process.env.tokenAPIPass);
+                res.send(token).end();
                 return;
             }
             res.status(401).end();
