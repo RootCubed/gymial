@@ -42,6 +42,13 @@ let IDType = "class";
 let classID = 2421;
 let currPeriod = 72;
 
+if (Cookies.get("class")) {
+    classID = Cookies.get("class");
+    if (Cookies.get("className")) {
+        $("#current-class").text(Cookies.get("className"));
+    }
+}
+
 let currTime = getFirstDayOfWeek(new Date()).getTime();
 
 let classList = [];
@@ -197,6 +204,8 @@ $(document).ready(() => {
         switch(classID[0]) {
             case 'c':
                 IDType = "class";
+                Cookies.set("class", classID.substr(1));
+                Cookies.set("className", el.target.innerText);
                 break;
             case 't':
                 IDType = "teacher";
@@ -337,6 +346,15 @@ function loadClass() {
             progress(50);
             return response.json();
         }).then(json => {
+            if (IDType == "class") {
+                for (let i = 0; i < classList.length; i++) {
+                    if (!classList[i].classId) break;
+                    if (classList[i].classId == classID) {
+                        currClassName = classList[i].className.replace(' ', '');
+                        $("#current-class").text(currClassName);
+                    }
+                }
+            }
             let mainDiv = $("#timetable tbody");
             mainDiv.html("");
             progress(60);
