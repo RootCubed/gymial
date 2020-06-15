@@ -305,6 +305,7 @@ img.teacher {
 #week-back, #week-forward, #today {
     float: right;
     margin-left: 15px;
+    touch-action: manipulation;
 }
 
 #today::before {
