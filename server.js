@@ -225,6 +225,7 @@ function getPeriod(time) {
 }
 
 function isAuthorized(cookie) {
+    if (!cookie) return false;
     let splitCookie = cookie.replace(' ', '').split(";");
     let cookies = {};
     for (let value of splitCookie) {
