@@ -1,5 +1,5 @@
 // Version string to force reload after update
-// v0.9.2
+// v0.9.3
 
 const CACHE_NAME = "siteCache";
 const URLS_CACHE = [
@@ -26,7 +26,7 @@ self.addEventListener("install", ev => {
 });
 
 self.addEventListener("activate", ev => {
-    
+
 });
 
 self.addEventListener("fetch", ev => {

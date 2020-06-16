@@ -130,7 +130,7 @@ $(document).ready(() => {
         $("#sidebar").toggleClass("visible");
     });
     $("#link-account").on("click", () => {
-        $("#login-window").fadeIn();
+        $("#panel-account").fadeIn();
     });
 
     // swiping for side panel

@@ -58,6 +58,10 @@ body {
     border-spacing: 4px;
     transition-property: margin-top;
     transition-duration: 0.5s;
+}
+
+#panel-timetable {
+    display: block;
     height: calc(100vh - 70px);
 }
 
@@ -398,7 +402,7 @@ form button {
     color: #ff4b4b;
 }
 
-#login-window {
+#panel-account {
     display: none;
     padding: 20vh 10vw;
     background-color: #222222;
