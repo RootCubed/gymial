@@ -371,20 +371,11 @@ app.get("/class-personal-details/:classID", function (req, res) {
     };
     getShit("/kzo/timetable/ajax-get-timetable", body).then(r => {
         let data = JSON.parse(r).data;
-        let classListName = [];
-        let classListIDs = [];
+        let classList = [];
         for (let c of data) {
             if (c.classId.length == 1 && c.student.length > classListName.length) {
-                classListName = c.studentName.split(";");
-                classListIDs = c.studentId;
+                classListName = c.student;
             }
-        }
-        let classList = [];
-        for (let i = 0; i < classListName.length; i++) {
-            classList.push({
-                name: classListName[i],
-                id: classListIDs[i]
-            });
         }
         res.send(classList);
     });
