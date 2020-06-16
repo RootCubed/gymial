@@ -165,7 +165,7 @@ body {
 }
 
 .cancelled {
-    background-color: #da2626;
+    background-color: #ff9c48;
     text-decoration: line-through;
     padding: 10px;
     border-radius: 10px;
