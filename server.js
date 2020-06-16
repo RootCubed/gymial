@@ -353,7 +353,6 @@ app.get("/resources/:time", function (req, res) {
                     ]
                 });
             } else {
-                console.log(r);
                 res.send({
                     "offline": false,
                     "data": [...JSON.parse(r).data.classes, ...JSON.parse(r).data.teachers, ...JSON.parse(r).data.students, ...JSON.parse(r).data.rooms]

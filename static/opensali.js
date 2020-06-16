@@ -478,7 +478,7 @@ function convertToUsable(timetable) {
             cancelled: lesson.timetableEntryTypeId == 11
         };
         if (mLesson.cName == "IU") {
-            if (!mLesson.cNames) continue;
+            if (!mLesson.sNames) continue;
             if (insPersonIds.indexOf(mLesson.sNames[0].studentId) > -1) continue;
             insPersonIds.push(mLesson.sNames[0].studentId);
         }
