@@ -374,7 +374,7 @@ app.get("/class-personal-details/:classID", function (req, res) {
         let classList = [];
         for (let c of data) {
             if (c.classId.length == 1 && c.student.length > classList.length) {
-                classListName = c.student;
+                classList = c.student;
             }
         }
         res.send(classList);

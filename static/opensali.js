@@ -170,14 +170,14 @@ $(document).ready(() => {
                 };
                 $("#overlay-lesson-tabs, #room-detail, #teacher-detail, #personal-shit").html("");
                 $("#margin-details").fadeIn();
-                for (let student of res.data) {
+                for (let student of res) {
                     $("#personal-shit").append(
-                        `<div class="student"><img id="sdPic${student.id}" src="spinner.svg"><p class="studentName">${student.name}</p></div>`
+                        `<div class="student"><img id="sdPic${student.studentId}" src="spinner.svg"><p class="studentName">${student.studentName}</p></div>`
                     );
                     let img = new Image();
-                    img.src = "/picture/" + student.id;
+                    img.src = "/picture/" + student.studentId;
                     img.onload = () => {
-                        $(`#sdPic${student.id}`).attr("src", "/picture/" + student.id);
+                        $(`#sdPic${student.studentId}`).attr("src", "/picture/" + student.studentId);
                     };
                 }
             });
