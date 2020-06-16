@@ -149,6 +149,7 @@ body {
     text-align: center;
     border-radius: 0.5em;
     overflow-y: hidden;
+    overflow-x: hidden;
 }
 
 .timetable-entry:not(.empty):not(.timetable-time) {
@@ -315,6 +316,10 @@ img.teacher {
     position: absolute;
     text-align: center;
     transform: translate(-50%, 0);
+}
+
+.repaint {
+    color: #000;
 }
 
 #open-menu {

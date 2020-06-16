@@ -42,11 +42,20 @@ let IDType = "class";
 let classID = 2421;
 let currPeriod = 72;
 
-if (Cookies.get("class")) {
-    classID = Cookies.get("class");
-    if (Cookies.get("className")) {
-        $("#current-class").text(Cookies.get("className"));
-    }
+if (window.localStorage.getItem("api")) {
+    try {
+        let json = JSON.parse(window.localStorage.getItem("api"));
+        Cookies.set("username",  json.username);
+        Cookies.set("apiToken",  json.token);
+    } catch (e) {}
+}
+
+if (window.localStorage.getItem("class")) {
+    try {
+        let json = JSON.parse(window.localStorage.getItem("class"));
+        classID = json.id;
+        $("#current-class").text(json.name);
+    } catch (e) {}
 }
 
 let currTime = getFirstDayOfWeek(new Date()).getTime();
@@ -101,19 +110,19 @@ $(document).ready(() => {
     $("#week-back").on("click", () => {
         currTime -= DAY * 7;
         weekOffset--;
-        $("#today").attr("data-content", weekOffset);
+        $("#today").attr("data-content", weekOffset).addClass("repaint").removeClass("repaint"); // small hack for WebKit browsers
         loadClass();
     });
     $("#today").on("click", () => {
         currTime = getFirstDayOfWeek(new Date()).getTime();
         weekOffset = 0;
-        $("#today").attr("data-content", weekOffset);
+        $("#today").attr("data-content", weekOffset).addClass("repaint").removeClass("repaint");
         init();
     });
     $("#week-forward").on("click", () => {
         currTime += DAY * 7;
         weekOffset++;
-        $("#today").attr("data-content", weekOffset);
+        $("#today").attr("data-content", weekOffset).addClass("repaint").removeClass("repaint");
         init();
     });
     $("#open-menu").on("click", () => {
@@ -204,8 +213,7 @@ $(document).ready(() => {
         switch(classID[0]) {
             case 'c':
                 IDType = "class";
-                Cookies.set("class", classID.substr(1));
-                Cookies.set("className", el.target.innerText);
+                window.localStorage.setItem("class", JSON.stringify({id: classID.substr(1), name: el.target.innerText}));
                 break;
             case 't':
                 IDType = "teacher";
@@ -243,8 +251,9 @@ $(document).ready(() => {
             return res.text();
         }).then(token => {
             if (!token) return;
-            Cookies.set("username", $("#login-user").val());
-            Cookies.set("apiToken", token);
+            window.localStorage.setItem("api", JSON.stringify({username: $("#login-user").val(), token: token}));
+            Cookies.set("username", $("#login-user").val(), {expires: 60 * 60 * 24 * 30, path: ""});
+            Cookies.set("apiToken", token, {expires: 60 * 60 * 24 * 30, path: ""});
             $("#login-form").hide();
             $("#accountinfo").show();
             $("#ownName").text("Hallo, " + $("#login-user").val());

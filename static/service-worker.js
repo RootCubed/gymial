@@ -1,5 +1,5 @@
 // Version string to force reload after update
-// v0.9.1
+// v0.9.2
 
 const CACHE_NAME = "siteCache";
 const URLS_CACHE = [
@@ -16,23 +16,20 @@ const URLS_CACHE = [
 ];
 
 self.addEventListener("message", function (event) {
-    console.log("msg", event)
     if (event.data.action == "skipWaiting") {
         self.skipWaiting();
     }
 });
 
 self.addEventListener("install", ev => {
-    console.log("Install:", ev);
     ev.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(URLS_CACHE)));
 });
 
 self.addEventListener("activate", ev => {
-    console.log("Activate new:", ev);
+    
 });
 
 self.addEventListener("fetch", ev => {
-    console.log("Fetch handler:", ev);
     if (!navigator.onLine && ev.request.url.includes("resources")) {
         ev.respondWith(new Response(JSON.stringify({
             "offline": true,
