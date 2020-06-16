@@ -373,7 +373,7 @@ app.get("/class-personal-details/:classID", function (req, res) {
         let data = JSON.parse(r).data;
         let classList = [];
         for (let c of data) {
-            if (c.classId.length == 1 && c.student.length > classListName.length) {
+            if (c.classId.length == 1 && c.student.length > classList.length) {
                 classListName = c.student;
             }
         }
