@@ -290,7 +290,7 @@ app.get("/timetable/:type/:id/:time", function (req, res) {
                 "id", "periodId", "start", "end", "lessonDate", "lessonStart", "lessonEnd", "lessonDuration",
                 "timetableEntryTypeId", "timetableEntryType", "timetableEntryTypeLong", "timetableEntryTypeShort",
                 "title", "courseId", "courseName", "course", "subjectName", "classId", "className", "teacherAcronym",
-                "roomId", "roomName"
+                "roomId", "roomName", "teacherId"
             ]
             let basicJSON = new Array(json.length);
             for (let i = 0; i < json.length; i++) {

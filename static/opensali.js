@@ -478,6 +478,7 @@ function convertToUsable(timetable) {
             cancelled: lesson.timetableEntryTypeId == 11
         };
         if (mLesson.cName == "IU") {
+            if (!mLesson.cNames) continue;
             if (insPersonIds.indexOf(mLesson.sNames[0].studentId) > -1) continue;
             insPersonIds.push(mLesson.sNames[0].studentId);
         }
@@ -516,14 +517,16 @@ function convertToUsable(timetable) {
                 if (
                     currLesson.cName != nextLesson.cName ||
                     currLesson.tAcronym != nextLesson.tAcronym ||
-                    currLesson.sNames.length != nextLesson.sNames.length
+                    (currLesson.sNames && currLesson.sNames.length != nextLesson.sNames.length)
                 ) {
                     lessonsAreEqual = false;
                     break;
                 }
-                for (let i = 0; i < currLesson.sNames.length; i++) {
-                    if (currLesson.sNames[i].studentId != nextLesson.sNames[i].studentId) {
-                        lessonsAreEqual = false;
+                if (currLesson.sNames) {
+                    for (let i = 0; i < currLesson.sNames.length; i++) {
+                        if (currLesson.sNames[i].studentId != nextLesson.sNames[i].studentId) {
+                            lessonsAreEqual = false;
+                        }
                     }
                 }
             }
