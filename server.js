@@ -284,7 +284,25 @@ app.get("/timetable/:type/:id/:time", function (req, res) {
     }
     body[req.params.type + "Id[]"] = req.params.id;
     getShit("/kzo/timetable/ajax-get-timetable", body).then(r => {
-        res.send(JSON.parse(r).data);
+        if (!isAuthorized(req.headers.cookie)) {
+            let json = JSON.parse(r).data;
+            const propsToKeep = [
+                "id", "periodId", "start", "end", "lessonDate", "lessonStart", "lessonEnd", "lessonDuration",
+                "timetableEntryTypeId", "timetableEntryType", "timetableEntryTypeLong", "timetableEntryTypeShort",
+                "title", "courseId", "courseName", "course", "subjectName", "classId", "className", "teacherAcronym",
+                "roomId", "roomName"
+            ]
+            let basicJSON = new Array(json.length);
+            for (let i = 0; i < json.length; i++) {
+                basicJSON[i] = {};
+                for (let p of propsToKeep) {
+                    basicJSON[i][p] = json[i][p];
+                }
+            }
+            res.send(basicJSON);
+        } else {
+            res.send(JSON.parse(r).data);
+        }
     });
 });
 
@@ -313,19 +331,33 @@ app.get("/resources/:time", function (req, res) {
         "method": "POST"
     };
     getShit("/kzo/timetable/ajax-get-resources/", body).then(r => {
-        if (getPeriod(req.params.time) == 73) { // temporary hack until everything works
-            res.send({
-                "offline": false,
-                "data": [
-                    ...tmpClassesP73,
-                    ...JSON.parse(r).data.teachers, ...JSON.parse(r).data.students, ...JSON.parse(r).data.rooms
-                ]
-            });
+        if (!isAuthorized(req.headers.cookie)) {
+            if (getPeriod(req.params.time) == 73) { // temporary hack until everything works
+                res.send({
+                    "offline": false,
+                    "data": tmpClassesP73
+                });
+            } else {
+                res.send({
+                    "offline": false,
+                    "data": JSON.parse(r).data.classes
+                });
+            }
         } else {
-            res.send({
-                "offline": false,
-                "data": [...JSON.parse(r).data.classes, ...JSON.parse(r).data.teachers, ...JSON.parse(r).data.students, ...JSON.parse(r).data.rooms]
-            });
+            if (getPeriod(req.params.time) == 73) { // temporary hack until everything works
+                res.send({
+                    "offline": false,
+                    "data": [
+                        ...tmpClassesP73,
+                        ...JSON.parse(r).data.teachers, ...JSON.parse(r).data.students, ...JSON.parse(r).data.rooms
+                    ]
+                });
+            } else {
+                res.send({
+                    "offline": false,
+                    "data": [...JSON.parse(r).data.classes, ...JSON.parse(r).data.teachers, ...JSON.parse(r).data.students, ...JSON.parse(r).data.rooms]
+                });
+            }
         }
     });
 });
@@ -384,5 +416,26 @@ app.get("/class-personal-details/:classID", function (req, res) {
 app.get("/period-from-time/:time", function (req, res) {
     res.end(getPeriod(req.params.time).toString());
 });
+
+let mensaPlanUrl;
+
+app.get("/mensa", function (req, res) {
+    if (mensaPlanUrl) {
+        res.send(mensaPlanUrl).end();
+        return;
+    }
+    res.status(404).end();
+});
+
+updateMensaCache();
+setInterval(updateMensaCache, 1000 * 60 * 60);
+
+function updateMensaCache() {
+    nodeFetch("https://kzo.sv-restaurant.ch/de/menuplan/")
+    .then(r => r.text())
+    .then(html => {
+        mensaPlanUrl = "https://kzo.sv-restaurant.ch/" + html.match(/\/uploads\/.+.pdf/)[0];
+    });
+}
 
 app.listen(PORT, () => console.log("Web server is up and running on port " + PORT));
