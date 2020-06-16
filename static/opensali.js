@@ -172,12 +172,12 @@ $(document).ready(() => {
                 $("#margin-details").fadeIn();
                 for (let student of res.data) {
                     $("#personal-shit").append(
-                        `<div class="student"><img id="sdPic${student.PersonID}" src="spinner.svg"><p class="studentName">${student.Vorname} ${student.Nachname}</p></div>`
+                        `<div class="student"><img id="sdPic${student.id}" src="spinner.svg"><p class="studentName">${student.name}</p></div>`
                     );
                     let img = new Image();
-                    img.src = "/picture/" + student.PersonID;
+                    img.src = "/picture/" + student.id;
                     img.onload = () => {
-                        $(`#sdPic${student.PersonID}`).attr("src", "/picture/" + student.PersonID);
+                        $(`#sdPic${student.id}`).attr("src", "/picture/" + student.id);
                     };
                 }
             });

@@ -349,6 +349,8 @@ app.get("/class-personal-details/:classID", function (req, res) {
         res.status(401).end();
         return;
     }
+    /*
+    (Taken down in the mean time)
     let body = {
         "method": "GET"
     };
@@ -356,6 +358,35 @@ app.get("/class-personal-details/:classID", function (req, res) {
     if (req.params.classID >= 2438) period = 73;
     getShit("/kzo/list/getlist/list/12/id/" + req.params.classID + "/period/" + period, body).then(r => {
         res.send(r);
+    });
+    */
+    let startTime = periods[1].startTime;
+    if (req.params.classID >= 2438) startTime = periods[0].startTime;
+    let body = {
+        "startDate": startTime,
+        "endDate": startTime + 4 * 24 * 60 * 60 * 1000,
+        "holidaysOnly": 0,
+        "method": "POST",
+        "classId[]": req.params.classID
+    };
+    getShit("/kzo/timetable/ajax-get-timetable", body).then(r => {
+        let data = JSON.parse(r).data;
+        let classListName = [];
+        let classListIDs = [];
+        for (let c of data) {
+            if (c.classId.length == 1 && c.student.length > classListName.length) {
+                classListName = c.studentName.split(";");
+                classListIDs = c.studentId;
+            }
+        }
+        let classList = [];
+        for (let i = 0; i < classListName.length; i++) {
+            classList.push({
+                name: classListName[i],
+                id: classListIDs[i]
+            });
+        }
+        res.send(classList);
     });
 });
 
