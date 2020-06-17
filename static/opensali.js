@@ -28,6 +28,8 @@ const timesPost73 = [
 ];
 const shortTimesPost73 = [730, 825, 920, 1035, 1140, 1235, 1340, 1445, 1540, 1635, 1720];
 
+const NEXT_SEM_START = 1597615200000;
+
 let times = timesPre73;
 let shortTimes = shortTimesPre73;
 
@@ -69,8 +71,9 @@ let currClassName = "C5c";
 async function getAllDetailsOfEveryone() {
     let finalData = [];
     let allClasses = await fetch(`/resources/72`);
-    let aCJson = await allClasses.json().data.classes;
+    let aCJson = await allClasses.json();
     for (let cl of aCJson) {
+        if (!cl.classId) break;
         let clList = await fetch(`/class-personal-details/${cl.classId}`);
         let cJson = await clList.json();
         finalData.push(...cJson.data);
@@ -121,6 +124,16 @@ $(document).ready(() => {
         weekOffset++;
         $("#today").attr("data-content", weekOffset).addClass("repaint").removeClass("repaint");
         init();
+    });
+    $("#forward-next-sem").on("click", () => {
+        currTime = NEXT_SEM_START;
+        let now = getFirstDayOfWeek(new Date()).getTime();
+        weekOffset = Math.floor((NEXT_SEM_START - now) / (DAY * 7));
+        $("#today").attr("data-content", weekOffset).addClass("repaint").removeClass("repaint");
+        init();
+    });
+    $("#backward-next-sem").on("click", () => {
+        $("#today").click();
     });
     $("#open-menu").on("click", () => {
         $("#mainWindow").toggleClass("toRight");
@@ -210,7 +223,9 @@ $(document).ready(() => {
         switch(classID[0]) {
             case 'c':
                 IDType = "class";
-                window.localStorage.setItem("class", JSON.stringify({id: classID.substr(1), name: el.target.innerText}));
+                if (currTime < NEXT_SEM_START) {
+                    window.localStorage.setItem("class", JSON.stringify({id: classID.substr(1), name: el.target.innerText}));
+                }
                 break;
             case 't':
                 IDType = "teacher";
@@ -249,8 +264,8 @@ $(document).ready(() => {
         }).then(token => {
             if (!token) return;
             window.localStorage.setItem("api", JSON.stringify({username: $("#login-user").val(), token: token}));
-            Cookies.set("username", $("#login-user").val(), {expires: 60 * 60 * 24 * 30, path: ""});
-            Cookies.set("apiToken", token, {expires: 60 * 60 * 24 * 30, path: ""});
+            Cookies.set("username", $("#login-user").val(), {expires: 30, path: ""});
+            Cookies.set("apiToken", token, {expires: 30, path: ""});
             $("#login-form").hide();
             $("#accountinfo").show();
             $("#ownName").text("Hallo, " + $("#login-user").val());
@@ -309,6 +324,7 @@ $(document).ready(() => {
 
 function init() {
     progress(10);
+    enableDisableSemButton();
     $("#timetable tbody").html("");
     fetch(`/resources/${currTime}`).then(response => {
         return response.json();
@@ -324,10 +340,24 @@ function init() {
         classList = classes;
         if (oldClassList[0]) {
             if (classes[0].classId != oldClassList[0].classId) {
-                classID = classes[0].classId;
-                IDType = "class";
-                currClassName = classes[0].className.replace(' ', '');
-                $("#current-class").text(currClassName);
+                if (window.localStorage.getItem("class")) {
+                    try {
+                        let json = JSON.parse(window.localStorage.getItem("class"));
+                        if (classID == json.id) throw "localStorage is from this semester";
+                        classID = json.id;
+                        $("#current-class").text(json.name);
+                    } catch (e) {
+                        classID = classes[0].classId;
+                        IDType = "class";
+                        currClassName = classes[0].className.replace(' ', '');
+                        $("#current-class").text(currClassName);
+                    }
+                } else {
+                    classID = classes[0].classId;
+                    IDType = "class";
+                    currClassName = classes[0].className.replace(' ', '');
+                    $("#current-class").text(currClassName);
+                }
             }
         }
         loadClass();
@@ -440,6 +470,16 @@ function applyScrolling() {
             scrollerEl.children().last().html(scrollerEl.html());
         }
     });
+}
+
+function enableDisableSemButton() {
+    if (currTime >= NEXT_SEM_START) {
+        $("#forward-next-sem").hide();
+        $("#backward-next-sem").show();
+    } else {
+        $("#forward-next-sem").show();
+        $("#backward-next-sem").hide();
+    }
 }
 
 function setLessonData(lesson) {

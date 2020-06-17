@@ -221,7 +221,7 @@ async function verifyAuthentication(username, password) {
 function getPeriod(time) {
     let currPeriod;
     for (period of periods) {
-        if (time > period.startTime) {
+        if (time >= period.startTime) {
             currPeriod = period.period;
             break;
         }
