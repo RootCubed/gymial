@@ -108,7 +108,7 @@ $(document).ready(() => {
         currTime -= DAY * 7;
         weekOffset--;
         $("#today").attr("data-content", weekOffset).addClass("repaint").removeClass("repaint"); // small hack for WebKit browsers
-        loadClass();
+        init();
     });
     $("#today").on("click", () => {
         currTime = getFirstDayOfWeek(new Date()).getTime();
@@ -254,7 +254,7 @@ $(document).ready(() => {
             $("#login-form").hide();
             $("#accountinfo").show();
             $("#ownName").text("Hallo, " + $("#login-user").val());
-            loadClass();
+            init();
             $("#link-timetable").click();
         });
         return false;
