@@ -325,6 +325,7 @@ function init() {
         if (oldClassList[0]) {
             if (classes[0].classId != oldClassList[0].classId) {
                 classID = classes[0].classId;
+                IDType = "class";
                 currClassName = classes[0].className.replace(' ', '');
                 $("#current-class").text(currClassName);
             }
