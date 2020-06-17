@@ -58,6 +58,7 @@ body {
     border-spacing: 4px;
     transition-property: margin-top;
     transition-duration: 0.5s;
+    line-height: 1;
 }
 
 #panel-timetable {
@@ -134,18 +135,33 @@ body {
 }
 
 .sc_cont {
+    height: calc((100vh - 150px) / 11);
     display: flex;
     align-items: center;
     justify-content: center;
-    height: calc((100vh - 160px) / 11);
 }
 
-.double {
-    height: calc(2 * (100vh - 160px) / 11);
+.timetable-lesson-times {
+    height: calc((100vh - 150px) / 11);
 }
 
 .scroller {
     text-align: center;
+}
+
+.scroller-container {
+    height: calc((100vh - 150px) / 11 + 4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.scroller-container.double {
+    height: calc(2 * (100vh - 150px) / 11 + 8px);
+}
+
+.scroller-container.triple {
+    height: calc(3 * (100vh - 150px) / 11 + 12px);
 }
 
 .timetable-entry {
@@ -183,6 +199,8 @@ body {
 
 .timetable-entry span {
     margin-right: 4px;
+    display: inline-block;
+    line-height: 1.5;
 }
 
 .timetable-time {

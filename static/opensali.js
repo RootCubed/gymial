@@ -33,9 +33,6 @@ let shortTimes = shortTimesPre73;
 
 const DAY = 24 * 60 * 60 * 1000;
 
-const FULL_LESSON = 1;
-const DOUBLE_LESSON = 2;
-
 let rawData, timetableData;
 
 let IDType = "class";
@@ -257,6 +254,8 @@ $(document).ready(() => {
             $("#login-form").hide();
             $("#accountinfo").show();
             $("#ownName").text("Hallo, " + $("#login-user").val());
+            loadClass();
+            $("#link-timetable").click();
         });
         return false;
     });
@@ -377,7 +376,7 @@ function loadClass() {
             for (let i = 0; i < times.length; i++) {
                 let timeRows = times[i];
                 mainDiv.append(
-                    `<tr class="time-row"><td class="timetable-entry timetable-time">${timeRows}</td></tr>`
+                    `<tr class="time-row"><td class="timetable-entry timetable-time timetable-lesson-times">${timeRows}</td></tr>`
                 );
                 for (let day in timetableData) {
                     let lessons = "";
@@ -415,8 +414,11 @@ function loadClass() {
                         if (lLength == 2) {
                             lengthName = "double";
                         }
+                        if (lLength == 3) {
+                            lengthName = "triple";
+                        }
                         $(".time-row").last().append(`
-                            <td rowspan=${lLength} class="timetable-entry" data="${day + ";" + i}"><div class="sc_cont ${lengthName}"><div class="scroller">${lessons}<div class="addScroller"></div></div></div></td>
+                            <td rowspan=${lLength} class="timetable-entry" data="${day + ";" + i}"><div class="sc_cont"><div class="scroller-container ${lengthName}"><div class="scroller">${lessons}<div class="addScroller"></div></div></div></div></td>
                         `);
                     }
                 }
@@ -471,7 +473,7 @@ function convertToUsable(timetable) {
             tFull: lesson.teacherFullName,
             room: lesson.roomName,
             sNames: lesson.student,
-            lessonLength: FULL_LESSON,
+            lessonLength: 1,
             hideForMultiple: false,
             fullDay: lesson.isAllDay,
             special: lesson.timetableEntryTypeId == 15,
@@ -503,40 +505,47 @@ function convertToUsable(timetable) {
     }
     // third pass of data, find double lessons
     for (let day in result) {
-        for (let i = 0; i < result[day].length - 1; i++) { // skip last lesson of day
-            let lessons = result[day][i];
-            
-            if (lessons.length == 0) continue;
-            if (lessons.length != result[day][i + 1].length) continue;
+        let currRef = undefined;
+        let lessonLength = 1;
 
-            let lessonsAreEqual = true;
+        for (let i = 0; i <= result[day].length; i++) {
+            if (currRef != 0 && !currRef) currRef = -1;
 
-            for (let j = 0; j < lessons.length; j++) {
-                let currLesson = result[day][i][j];
-                let nextLesson = result[day][i + 1][j];
-                if (
-                    currLesson.cName != nextLesson.cName ||
-                    currLesson.tAcronym != nextLesson.tAcronym ||
-                    (currLesson.sNames && currLesson.sNames.length != nextLesson.sNames.length)
-                ) {
-                    lessonsAreEqual = false;
-                    break;
-                }
-                if (currLesson.sNames) {
-                    for (let i = 0; i < currLesson.sNames.length; i++) {
-                        if (currLesson.sNames[i].studentId != nextLesson.sNames[i].studentId) {
-                            lessonsAreEqual = false;
-                        }
+            let compLesson = result[day][currRef];
+            let currLesson = result[day][i];
+
+            if (areLessonsIdentical(currLesson, compLesson)) {
+                lessonLength++;
+            } else {
+                if (result[day][currRef] && result[day][currRef].length > 0) {
+                    result[day][currRef][0].lessonLength = lessonLength;
+                    for (let cLes = currRef + 1; cLes < currRef + lessonLength; cLes++) {
+                        result[day][cLes][0].hideForMultiple = true;
                     }
                 }
-            }
-            if (lessonsAreEqual) {
-                result[day][i][0].lessonLength = DOUBLE_LESSON;
-                result[day][i + 1][0].hideForMultiple = true;
+                currRef = i;
+                lessonLength = 1;
             }
         }
     }
     return result;
+}
+
+function areLessonsIdentical(les1, les2) {
+    if (!les1 || !les2) return false;
+    if (les1.length != les2.length) return false;
+    for (let j = 0; j < les1.length; j++) {
+        let les1Entries = les1[j];
+        let les2Entries = les2[j];
+        if (
+            les1Entries.cName != les2Entries.cName ||
+            les1Entries.tAcronym != les2Entries.tAcronym ||
+            (les1Entries.sNames && les2Entries.sNames && les1Entries.sNames.length != les2Entries.sNames.length)
+        ) {
+            return false;
+        }
+    }
+    return true;
 }
 
 function dateToObjectKey(date) {
