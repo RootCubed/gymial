@@ -199,8 +199,6 @@ body {
 
 .timetable-entry span {
     margin-right: 4px;
-    display: inline-block;
-    line-height: 1.5;
 }
 
 .timetable-time {
@@ -227,6 +225,7 @@ body {
 
 span.entry-title {
     font-weight: bold;
+    display: inline-block;
 }
 
 #margin-details {
