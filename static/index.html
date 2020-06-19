@@ -43,7 +43,7 @@
                 </svg>
             </span>
             <span id="today" class="buttonSpan">
-                <img src="calendar.svg" alt="Calendar icon">
+                <img width="30px" src="calendar.svg" alt="Calendar icon">
             </span>
             <span id="week-back" class="buttonSpan">
                 <svg width="30" height="30">
@@ -67,6 +67,7 @@
         </div>
         <div id="sidebar">
             <div id="search-dropdown" class="dropdown-content">
+                <label for="classSelect" class="visuallyhidden">Suche nach Klasse, Raum oder Person</label>
                 <input id="classSelect" placeholder="Suche" onkeyup="filterObjects()"/>
                 <div id="search-results"></div>
             </div>
@@ -79,9 +80,9 @@
         </div>
         <div id="panels">
             <div id="panel-timetable">
+                <noscript>JavaScript wird für diese Website benötigt. Bitte aktiviere es</noscript>
                 <table id="timetable">
                     <tbody>
-                        <noscript>JavaScript wird für diese Website benötigt. Bitte aktiviere es</noscript>
                     </tbody>
                 </table>
             </div>
@@ -92,17 +93,15 @@
                     <input id="login-user" name="user" type="text" placeholder="Name" aria-labelledby="label-user" required>
 
                     <label id="label-pw">Passwort für das Intranet</label>
-                    <input id="login-pw" name="pass" type="password" placeholder="Passwort" aria-labelledby="label-pw" required>
+                    <input id="login-pw" name="pass" type="password" placeholder="Passwort" aria-labelledby="label-pw" autocomplete="current-password" required>
 
                     <div id="button-spinner">
                         <span id="invalid-login" style="display: none;">Ungültiges Login!</span>
-                        <img src="spinner.svg" alt="Loading spinner" style="display: none;">
+                        <img width="40px" src="spinner.svg" alt="Loading spinner" style="display: none;">
                         <button id="login-submit">Einloggen</button>
                     </div>
                 </form>
                 <div id="accountinfo" style="display: none;">
-                    <img>
-                    <br>
                     <span id="ownName"></span>
                 </div>
             </div>
@@ -116,7 +115,7 @@
                 <p id="room-detail"></p>
                 <p id="teacher-detail"></p>
                 <div id="personal-shit">
-                    <img src="spinner.svg" alt="Loading spinner">
+                    <img width="40px" src="spinner.svg" alt="Loading spinner">
                 </div>
             </div>
         </div>
