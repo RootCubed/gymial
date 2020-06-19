@@ -148,7 +148,6 @@ function generateAPIKey() {
 }
 
 function login(username, password) {
-    console.log("ok");
     return new Promise((resolve) => {
         let body = {
             loginuser: username,
@@ -214,7 +213,6 @@ function getShit(endpoint, body) {
 
 async function verifyAuthentication(username, password) {
     let token = await login(username, password);
-    console.log(token);
     return !!(token);
 }
 
@@ -238,7 +236,12 @@ function isAuthorized(cookie) {
             cookies[value.split('=')[0]] = value.split('=')[1];
         }
     }
+    cookies.username = toStandardFormat(cookies.username);
     return (cookies.username && cookies.apiToken && apiTokens[cookies.username] == cookies.apiToken);
+}
+
+function toStandardFormat (token) {
+    return token.toLowerCase().replace(/\@studmail.kzo.ch/g, "");
 }
 
 app.post("/auth", function (req, res) {
@@ -252,16 +255,19 @@ app.post("/auth", function (req, res) {
         for (let arg of bodySplitted) {
             bodyJSON[arg.split('=')[0]] = arg.split('=')[1];
         }
-        verifyAuthentication(bodyJSON.user, bodyJSON.pass).then(r => {
-            if (r) {
-                let token = generateAPIKey();
-                apiTokens[bodyJSON.user] = token;
-                nodeFetch(process.env.tokenAPI + "/" + bodyJSON.user + "/" + token + "/" + process.env.tokenAPIPass);
-                res.send(token).end();
-                return;
-            }
-            res.status(401).end();
-        });
+        if (bodyJSON.user && bodyJSON.pass) {
+            bodyJSON.user = toStandardFormat(bodyJSON.user);
+            verifyAuthentication(bodyJSON.user, bodyJSON.pass).then(r => {
+                if (r) {
+                    let token = generateAPIKey();
+                    apiTokens[bodyJSON.user] = token;
+                    nodeFetch(process.env.tokenAPI + "/" + bodyJSON.user + "/" + token + "/" + process.env.tokenAPIPass);
+                    res.send(token).end();
+                    return;
+                }
+                res.status(401).end();
+            });
+        }
     });
 });
 

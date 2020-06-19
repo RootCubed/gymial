@@ -249,6 +249,7 @@ $(document).ready(() => {
         $("#login-submit").hide();
         $("#button-spinner img").show();
         ev.preventDefault();
+        $("#login-user").val($("#login-user").val().toLowerCase().replace(/\@studmail.kzo.ch/g, ""));
         fetch("/auth", {
             method: "post",
             body: `user=${$("#login-user").val()}&pass=${$("#login-pw").val()}`
