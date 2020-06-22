@@ -321,7 +321,6 @@ app.get("/course-participants/:id", function (req, res) {
             res.status(401).end();
             return;
         } else {
-            console.log(JSON.parse(r).data.map(el => el.Name + ", " + el.Vorname));
             res.send(JSON.parse(r).data.map(el => {
                 return {
                     "name": el.Name + ", " + el.Vorname,
