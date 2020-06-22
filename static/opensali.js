@@ -67,21 +67,6 @@ let currentView = 0;
 const VIEW_NAMES = ["Stundenplan", "Mein Account"];
 let currClassName = "C5c";
 
-// You're a sneaky one... please don't use this function too much, as it makes a lot of requests to the server. Thanks!
-async function getAllDetailsOfEveryone() {
-    let finalData = [];
-    let allClasses = await fetch(`/resources/72`);
-    let aCJson = await allClasses.json();
-    for (let cl of aCJson) {
-        if (!cl.classId) break;
-        let clList = await fetch(`/class-personal-details/${cl.classId}`);
-        let cJson = await clList.json();
-        finalData.push(...cJson.data);
-    }
-    console.log("Here you go ;) Use it responsibly.");
-    console.log(finalData);
-}
-
 $(document).ready(() => {
     $("#today").attr("data-content", weekOffset);
     $(document).on("click", ".timetable-entry:not(.empty):not(.timetable-time)", (el) => {
@@ -201,7 +186,8 @@ $(document).ready(() => {
                 }
             });
         } else {
-            $("#personal-shit").append(
+            $("#margin-details").fadeIn();
+            $("#personal-shit").html(
                 `<div class="student"><img id="sdPic${classID}" src="spinner.svg"><p class="studentName">${$("#current-class").text()}</p></div>`
             );
             let img = new Image();
@@ -241,6 +227,15 @@ $(document).ready(() => {
         $("#classSelect").val("");
         $("#search-dropdown span").remove();
         init();
+    });
+
+    // person click in lesson view
+    $(document).on("click", ".person-link", el => {
+        IDType = "student";
+        classID = parseInt(el.target.getAttribute("data"));
+        $("#current-class").text(el.target.innerText);
+        init();
+        $("#margin-details").fadeOut();
     });
 
     // logging in
@@ -340,7 +335,7 @@ function init() {
         let oldClassList = classList;
         classList = classes;
         if (oldClassList[0]) {
-            if (classes[0].classId != oldClassList[0].classId) {
+            if (IDType == "class" && classes[0].classId != oldClassList[0].classId) {
                 if (window.localStorage.getItem("class")) {
                     try {
                         let json = JSON.parse(window.localStorage.getItem("class"));
@@ -394,6 +389,9 @@ function loadClass() {
                         $("#current-class").text(currClassName);
                     }
                 }
+            }
+            if (IDType == "student") {
+                $("#current-class").text(idToName(classID) + " (" + classFromTTData(json).replace(/ /g, '') + ")");
             }
             let mainDiv = $("#timetable tbody");
             mainDiv.html("");
@@ -483,10 +481,49 @@ function enableDisableSemButton() {
     }
 }
 
+function classFromTTData(data) {
+    let potentialClasses = {};
+    for (let d of data) {
+        if (d.classId.length == 1) {
+            if (potentialClasses[d.className]) {
+                potentialClasses[d.className]++;
+            } else {
+                potentialClasses[d.className] = 1;
+            }
+        }
+    }
+    let best = ["", 0];
+    for (let d in potentialClasses) {
+        best[0] = d;
+        best[1] = potentialClasses[d];
+    }
+    return best[0];
+}
+
+function idToName(id) {
+    for (let el of classList) {
+        if (el.name) {
+            if (el.personId == id) {
+                return el.name;
+            }
+        }
+    }
+    return "";
+}
+
 function setLessonData(lesson) {
     $("#teacher-detail").text(lesson.tFull);
-    $("#personal-shit").html("<img>");
+    $("#personal-shit").html("<img><div class='names'></div>");
     $("#personal-shit img").attr("src", "spinner.svg");
+    if (lesson.cId) {
+        fetch("/course-participants/" + lesson.cId).then(r => r.json()).then(res => {
+            let html = "";
+            for (let r of res) {
+                html += `<span class="person-link" data="${r.id}">${r.name}</span>`
+            }
+            $("#personal-shit div").html(html);
+        });
+    }
     let img = new Image();
     img.src = "/picture/" + lesson.tId;
     img.onload = () => {
@@ -509,6 +546,7 @@ function convertToUsable(timetable) {
             lStart: lesson.lessonStart,
             lEnd: lesson.lessonEnd,
             cName: lesson.title,
+            cId: lesson.courseId,
             class: lesson.classId,
             tId: lesson.teacherId[0],
             tAcronym: lesson.teacherAcronym,

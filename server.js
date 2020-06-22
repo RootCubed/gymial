@@ -312,6 +312,26 @@ app.get("/timetable/:type/:id/:time", function (req, res) {
     });
 });
 
+app.get("/course-participants/:id", function (req, res) {
+    let body = {
+        "method": "GET"
+    };
+    getShit(`/kzo/list/getlist/list/40/id/${req.params.id}/period/73`, body).then(r => {
+        if (!isAuthorized(req.headers.cookie)) {
+            res.status(401).end();
+            return;
+        } else {
+            console.log(JSON.parse(r).data.map(el => el.Name + ", " + el.Vorname));
+            res.send(JSON.parse(r).data.map(el => {
+                return {
+                    "name": el.Name + ", " + el.Vorname,
+                    "id": el.PersonID
+                };
+            }));
+        }
+    });
+});
+
 app.get("/picture/:id", function (req, res) {
     if (!isAuthorized(req.headers.cookie)) {
         res.status(401).end();

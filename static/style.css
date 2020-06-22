@@ -291,6 +291,17 @@ img.teacher {
     width: 200px;
     border-radius: 10px;
     margin: 15px;
+    float: left;
+}
+
+.names {
+    float: left;
+}
+
+.person-link {
+    color: #76ccff;
+    cursor: pointer;
+    display: block;
 }
 
 #personal-shit {
