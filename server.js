@@ -357,32 +357,15 @@ app.get("/resources/:time", function (req, res) {
     };
     getShit("/kzo/timetable/ajax-get-resources/", body).then(r => {
         if (!isAuthorized(req.headers.cookie)) {
-            if (getPeriod(req.params.time) == 73) { // temporary hack until everything works
-                res.send({
-                    "offline": false,
-                    "data": tmpClassesP73
-                });
-            } else {
-                res.send({
-                    "offline": false,
-                    "data": JSON.parse(r).data.classes
-                });
-            }
+            res.send({
+                "offline": false,
+                "data": JSON.parse(r).data.classes
+            });
         } else {
-            if (getPeriod(req.params.time) == 73) { // temporary hack until everything works
-                res.send({
-                    "offline": false,
-                    "data": [
-                        ...tmpClassesP73,
-                        ...JSON.parse(r).data.teachers, ...JSON.parse(r).data.students, ...JSON.parse(r).data.rooms
-                    ]
-                });
-            } else {
-                res.send({
-                    "offline": false,
-                    "data": [...JSON.parse(r).data.classes, ...JSON.parse(r).data.teachers, ...JSON.parse(r).data.students, ...JSON.parse(r).data.rooms]
-                });
-            }
+            res.send({
+                "offline": false,
+                "data": [...JSON.parse(r).data.classes, ...JSON.parse(r).data.teachers, ...JSON.parse(r).data.students, ...JSON.parse(r).data.rooms]
+            });
         }
     });
 });
