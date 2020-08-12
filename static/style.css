@@ -260,6 +260,10 @@ span.entry-title {
     cursor: pointer;
 }
 
+#overlay-lesson-tabs {
+    border-bottom: 3px solid white;
+}
+
 .overlay-tab {
     background-color: #aaa;
     display: inline-block;
@@ -279,7 +283,8 @@ span.entry-title {
 
 #room-detail, #teacher-detail {
     font-size: 2em;
-    margin-left: 15px;
+    margin-left: 30px;
+    margin-top: 10px;
 }
 
 #personal-shit img:not(.teacher) {
@@ -306,24 +311,17 @@ img.teacher {
 
 #personal-shit {
     width: calc(100% - 50px);
+    margin-left: 30px;
+    margin-top: 15px;
 }
 
 .student {
-    vertical-align: top;
-    display: inline-block;
-    text-align: center;
-    width: 100px;
-    color: white;
-    margin: 10px;
-}
-
-.student img {
-    width: 100px;
+    margin-top: 10px;
 }
 
 .studentName {
     display: block;
-    font-size: 13px;
+    font-size: 16px;
 }
 
 #teacher-personal-shit p {

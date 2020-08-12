@@ -49,7 +49,6 @@ let token = "";
 let apiTokens = {};
 // I am using an external server to store the tokens, since I don't have persistent storage on heroku.
 nodeFetch(process.env.tokenAPI + "/tokens/" + process.env.tokenAPIPass).then(res => res.json()).then(res => {
-    console.log(res);
     apiTokens = res;
 });
 
@@ -67,82 +66,6 @@ const periods = [
         "startTime": 0
     }
 ];
-
-const tmpClassesP73 = [
-    {
-        "classId": 2497,
-        "className": "C 6c"
-    },
-    {
-        "classId": 2488,
-        "className": "A 6"
-    },
-    {
-        "classId": 2489,
-        "className": "M 6a"
-    },
-    {
-        "classId": 2493,
-        "className": "M 6b"
-    },
-    {
-        "classId": 2447,
-        "className": "A 3"
-    },
-    {
-        "classId": 2448,
-        "className": "M 3"
-    },
-    {
-        "classId": 2449,
-        "className": "C 3a"
-    },
-    {
-        "classId": 2450,
-        "className": "C 3b"
-    },
-    {
-        "classId": 2451,
-        "className": "C 3c"
-    },
-    {
-        "classId": 2452,
-        "className": "CM3"
-    },
-    {
-        "classId": 2453,
-        "className": "N 3a"
-    },
-    {
-        "classId": 2454,
-        "className": "N 3b"
-    },
-    {
-        "classId": 2456,
-        "className": "W 3a"
-    },
-    {
-        "classId": 2457,
-        "className": "W 3b"
-    },
-    {
-        "classId": 2458,
-        "className": "N 3c"
-    },
-    {
-        "classId": 2459,
-        "className": "U 2a"
-    },
-    {
-        "classId": 2460,
-        "className": "U 2b"
-    },
-    {
-        "classId": 2461,
-        "className": "U 2c"
-    },
-];
-
 function generateAPIKey() {
     return crypto.randomBytes(16).toString("hex");
 }
@@ -331,7 +254,8 @@ app.get("/course-participants/:id", function (req, res) {
     });
 });
 
-app.get("/picture/:id", function (req, res) {
+// RIP people pictures 2017-2020
+/*app.get("/picture/:id", function (req, res) {
     if (!isAuthorized(req.headers.cookie)) {
         res.status(401).end();
         return;
@@ -347,7 +271,7 @@ app.get("/picture/:id", function (req, res) {
         });
         res.end(Buffer.from(r, "base64"));
     });
-});
+});*/
 
 app.get("/resources/:time", function (req, res) {
     console.log("period", getPeriod(req.params.time));

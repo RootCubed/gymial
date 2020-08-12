@@ -38,8 +38,8 @@ const DAY = 24 * 60 * 60 * 1000;
 let rawData, timetableData;
 
 let IDType = "class";
-let classID = 2421;
-let currPeriod = 72;
+let classID = 2497;
+let currPeriod = 73;
 
 if (window.localStorage.getItem("api")) {
     try {
@@ -65,10 +65,12 @@ let weekOffset = 0;
 
 let currentView = 0;
 const VIEW_NAMES = ["Stundenplan", "Mein Account"];
-let currClassName = "C5c";
+let currClassName = "C6c";
 
 $(document).ready(() => {
     $("#today").attr("data-content", weekOffset);
+
+    // timetable entries
     $(document).on("click", ".timetable-entry:not(.empty):not(.timetable-time)", (el) => {
         let lessonIndex = $(el.currentTarget).attr("data").split(';');
         let lessons = timetableData[lessonIndex[0]][lessonIndex[1]];
@@ -76,6 +78,7 @@ $(document).ready(() => {
         for (let lesson of lessons) {
             htmlString += `<a class="overlay-tab">${lesson.cName}</a>`
         }
+        $("#overlay-lesson-tabs").show();
         $("#overlay-lesson-tabs").html(htmlString);
         $("#overlay-lesson-tabs").children().eq(0).addClass("active");
         setLessonData(lessons[0]);
@@ -160,6 +163,8 @@ $(document).ready(() => {
     // clicking on class name
     $("#current-class").on("click", () => {
         if ($("#margin-details").is(":visible")) return;
+        $("#overlay-lesson-tabs, #room-detail, #teacher-detail, #personal-shit").html("");
+        $("#overlay-lesson-tabs").hide();
         if (IDType == "class") {
             fetch(`/class-personal-details/${classID}`)
             .then(response => {
@@ -172,33 +177,19 @@ $(document).ready(() => {
                     $(".sidebar-link").eq(1).click();
                     return;
                 };
-                $("#overlay-lesson-tabs, #room-detail, #teacher-detail, #personal-shit").html("");
                 $("#margin-details").fadeIn();
+                $("#personal-shit").html("<h1 style='margin-bottom: 20px'>Klassenliste " + $("#current-class").text() + "</h1>");
                 for (let student of res) {
                     $("#personal-shit").append(
-                        `<div class="student"><img id="sdPic${student.studentId}" src="spinner.svg"><p class="studentName">${student.studentName}</p></div>`
+                        `<div class="student"><p class="studentName">${student.studentName}</p></div>`
                     );
-                    let img = new Image();
-                    img.src = "/picture/" + student.studentId;
-                    img.onload = () => {
-                        $(`#sdPic${student.studentId}`).attr("src", "/picture/" + student.studentId);
-                    };
                 }
             });
         } else {
             $("#margin-details").fadeIn();
             $("#personal-shit").html(
-                `<div class="student"><img id="sdPic${classID}" src="spinner.svg"><p class="studentName">${$("#current-class").text()}</p></div>`
+                `<div class="student"><h1>${$("#current-class").text()}</h1><br><p>Schülerinformationen werden bald hinzugefügt.</p></div>`
             );
-            let img = new Image();
-            img.src = "/picture/" + classID;
-            img.onload = () => {
-                $(`#sdPic${classID}`).attr("src", "/picture/" + classID);
-            };
-            img.onerror = () => {
-                $("#margin-details").fadeOut();
-                $(".sidebar-link").eq(1).click();
-            };
         }
     });
 
@@ -513,26 +504,16 @@ function idToName(id) {
 
 function setLessonData(lesson) {
     $("#teacher-detail").text(lesson.tFull);
-    $("#personal-shit").html("<img><div class='names'></div>");
-    $("#personal-shit img").attr("src", "spinner.svg");
+    $("#personal-shit").html("<div class='names'></div>");
     if (lesson.cId) {
         fetch("/course-participants/" + lesson.cId).then(r => r.json()).then(res => {
             let html = "";
             for (let r of res) {
-                html += `<span class="person-link" data="${r.id}">${r.name}</span>`
+                html += `<span class="student studentName person-link" data="${r.id}">${r.name}</span>`
             }
             $("#personal-shit div").html(html);
         });
     }
-    let img = new Image();
-    img.src = "/picture/" + lesson.tId;
-    img.onload = () => {
-        $("#personal-shit img").addClass("teacher").attr("src", "/picture/" + lesson.tId);
-    }
-    img.onerror = () => {
-        $("#margin-details").hide();
-        $(".sidebar-link").eq(1).click();
-    };
 }
 
 function convertToUsable(timetable) {
