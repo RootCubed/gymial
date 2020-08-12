@@ -66,6 +66,7 @@ let weekOffset = 0;
 let currentView = 0;
 const VIEW_NAMES = ["Stundenplan", "Mein Account"];
 let currClassName = "C6c";
+let currPersonName = "";
 
 $(document).ready(() => {
     $("#today").attr("data-content", weekOffset);
@@ -187,9 +188,30 @@ $(document).ready(() => {
             });
         } else {
             $("#margin-details").fadeIn();
-            $("#personal-shit").html(
-                `<div class="student"><h1>${$("#current-class").text()}</h1><br><p>Schülerinformationen werden bald hinzugefügt.</p></div>`
-            );
+            if (IDType == "student") {
+                fetch(`/search-internal-kzoCH/${currPersonName.firstname}/${currPersonName.lastname}/_`).then(response => {
+                    if (response.status == 401) {
+                        return 401;
+                    }
+                    return response.json();
+                }).then(res => {
+                    if (res == 401) {
+                        $(".sidebar-link").eq(1).click();
+                        return;
+                    };
+                    let personalStuff = "";
+                    for (let i = 3; i < 6; i++) {
+                        personalStuff += "<p>" + res[0][i] + "</p>";
+                    }
+                    $("#personal-shit").html(
+                        `<div class="student"><h1>${currPersonName.firstname + " " + currPersonName.lastname}</h1><br><div class="personalDetails">${personalStuff}</div></div>`
+                    );
+                });
+            } else {
+                $("#personal-shit").html(
+                    `<div class="student"><h1>${$("#current-class").text()}</h1><br><p>Lehrerinformationen werden bald hinzugefügt.</p></div>`
+                );
+            }
         }
     });
 
@@ -209,6 +231,9 @@ $(document).ready(() => {
                 break;
             case 's':
                 IDType = "student";
+                fetch("/getName/" + parseInt(classID.substr(1))).then(res => res.json()).then(res => {
+                    currPersonName = res;
+                });
                 break;
             case 'r':
                 IDType = "room";
@@ -513,6 +538,8 @@ function setLessonData(lesson) {
             }
             $("#personal-shit div").html(html);
         });
+    } else {
+        $("#personal-shit div").html("Keine Informationen über die Teilnehmer an diesem Kurs!");
     }
 }
 

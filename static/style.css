@@ -315,6 +315,11 @@ img.teacher {
     margin-top: 15px;
 }
 
+.personalDetails p {
+    font-size: 20px;
+    margin-top: 10px;
+}
+
 .student {
     margin-top: 10px;
 }

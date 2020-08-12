@@ -6,6 +6,7 @@ const nodeFetch = require("node-fetch");
 const cors = require("cors");
 const crypto = require("crypto");
 const compression = require("compression");
+const iconv = require("iconv");
 
 app.use((req, res, next) => {
     if (req.header("x-forwarded-proto") !== "https" && req.hostname !== "localhost" && !req.hostname.includes("192.168")) {
@@ -33,6 +34,8 @@ let headers = {
     "Referer": "https://intranet.tam.ch/kzo",
     "Cookie": "username=liam.braun; school=kzo; sturmuser=liam.braun; sturmsession=61h71r9jtijgsammm7fu6lr4gl"
 };
+
+let kzoCHCookies = {};
 
 const PORT = process.env.PORT || 3000;
 
@@ -96,6 +99,92 @@ function login(username, password) {
     
         req.write(querystring.stringify(body));
         req.end();
+    });
+}
+
+function objToCookie(obj) {
+    let res = "";
+    for (let el in obj) {
+        res += el + "=" + obj[el] + ";";
+    }
+    return res;
+}
+
+function loginRegularKZO(user, pass) {
+    return new Promise((resolve, reject) => {
+        nodeFetch("https://www.kzo.ch/index.php?id=intranet", {
+            "headers": {
+                "accept": "text/html,application/xhtml+xml,application/xml",
+                "cache-control": "no-cache",
+                "content-type": "application/x-www-form-urlencoded",
+                "pragma": "no-cache",
+                "sec-fetch-dest": "document",
+                "sec-fetch-mode": "navigate",
+                "sec-fetch-site": "same-origin",
+                "sec-fetch-user": "?1",
+                "upgrade-insecure-requests": "1"
+            },
+            "referrer": "https://www.kzo.ch/index.php?id=intranet",
+            "referrerPolicy": "no-referrer-when-downgrade",
+            "body": `user=${user}&pass=${pass}&submit=Anmelden&logintype=login&pid=712`,
+            "method": "POST",
+            "mode": "cors"
+        }).then(res => {
+            let setCookies = res.headers.raw()["set-cookie"];
+            kzoCHCookies = {};
+            if (setCookies) {
+                for (let c of setCookies) {
+                    let tmp = c.split("=");
+                    kzoCHCookies[tmp[0]] = tmp[1].split("; ")[0];
+                }
+                resolve();
+            }
+            reject();
+        });
+    });
+}
+
+function searchPeopleKzoCH(firstName, lastName, classToSearch) {
+    return new Promise(async (resolve) => {
+        if (!kzoCHCookies.PHPSESSID) {
+            await loginRegularKZO(process.env.user, process.env.password);
+        }
+        nodeFetch("https://www.kzo.ch/index.php?id=549", {
+            "headers": {
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9",
+                "accept-charset": "utf-8;q=0.9",
+                "cache-control": "no-cache",
+                "content-type": "application/x-www-form-urlencoded",
+                "pragma": "no-cache",
+                "sec-fetch-dest": "document",
+                "sec-fetch-mode": "navigate",
+                "sec-fetch-site": "same-origin",
+                "sec-fetch-user": "?1",
+                "upgrade-insecure-requests": "1",
+                "cookie": objToCookie(kzoCHCookies)
+            },
+            "referrer": "https://www.kzo.ch/index.php?id=549",
+            "referrerPolicy": "no-referrer-when-downgrade",
+            "body": `vorname=${firstName}&nachname=${lastName}&klasse=${classToSearch}&search=%3E%3E+suchen`,
+            "method": "POST",
+            "mode": "cors",
+            "credentials": "include"
+        }).then(res => res.buffer()).then(res => {
+            let conv = new iconv.Iconv("iso-8859-1", "utf-8"); // bruh why does kzo.ch use ancient charsets, please just start using utf-8
+            res = conv.convert(res).toString("utf-8");
+            if (res.includes("Keine Adressen gefunden")) resolve([]);
+            let table = res.match(/<table.*?adressliste">(.|\s)+?<\/table>/g)[0];
+            let rows = table.match(/<tr.*?>(.|\s)+?<\/tr>/g);
+            let json = [];
+            for (let i = 1; i < rows.length; i++) { // skip the header row
+                let entries = rows[i].match(/<td.*?>(.|\s)+?<\/td>/g);
+                json.push([]);
+                for (let e of entries) {
+                    json[json.length - 1].push(e.replace(/<td.*?>/, '').replace(/<\/td>/, '').replace("&nbsp;", ''));
+                }
+            }
+            resolve(json)
+        });
     });
 }
 
@@ -306,6 +395,20 @@ app.get("/getName/:id", function (req, res) {
     getShit("/kzo/list/get-person-name", body).then((r) => {
         res.send(r);
     });
+});
+
+app.get("/search-internal-kzoCH/:firstName/:lastName/:class", function(req, res) {
+    if (!isAuthorized(req.headers.cookie)) {
+        res.status(401).end();
+        return;
+    }
+    let fN = "";
+    let lN = "";
+    let cl = "";
+    if (req.params.firstName != "_") fN = req.params.firstName;
+    if (req.params.lastName != "_") lN = req.params.lastName;
+    if (req.params.class != "_") cl = req.params.class;
+    searchPeopleKzoCH(fN, lN, cl).then(r => res.send(r));
 });
 
 app.get("/class-personal-details/:classID", function (req, res) {
