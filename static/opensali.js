@@ -66,7 +66,6 @@ let weekOffset = 0;
 let currentView = 0;
 const VIEW_NAMES = ["Stundenplan", "Mein Account"];
 let currClassName = "C6c";
-let currPersonName = "";
 
 $(document).ready(() => {
     $("#today").attr("data-content", weekOffset);
@@ -189,23 +188,25 @@ $(document).ready(() => {
         } else {
             $("#margin-details").fadeIn();
             if (IDType == "student") {
-                fetch(`/search-internal-kzoCH/${currPersonName.firstname}/${currPersonName.lastname}/_`).then(response => {
-                    if (response.status == 401) {
-                        return 401;
-                    }
-                    return response.json();
-                }).then(res => {
-                    if (res == 401) {
-                        $(".sidebar-link").eq(1).click();
-                        return;
-                    };
-                    let personalStuff = "";
-                    for (let i = 3; i < 6; i++) {
-                        personalStuff += "<p>" + res[0][i] + "</p>";
-                    }
-                    $("#personal-shit").html(
-                        `<div class="student"><h1>${currPersonName.firstname + " " + currPersonName.lastname}</h1><br><div class="personalDetails">${personalStuff}</div></div>`
-                    );
+                fetch("/getName/" + parseInt(classID)).then(res => res.json()).then(personName => {
+                    fetch(`/search-internal-kzoCH/${personName.firstname}/${personName.lastname}/_`).then(response => {
+                        if (response.status == 401) {
+                            return 401;
+                        }
+                        return response.json();
+                    }).then(res => {
+                        if (res == 401) {
+                            $(".sidebar-link").eq(1).click();
+                            return;
+                        };
+                        let personalStuff = "";
+                        for (let i = 3; i < 6; i++) {
+                            personalStuff += "<p>" + res[0][i] + "</p>";
+                        }
+                        $("#personal-shit").html(
+                            `<div class="student"><h1>${personName.firstname + " " + personName.lastname}</h1><br><div class="personalDetails">${personalStuff}</div></div>`
+                        );
+                    });
                 });
             } else {
                 $("#personal-shit").html(
@@ -231,9 +232,6 @@ $(document).ready(() => {
                 break;
             case 's':
                 IDType = "student";
-                fetch("/getName/" + parseInt(classID.substr(1))).then(res => res.json()).then(res => {
-                    currPersonName = res;
-                });
                 break;
             case 'r':
                 IDType = "room";
@@ -628,7 +626,7 @@ function areLessonsIdentical(les1, les2) {
         if (
             les1Entries.cName != les2Entries.cName ||
             les1Entries.tAcronym != les2Entries.tAcronym ||
-            (les1Entries.sNames && les2Entries.sNames && les1Entries.sNames.length != les2Entries.sNames.length)
+            (les1Entries.sNames && les2Entries.sNames && !arraysAreEqual(les1Entries.sNames, les2Entries.sNames))
         ) {
             return false;
         }
@@ -644,6 +642,14 @@ function getFirstDayOfWeek(d) {
     let day = d.getDay();
     let diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
     return new Date(d.setDate(diff));
+}
+
+function arraysAreEqual(ar1, ar2) {
+    if (ar1.length !== ar2.length) return false;
+    for (let i = 0; i < ar1.length; i++) {
+        if (ar1[i].studentId !== ar2[i].studentId) return false;
+    }
+    return true;
 }
 
 function progress(number) {

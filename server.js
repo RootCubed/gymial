@@ -8,7 +8,7 @@ const crypto = require("crypto");
 const compression = require("compression");
 const iconv = require("iconv");
 
-const rtg   = require("url").parse(process.env.REDISTOGO_URL);
+const rtg = require("url").parse(process.env.REDISTOGO_URL);
 const redis = require("redis").createClient(rtg.port, rtg.hostname);
 redis.auth(rtg.auth.split(":")[1]);
 const { promisify } = require("util");
