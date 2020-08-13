@@ -95,12 +95,29 @@ function login(username, password) {
         let req = https.request(tmpOptions, res => {
             let setCookies = res.headers["set-cookie"];
             let sturmsession;
+            let str = "";
+            let newCookies = "";
             if (setCookies) {
                 for (let c of setCookies) {
+                    newCookies += c.split(";")[0] + "; ";
                     sturmsession = c.match(/sturmsession=[0-9a-z]+/);
                 }
             }
-            resolve(sturmsession);
+            if (!sturmsession) resolve();
+            let tmpOpts = JSON.parse(JSON.stringify(options));
+            tmpOpts.path = "/kzo/list/index/list/30";
+            tmpOpts.headers["Cookie"] = newCookies;
+            tmpOpts.method = "GET";
+            let req2 = https.request(tmpOpts, res => {
+                res.on("data", d => {
+                    str += d.toString();
+                });
+                res.on("end", () => {
+                    let user = JSON.parse(str.match(/{\"data\":\[.+?}\].*?}/g));
+                    resolve([sturmsession, user]);
+                });
+            });
+            req2.end();
         });
     
         req.write(querystring.stringify(body));
@@ -201,15 +218,16 @@ function getShit(endpoint, body) {
         let str = "";
 
         let req = https.request(options, res => {
-            res.on("data", (d) => {
+            res.on("data", d => {
                 str += d.toString();
             });
-            res.on("end", function() {
+            res.on("end", () => {
                 if (str[0] === "<" || str.length == 0) { // invalid session
                     console.log("logging in...");
                     login(process.env.user, process.env.password).then((sessionToken) => {
                         if (sessionToken != null) {
-                            headers["Cookie"] = "username=liam.braun; school=kzo; sturmuser=liam.braun; " + sessionToken;
+                            let token = sessionToken[0];
+                            headers["Cookie"] = "username=liam.braun; school=kzo; sturmuser=liam.braun; " + token;
                         }
                         nodeFetch("https://intranet.tam.ch/kzo", {headers: headers}).then(r => r.text()).then(r => {
                             token = r.match(/csrfToken='([0-z]+)/)[1];
@@ -231,6 +249,7 @@ function getShit(endpoint, body) {
 
 async function verifyAuthentication(username, password) {
     let token = await login(username, password);
+    redis.hset("user:" + username, "persData", JSON.stringify(token[1]));
     return !!(token);
 }
 
@@ -246,6 +265,7 @@ function getPeriod(time) {
 }
 
 function cookieToUser(cookie) {
+    if (!cookie) return {};
     let splitCookie = cookie.replace(/ /g, '').split(";");
     let cookies = {};
     for (let value of splitCookie) {
@@ -266,7 +286,7 @@ async function isAuthorized(user) {
 }
 
 function toStandardFormat (token) {
-    return token.toLowerCase().replace(/\@studmail.kzo.ch/g, "");
+    return token.toLowerCase().replace(/\@studmail.kzo.ch/g, "").trim();
 }
 
 app.post("/auth", function (req, res) {
@@ -295,6 +315,29 @@ app.post("/auth", function (req, res) {
                 res.status(401).end();
             });
         }
+    });
+});
+
+app.get("/myData", function (req, res) {
+    let user = cookieToUser(req.headers.cookie);
+    isAuthorized(user).then(isAuth => {
+        if (!isAuth) {
+            res.send({
+                data: [],
+                total: 0
+            });
+            return;
+        }
+        redis.hget("user:" + user.username, "persData", (err, r) => {
+            if (r == null) {
+                res.send({
+                    data: [],
+                    total: 0
+                });
+                return;
+            }
+            res.send(JSON.parse(r));
+        });
     });
 });
 

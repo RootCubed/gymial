@@ -404,7 +404,7 @@ input[type=text], input[type=password] {
     width: 60px;
 }
 
-form button {
+form button, #logout {
     margin: 20px auto;
     -webkit-appearance: none;
     background-color: #dddddd;
@@ -443,6 +443,17 @@ form button {
 #accountinfo {
     color: white;
     text-align: center;
+}
+
+#ownName {
+    display: block;
+    margin-top: 20px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+#otherDetails {
+    font-size: 15px;
 }
 
 .visuallyhidden {

@@ -70,6 +70,9 @@ let currClassName = "C6c";
 $(document).ready(() => {
     $("#today").attr("data-content", weekOffset);
 
+    // try to see if we are already logged in
+    getPersData();
+
     // timetable entries
     $(document).on("click", ".timetable-entry:not(.empty):not(.timetable-time)", (el) => {
         let lessonIndex = $(el.currentTarget).attr("data").split(';');
@@ -252,13 +255,22 @@ $(document).ready(() => {
         $("#margin-details").fadeOut();
     });
 
+    $("#logout").on("click", ev => {
+        $("#invalid-login").hide();
+        $("#login-form").show();
+        $("#accountinfo").hide();
+        Cookies.remove("username");
+        Cookies.remove("apiToken");
+        window.localStorage.removeItem("api");
+    });
+
     // logging in
     $("#login-form").on("submit", ev => {
         $("#invalid-login").hide();
         $("#login-submit").hide();
         $("#button-spinner img").show();
         ev.preventDefault();
-        $("#login-user").val($("#login-user").val().toLowerCase().replace(/\@studmail.kzo.ch/g, ""));
+        $("#login-user").val($("#login-user").val());
         fetch("/auth", {
             method: "post",
             body: `user=${$("#login-user").val()}&pass=${$("#login-pw").val()}`
@@ -276,9 +288,7 @@ $(document).ready(() => {
             window.localStorage.setItem("api", JSON.stringify({username: $("#login-user").val(), token: token}));
             Cookies.set("username", $("#login-user").val(), {expires: 30, path: ""});
             Cookies.set("apiToken", token, {expires: 30, path: ""});
-            $("#login-form").hide();
-            $("#accountinfo").show();
-            $("#ownName").text("Hallo, " + $("#login-user").val());
+            getPersData();
             init();
             $("#link-timetable").click();
         });
@@ -470,6 +480,18 @@ function loadClass() {
             applyScrolling();
             progress(100);
         });
+    });
+}
+
+function getPersData() {
+    fetch("/myData").then(res => res.json()).then(res => {
+        if (res.total > 0) {
+            let data = res.data[0];
+            $("#ownName").text(data.Vorname + " " + data.Nachname);
+            $("#otherDetails").text(data.Adresse + ", " + data.PLZ + " " + data.Ort);
+            $("#login-form").hide();
+            $("#accountinfo").show();
+        }
     });
 }
 
