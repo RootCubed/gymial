@@ -8,10 +8,22 @@ const crypto = require("crypto");
 const compression = require("compression");
 const iconv = require("iconv");
 
+const rtg   = require("url").parse(process.env.REDISTOGO_URL);
+const redis = require("redis").createClient(rtg.port, rtg.hostname);
+redis.auth(rtg.auth.split(":")[1]);
+const { promisify } = require("util");
+const redisHGet = promisify(redis.hget).bind(redis);
+
 app.use((req, res, next) => {
     if (req.header("x-forwarded-proto") !== "https" && req.hostname !== "localhost" && !req.hostname.includes("192.168")) {
         res.redirect(301, `https://${req.header("host")}${req.url}`);
     } else {
+        if (req.headers.cookie) {
+            let user = cookieToUser(req.headers.cookie);
+            isAuthorized(user).then(isAuth => {
+                if (isAuth) redis.hincrby("user:" + user.username, "requests", 1);
+            });
+        }
         next();
     }
 });
@@ -48,12 +60,6 @@ let options = {
 };
 
 let token = "";
-
-let apiTokens = {};
-// I am using an external server to store the tokens, since I don't have persistent storage on heroku.
-nodeFetch(process.env.tokenAPI + "/tokens/" + process.env.tokenAPIPass).then(res => res.json()).then(res => {
-    apiTokens = res;
-});
 
 const periods = [
     {
@@ -239,8 +245,7 @@ function getPeriod(time) {
     return currPeriod;
 }
 
-function isAuthorized(cookie) {
-    if (!cookie) return false;
+function cookieToUser(cookie) {
     let splitCookie = cookie.replace(/ /g, '').split(";");
     let cookies = {};
     for (let value of splitCookie) {
@@ -249,7 +254,15 @@ function isAuthorized(cookie) {
         }
     }
     cookies.username = toStandardFormat(cookies.username);
-    return (cookies.username && cookies.apiToken && apiTokens[cookies.username] == cookies.apiToken);
+    return cookies;
+}
+
+async function isAuthorized(user) {
+    if (!user) return false;
+    if (!user.username || !user.apiToken) return false;
+    correctAPIToken = await redisHGet("user:" + user.username, "token");
+    if (correctAPIToken == null) return false;
+    return (user.apiToken == correctAPIToken);
 }
 
 function toStandardFormat (token) {
@@ -272,8 +285,10 @@ app.post("/auth", function (req, res) {
             verifyAuthentication(bodyJSON.user, bodyJSON.pass).then(r => {
                 if (r) {
                     let token = generateAPIKey();
-                    apiTokens[bodyJSON.user] = token;
-                    nodeFetch(process.env.tokenAPI + "/" + bodyJSON.user + "/" + token + "/" + process.env.tokenAPIPass);
+                    redis.hset("user:" + bodyJSON.user, "token", token);
+                    redis.hget("user:" + bodyJSON.user, "requests", (err, res) => {
+                        if (res == null) redis.hset("user:" + bodyJSON.user, "requests", 0);
+                    });
                     res.send(token).end();
                     return;
                 }
@@ -302,50 +317,53 @@ app.get("/timetable/:type/:id/:time", function (req, res) {
     }
     body[req.params.type + "Id[]"] = req.params.id;
     getShit("/kzo/timetable/ajax-get-timetable", body).then(r => {
-        if (!isAuthorized(req.headers.cookie)) {
-            let json = JSON.parse(r).data;
-            const propsToKeep = [
-                "id", "periodId", "start", "end", "lessonDate", "lessonStart", "lessonEnd", "lessonDuration",
-                "timetableEntryTypeId", "timetableEntryType", "timetableEntryTypeLong", "timetableEntryTypeShort",
-                "title", "courseId", "courseName", "course", "subjectName", "classId", "className", "teacherAcronym",
-                "roomId", "roomName", "teacherId"
-            ]
-            let basicJSON = new Array(json.length);
-            for (let i = 0; i < json.length; i++) {
-                basicJSON[i] = {};
-                for (let p of propsToKeep) {
-                    basicJSON[i][p] = json[i][p];
+        isAuthorized(cookieToUser(req.headers.cookie)).then(isAuth => {
+            if (!isAuth) {
+                let json = JSON.parse(r).data;
+                const propsToKeep = [
+                    "id", "periodId", "start", "end", "lessonDate", "lessonStart", "lessonEnd", "lessonDuration",
+                    "timetableEntryTypeId", "timetableEntryType", "timetableEntryTypeLong", "timetableEntryTypeShort",
+                    "title", "courseId", "courseName", "course", "subjectName", "classId", "className", "teacherAcronym",
+                    "roomId", "roomName", "teacherId"
+                ]
+                let basicJSON = new Array(json.length);
+                for (let i = 0; i < json.length; i++) {
+                    basicJSON[i] = {};
+                    for (let p of propsToKeep) {
+                        basicJSON[i][p] = json[i][p];
+                    }
                 }
+                res.send(basicJSON);
+            } else {
+                res.send(JSON.parse(r).data);
             }
-            res.send(basicJSON);
-        } else {
-            res.send(JSON.parse(r).data);
-        }
+        });
     });
 });
 
 app.get("/course-participants/:id", function (req, res) {
-    let body = {
-        "method": "GET"
-    };
-    getShit(`/kzo/list/getlist/list/40/id/${req.params.id}/period/73`, body).then(r => {
-        if (!isAuthorized(req.headers.cookie)) {
+    isAuthorized(cookieToUser(req.headers.cookie)).then(isAuth => {
+        if (!isAuth) {
             res.status(401).end();
             return;
-        } else {
+        }
+        let body = {
+            "method": "GET"
+        };
+        getShit(`/kzo/list/getlist/list/40/id/${req.params.id}/period/73`, body).then(r => {
             res.send(JSON.parse(r).data.map(el => {
                 return {
                     "name": el.Name + ", " + el.Vorname,
                     "id": el.PersonID
                 };
             }));
-        }
+        });
     });
 });
 
 // RIP people pictures 2017-2020
 /*app.get("/picture/:id", function (req, res) {
-    if (!isAuthorized(req.headers.cookie)) {
+    if (!isAuthorized(cookieToUser(req.headers.cookie))) {
         res.status(401).end();
         return;
     }
@@ -369,82 +387,90 @@ app.get("/resources/:time", function (req, res) {
         "method": "POST"
     };
     getShit("/kzo/timetable/ajax-get-resources/", body).then(r => {
-        if (!isAuthorized(req.headers.cookie)) {
-            res.send({
-                "offline": false,
-                "data": JSON.parse(r).data.classes
-            });
-        } else {
+        isAuthorized(cookieToUser(req.headers.cookie)).then(isAuth => {
+            if (!isAuth) {
+                res.send({
+                    "offline": false,
+                    "data": JSON.parse(r).data.classes
+                });
+                return;
+            }
             res.send({
                 "offline": false,
                 "data": [...JSON.parse(r).data.classes, ...JSON.parse(r).data.teachers, ...JSON.parse(r).data.students, ...JSON.parse(r).data.rooms]
             });
-        }
+        });
     });
 });
 
 app.get("/getName/:id", function (req, res) {
-    if (!isAuthorized(req.headers.cookie)) {
-        res.status(401).end();
-        return;
-    }
-    let body = {
-        "id": req.params.id,
-        "method": "POST"
-    };
-    getShit("/kzo/list/get-person-name", body).then((r) => {
-        res.send(r);
+    isAuthorized(cookieToUser(req.headers.cookie)).then(isAuth => {
+        if (!isAuth) {
+            res.status(401).end();
+            return;
+        }
+        let body = {
+            "id": req.params.id,
+            "method": "POST"
+        };
+        getShit("/kzo/list/get-person-name", body).then((r) => {
+            res.send(r);
+        });
     });
 });
 
 app.get("/search-internal-kzoCH/:firstName/:lastName/:class", function(req, res) {
-    if (!isAuthorized(req.headers.cookie)) {
-        res.status(401).end();
-        return;
-    }
-    let fN = "";
-    let lN = "";
-    let cl = "";
-    if (req.params.firstName != "_") fN = req.params.firstName;
-    if (req.params.lastName != "_") lN = req.params.lastName;
-    if (req.params.class != "_") cl = req.params.class;
-    searchPeopleKzoCH(fN, lN, cl).then(r => res.send(r));
+    isAuthorized(cookieToUser(req.headers.cookie)).then(isAuth => {
+        if (!isAuth) {
+            res.status(401).end();
+            return;
+        }
+        let fN = "";
+        let lN = "";
+        let cl = "";
+        if (req.params.firstName != "_") fN = req.params.firstName;
+        if (req.params.lastName != "_") lN = req.params.lastName;
+        if (req.params.class != "_") cl = req.params.class;
+        searchPeopleKzoCH(fN, lN, cl).then(r => res.send(r));
+    });
 });
 
 app.get("/class-personal-details/:classID", function (req, res) {
-    if (!isAuthorized(req.headers.cookie)) {
-        res.status(401).end();
-        return;
-    }
-    /*
-    (Taken down in the mean time)
-    let body = {
-        "method": "GET"
-    };
-    let period = 72;
-    if (req.params.classID >= 2438) period = 73;
-    getShit("/kzo/list/getlist/list/12/id/" + req.params.classID + "/period/" + period, body).then(r => {
-        res.send(r);
-    });
-    */
-    let startTime = periods[1].startTime;
-    if (req.params.classID >= 2438) startTime = periods[0].startTime;
-    let body = {
-        "startDate": startTime,
-        "endDate": startTime + 4 * 24 * 60 * 60 * 1000,
-        "holidaysOnly": 0,
-        "method": "POST",
-        "classId[]": req.params.classID
-    };
-    getShit("/kzo/timetable/ajax-get-timetable", body).then(r => {
-        let data = JSON.parse(r).data;
-        let classList = [];
-        for (let c of data) {
-            if (c.classId.length == 1 && c.student.length > classList.length) {
-                classList = c.student;
-            }
+    isAuthorized(cookieToUser(req.headers.cookie)).then(isAuth => {
+        if (!isAuth) {
+            res.status(401).end();
+            return;
         }
-        res.send(classList);
+        /*
+        (Taken down in the mean time)
+        let body = {
+            "method": "GET"
+        };
+        let period = 72;
+        if (req.params.classID >= 2438) period = 73;
+        getShit("/kzo/list/getlist/list/12/id/" + req.params.classID + "/period/" + period, body).then(r => {
+            res.send(r);
+        });
+        */
+        let startTime = periods[1].startTime;
+        if (req.params.classID >= 2438) startTime = periods[0].startTime;
+        let body = {
+            "startDate": startTime,
+            "endDate": startTime + 4 * 24 * 60 * 60 * 1000,
+            "holidaysOnly": 0,
+            "method": "POST",
+            "classId[]": req.params.classID
+        };
+        getShit("/kzo/timetable/ajax-get-timetable", body).then(r => {
+            let data = JSON.parse(r).data;
+            let classList = [];
+            for (let c of data) {
+                if (c.classId.length == 1 && c.student.length > classList.length) {
+                    classList = c.student;
+                }
+            }
+            res.send(classList);
+        });
     });
 });
 
