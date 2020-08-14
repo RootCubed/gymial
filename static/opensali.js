@@ -300,24 +300,24 @@ $(document).ready(() => {
         switch(el.target.innerText) {
             case VIEW_NAMES[0]:
                 $("#current-class").text(currClassName);
-                $("#timetable").removeClass();
-                $("#timetable").addClass("scrollTimetable");
+                $("#panel-timetable").removeClass();
+                $("#panel-timetable").addClass("scrollTimetable");
                 $(".sidebar-link").removeClass("active");
                 $("#link-timetable").addClass("active");
                 currentView = 0;
                 break;
             case VIEW_NAMES[1]:
                 $("#current-class").text(VIEW_NAMES[1]);
-                $("#timetable").removeClass();
-                $("#timetable").addClass("scrollLogin");
+                $("#panel-timetable").removeClass();
+                $("#panel-timetable").addClass("scrollLogin");
                 $(".sidebar-link").removeClass("active");
                 $("#link-account").addClass("active");
                 currentView = 1;
                 break;
             case VIEW_NAMES[2]:
                 $("#current-class").text(VIEW_NAMES[2]);
-                $("#timetable").removeClass();
-                $("#timetable").addClass("scrollMensa");
+                $("#panel-timetable").removeClass();
+                $("#panel-timetable").addClass("scrollMensa");
                 $(".sidebar-link").removeClass("active");
                 $("#link-mensa").addClass("active");
                 currentView = 2;

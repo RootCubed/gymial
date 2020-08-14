@@ -7,7 +7,7 @@
 
 body {
     background-color: #333;
-    overflow-x: hidden;
+    overflow: hidden;
 }
 
 #scrollLimiter {
@@ -56,8 +56,6 @@ body {
     width: 100%;
     table-layout: fixed;
     border-spacing: 4px;
-    transition-property: margin-top;
-    transition-duration: 0.5s;
     line-height: 1;
 }
 
@@ -412,20 +410,20 @@ form button, #logout {
     position: absolute;
     z-index: -1;
     margin-top: 0;
-    max-height: calc(100vh - 70px);
+    max-height: calc(100vh - 63px);
     overflow: hidden;
 }
 
-#timetable.scrollTimetable {
+#panel-timetable.scrollTimetable {
     margin-top: 0;
 }
 
-#timetable.scrollLogin {
-    margin-top: calc(-100vh + 70px);
+#panel-timetable.scrollLogin {
+    margin-top: calc(-100vh + 63px);
 }
 
-#timetable.scrollMensa {
-    margin-top: calc(-200vh + 70px + 70px);
+#panel-timetable.scrollMensa {
+    margin-top: calc(-200vh + 63px + 63px);
 }
 
 #invalid-login {
@@ -434,18 +432,20 @@ form button, #logout {
 
 #panel-timetable {
     display: block;
-    height: calc(100vh - 70px);
+    height: calc(100vh - 63px);
+    transition-property: margin-top;
+    transition-duration: 0.5s;
 }
 
 #panel-account {
     padding: 20vh 10vw;
     background-color: #222222;
-    height: calc(60vh - 70px);
+    height: calc(60vh - 63px);
 }
 
 #panel-mensa {
     color: white;
-    height: calc(100vh - 70px);
+    height: calc(100vh - 63px);
 }
 
 #mensa-table {
@@ -508,6 +508,15 @@ form button, #logout {
 @media print {
     body {
         background-color: white;
+    }
+
+    #panels, #panel-timetable {
+        height: 100vh;
+        max-height: 100vh;
+    }
+
+    #panel-account, #panel-mensa {
+        display: none;
     }
 
     #selection {
