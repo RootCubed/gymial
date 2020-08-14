@@ -7,6 +7,8 @@ const cors = require("cors");
 const crypto = require("crypto");
 const compression = require("compression");
 const iconv = require("iconv");
+const jsdom = require("jsdom");
+const { JSDOM } = jsdom;
 
 const rtg = require("url").parse(process.env.REDISTOGO_URL);
 const redis = require("redis").createClient(rtg.port, rtg.hostname);
@@ -525,11 +527,11 @@ app.get("/period-from-time/:time", function (req, res) {
     res.end(getPeriod(req.params.time).toString());
 });
 
-let mensaPlanUrl;
+let mensaPlan;
 
 app.get("/mensa", function (req, res) {
-    if (mensaPlanUrl) {
-        res.send(mensaPlanUrl).end();
+    if (mensaPlan) {
+        res.send(mensaPlan).end();
         return;
     }
     res.status(404).end();
@@ -539,10 +541,35 @@ updateMensaCache();
 setInterval(updateMensaCache, 1000 * 60 * 60);
 
 function updateMensaCache() {
-    nodeFetch("https://kzo.sv-restaurant.ch/de/menuplan/")
-    .then(r => r.text())
-    .then(html => {
-        mensaPlanUrl = "https://kzo.sv-restaurant.ch/" + html.match(/\/uploads\/.+.pdf/)[0];
+    nodeFetch("https://menu.sv-group.ch/typo3conf/ext/netv_svg_menumob/ajax.getContent.php", {
+        "headers": {
+            "content-type": "application/x-www-form-urlencoded",
+        },
+        "body": "action=getMenuplan&params%5Bbranchidentifier%5D=7912",
+        "method": "POST",
+        "mode": "cors"
+    }).then(res => res.json()).then(res => {
+        mensaPlan = res[0].html;
+        const dom = new JSDOM(res[0].html);
+        let menu = {};
+        let days = dom.window.document.getElementsByClassName("day-tab");
+        for (let day of days) {
+            let menus = day.getElementsByClassName("details-menu");
+            let dayName = day.getElementsByClassName("details-date")[0].textContent;
+            dayName = dayName.split(", ")[1].split(". ").join(".");
+            menu[dayName] = [];
+            for (let m of menus) {
+                let kitchenName = m.getElementsByClassName("details-menu-type")[0].textContent;
+                let menuName = m.getElementsByClassName("details-menu-name")[0].textContent;
+                let menuDescription = m.getElementsByClassName("details-menu-trimmings")[0].textContent;
+                menu[dayName].push({
+                    kitchen: kitchenName,
+                    title: menuName,
+                    description: menuDescription.replace(/\n/g, ' ').replace(/  /g, ' ')
+                });
+            }
+        }
+        mensaPlan = menu;
     });
 }
 

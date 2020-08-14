@@ -61,11 +61,6 @@ body {
     line-height: 1;
 }
 
-#panel-timetable {
-    display: block;
-    height: calc(100vh - 70px);
-}
-
 .class-col {
     width: 100px;
 }
@@ -97,7 +92,7 @@ body {
 .sidebar-link {
     display: block;
     margin: 10px;
-    padding: 5px;
+    padding: 10px;
     text-align: center;
     cursor: pointer;
     color: #a8cdff;
@@ -429,15 +424,53 @@ form button, #logout {
     margin-top: calc(-100vh + 70px);
 }
 
+#timetable.scrollMensa {
+    margin-top: calc(-200vh + 70px + 70px);
+}
+
 #invalid-login {
     color: #ff4b4b;
 }
 
+#panel-timetable {
+    display: block;
+    height: calc(100vh - 70px);
+}
+
 #panel-account {
-    display: none;
     padding: 20vh 10vw;
     background-color: #222222;
     height: calc(60vh - 70px);
+}
+
+#panel-mensa {
+    color: white;
+    height: calc(100vh - 70px);
+}
+
+#mensa-table {
+    margin: 0 auto;
+    height: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+#mensa-table th, #mensa-table td {
+    padding: 0;
+}
+
+#mensa-table tr:not(:last-child) {
+    border-bottom: 2px solid white;
+}
+
+.mensa-date {
+    font-size: 15px;
+    margin: 10px;
+}
+
+.mensa-desc {
+    display: block;
+    padding: 5px;
 }
 
 #accountinfo {

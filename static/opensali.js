@@ -64,7 +64,7 @@ let classList = [];
 let weekOffset = 0;
 
 let currentView = 0;
-const VIEW_NAMES = ["Stundenplan", "Mein Account"];
+const VIEW_NAMES = ["Stundenplan", "Mein Account", "Mensaplan"];
 let currClassName = "C6c";
 
 $(document).ready(() => {
@@ -72,6 +72,9 @@ $(document).ready(() => {
 
     // try to see if we are already logged in
     getPersData();
+
+    // get mensa data
+    loadMensa();
 
     // timetable entries
     $(document).on("click", ".timetable-entry:not(.empty):not(.timetable-time)", (el) => {
@@ -129,9 +132,6 @@ $(document).ready(() => {
     $("#open-menu").on("click", () => {
         $("#mainWindow").toggleClass("toRight");
         $("#sidebar").toggleClass("visible");
-    });
-    $("#link-account").on("click", () => {
-        $("#panel-account").fadeIn();
     });
 
     // swiping for side panel
@@ -302,17 +302,25 @@ $(document).ready(() => {
                 $("#current-class").text(currClassName);
                 $("#timetable").removeClass();
                 $("#timetable").addClass("scrollTimetable");
+                $(".sidebar-link").removeClass("active");
                 $("#link-timetable").addClass("active");
-                $("#link-account").removeClass("active");
                 currentView = 0;
                 break;
             case VIEW_NAMES[1]:
-                $("#current-class").text("Mein Account");
+                $("#current-class").text(VIEW_NAMES[1]);
                 $("#timetable").removeClass();
                 $("#timetable").addClass("scrollLogin");
-                $("#link-timetable").removeClass("active");
+                $(".sidebar-link").removeClass("active");
                 $("#link-account").addClass("active");
                 currentView = 1;
+                break;
+            case VIEW_NAMES[2]:
+                $("#current-class").text(VIEW_NAMES[2]);
+                $("#timetable").removeClass();
+                $("#timetable").addClass("scrollMensa");
+                $(".sidebar-link").removeClass("active");
+                $("#link-mensa").addClass("active");
+                currentView = 2;
                 break;
         }
         $("#mainWindow").delay(500).removeClass("toRight");
@@ -491,6 +499,21 @@ function getPersData() {
             $("#otherDetails").text(data.Adresse + ", " + data.PLZ + " " + data.Ort);
             $("#login-form").hide();
             $("#accountinfo").show();
+        }
+    });
+}
+
+function loadMensa() {
+    fetch("/mensa").then(res => res.json()).then(res => {
+        let i = 0;
+        for (let date in res) {
+            $("#mensa-table td").eq(i * 4).html(`<span class="mensa-date">${date}</span>`);
+            let j = 0;
+            for (let menu of res[date]) {
+                $("#mensa-table td").eq(i * 4 + 1 + j).append(`<span class="mensa-desc"><span style="font-weight: bold">${menu.title}</span><br>${menu.description}<br></span>`);
+                j++;
+            }
+            i++;
         }
     });
 }
