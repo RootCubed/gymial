@@ -21,7 +21,11 @@ app.use((req, res, next) => {
         if (req.headers.cookie) {
             let user = cookieToUser(req.headers.cookie);
             isAuthorized(user).then(isAuth => {
-                if (isAuth) redis.hincrby("user:" + user.username, "requests", 1);
+                if (isAuth) {
+                    redis.hincrby("user:" + user.username, "requests", 1);
+                } else {
+                    redis.incr("nonAuthReqs");
+                }
             });
         }
         next();
