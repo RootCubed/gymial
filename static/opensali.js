@@ -171,9 +171,7 @@ $(document).ready(() => {
         if (IDType == "class") {
             fetch(`/class-personal-details/${classID}`)
             .then(response => {
-                if (response.status == 401) {
-                    return 401;
-                }
+                if (response.status == 401) return 401;
                 return response.json();
             }).then(res => {
                 if (res == 401) {
@@ -297,6 +295,7 @@ $(document).ready(() => {
 
     // sidebar link
     $(".sidebar-link").click(el => {
+        $("#margin-details").hide();
         switch(el.target.innerText) {
             case VIEW_NAMES[0]:
                 $("#current-class").text(currClassName);
@@ -574,7 +573,14 @@ function setLessonData(lesson) {
     $("#teacher-detail").text(lesson.tFull);
     $("#personal-shit").html("<div class='names'></div>");
     if (lesson.cId) {
-        fetch("/course-participants/" + lesson.cId).then(r => r.json()).then(res => {
+        fetch("/course-participants/" + lesson.cId).then(r => {
+            if (r.status == 401) return 401;
+            return r.json();
+        }).then(res => {
+            if (res == 401) {
+                $(".sidebar-link").eq(1).click();
+                return;
+            }
             let html = "";
             for (let r of res) {
                 html += `<span class="student studentName person-link" data="${r.id}">${r.name}</span>`

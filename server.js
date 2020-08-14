@@ -556,7 +556,7 @@ function updateMensaCache() {
         for (let day of days) {
             let menus = day.getElementsByClassName("details-menu");
             let dayName = day.getElementsByClassName("details-date")[0].textContent;
-            dayName = dayName.split(", ")[1].split(". ").join(".");
+            dayName = dayName.split(". ").join(".");
             menu[dayName] = [];
             for (let m of menus) {
                 let kitchenName = m.getElementsByClassName("details-menu-type")[0].textContent;
