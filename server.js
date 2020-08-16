@@ -6,7 +6,7 @@ const nodeFetch = require("node-fetch");
 const cors = require("cors");
 const crypto = require("crypto");
 const compression = require("compression");
-const iconv = require("iconv");
+const iconv = require("iconv-lite");
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 
@@ -199,8 +199,7 @@ function searchPeopleKzoCH(firstName, lastName, classToSearch) {
             "mode": "cors",
             "credentials": "include"
         }).then(res => res.buffer()).then(res => {
-            let conv = new iconv.Iconv("iso-8859-1", "utf-8"); // bruh why does kzo.ch use ancient charsets, please just start using utf-8
-            res = conv.convert(res).toString("utf-8");
+            res = iconv.decode(Buffer.from(res), "iso-8859-1"); // bruh why does kzo.ch use ancient charsets, please just start using utf-8
             if (res.includes("Keine Adressen gefunden")) resolve([]);
             let table = res.match(/<table.*?adressliste">(.|\s)+?<\/table>/g)[0];
             let rows = table.match(/<tr.*?>(.|\s)+?<\/tr>/g);
