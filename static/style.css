@@ -5,14 +5,28 @@
     line-height: 1.05;
 }
 
+:root {
+    --background-primary: #333;
+    --background-secondary: #37373b;
+    --background-tertiary: #222;
+    --color-primary: #fff;
+    --color-secondary: #000;
+    --color-progress-bar: #329f5b;
+    --class-lesson-bg: #ddd;
+    --class-no-lesson-bg: #888;
+    --class-hover: #aaa;
+    --class-cancelled: #ff5e48;
+    --class-special: #add770;
+}
+
 body {
-    background-color: #333;
+    background-color: var(--background-primary);
     overflow: hidden;
 }
 
 #scrollLimiter {
     overflow: hidden;
-    background-color: #333;
+    background-color: var(--background-primary);
 }
 
 #selection {
@@ -28,7 +42,7 @@ body {
 #progress-bar {
     transition: width 0.5s,
         background-color 0.5s;
-    background-color: #329F5B;
+    background-color: var(--color-progress-bar);
     height: 2px;
     border: none;
     margin: 0;
@@ -46,7 +60,7 @@ body {
 #current-class {
     padding: 6px;
     display: inline-block;
-    color: white;
+    color: var(--color-primary);
     font-weight: bold;
     font-size: 25px;
     cursor: pointer;
@@ -73,7 +87,7 @@ body {
     left: -200px;
     width: 200px;
     height: calc(100% - 60px);
-    background-color: #37373b;
+    background-color: var(--background-secondary);
     z-index: 1;
 }
 
@@ -158,7 +172,8 @@ body {
 }
 
 .timetable-entry {
-    background-color: #dddddd;
+    background-color: var(--class-lesson-bg);
+    color: var(--color-secondary);
     text-align: center;
     border-radius: 0.5em;
     overflow-y: hidden;
@@ -170,24 +185,25 @@ body {
 }
 
 .timetable-entry:not(.empty):not(.timetable-time):hover {
-    background-color: #aaaaaa;
+    background-color: var(--class-hover);
 }
 
 .cancelled {
-    background-color: #ff9c48;
+    background-color: var(--class-cancelled);
     text-decoration: line-through;
-    padding: 10px;
-    border-radius: 10px;
+    padding: 4px;
+    border-radius: 5px;
+    margin: 1px;
 }
 
 .special {
-    background-color: #4F7CAC;
+    background-color: var(--class-special);
     padding: 10px;
     border-radius: 10px;
 }
 
 .empty {
-    background-color: #888888;
+    background-color: var(--class-no-lesson-bg);
 }
 
 .timetable-entry span {
@@ -205,7 +221,7 @@ body {
 
 .timetable-time, .timetable-date {
     background-color: transparent;
-    color: white;
+    color: var(--color-primary);
 }
 
 .scrolling {
@@ -335,11 +351,16 @@ img.teacher {
     float: right;
     margin-left: 15px;
     touch-action: manipulation;
+    stroke: var(--color-primary);
+}
+
+#open-menu {
+    stroke: var(--color-primary);
 }
 
 #today::before {
     content: attr(data-content);
-    color: white;
+    color: var(--color-primary);
     padding: 9px 0 0px 29px;
     position: absolute;
     text-align: center;
@@ -358,7 +379,7 @@ img.teacher {
 form {
     margin: 20px;
     display: block;
-    color: white;
+    color: var(--color-primary);
     position: relative;
     height: calc(100% - 40px);
     max-width: 50vw;
@@ -427,7 +448,7 @@ form button, #logout {
 }
 
 #invalid-login {
-    color: #ff4b4b;
+    color: #ec6969;
 }
 
 #panel-timetable {
@@ -439,12 +460,12 @@ form button, #logout {
 
 #panel-account {
     padding: 20vh 10vw;
-    background-color: #222222;
+    background-color: var(--background-tertiary);
     height: calc(60vh - 63px);
 }
 
 #panel-mensa {
-    color: white;
+    color: var(--color-primary);
     height: calc(100vh - 63px);
 }
 
@@ -476,7 +497,7 @@ form button, #logout {
 }
 
 #accountinfo {
-    color: white;
+    color: var(--color-primary);
     text-align: center;
 }
 
@@ -505,6 +526,21 @@ form button, #logout {
 @keyframes scroll {
     from {transform: translateY(0)}
     to {transform: translateY(-50%)}
+}
+
+@media (min-width: 1025px){
+    #panels {
+        width: calc(100vw - 200px);
+        right: 0;
+    }
+
+    #sidebar {
+        left: 0;
+    }
+
+    #open-menu {
+        display: none;
+    }
 }
 
 @media print {
