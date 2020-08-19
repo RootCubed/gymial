@@ -8,7 +8,7 @@ const URLS_CACHE = [
     "/calendar.svg",
     "/spinner.svg",
     "/jquery-3.5.1.min.js",
-    "/opensali.js",
+    "/gymial.js",
     "/manifest.webmanifest",
     "/apple-touch-icon.png",
     "/logo_512.png",
