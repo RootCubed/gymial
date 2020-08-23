@@ -28,7 +28,8 @@ const timesPost73 = [
 ];
 const shortTimesPost73 = [730, 825, 920, 1035, 1140, 1235, 1340, 1445, 1540, 1635, 1720];
 
-const NEXT_SEM_START = 1597615200000;
+const NEXT_SEM_START = 1614553200000;
+const nextSemOnline = false;
 
 let times = timesPre73;
 let shortTimes = shortTimesPre73;
@@ -44,8 +45,8 @@ let currPeriod = 73;
 if (window.localStorage.getItem("api")) {
     try {
         let json = JSON.parse(window.localStorage.getItem("api"));
-        Cookies.set("username",  json.username);
-        Cookies.set("apiToken",  json.token);
+        Cookies.set("username",  json.username, {expires: 365});
+        Cookies.set("apiToken",  json.token, {expires: 365});
     } catch (e) {}
 }
 
@@ -224,7 +225,7 @@ $(document).ready(() => {
         switch(classID[0]) {
             case 'c':
                 IDType = "class";
-                if (currTime < NEXT_SEM_START) {
+                if (!nextSemOnline || currTime < NEXT_SEM_START) {
                     window.localStorage.setItem("class", JSON.stringify({id: classID.substr(1), name: el.target.innerText}));
                 }
                 break;
@@ -530,12 +531,17 @@ function applyScrolling() {
 }
 
 function enableDisableSemButton() {
-    if (currTime >= NEXT_SEM_START) {
+    if (!nextSemOnline) {
         $("#forward-next-sem").hide();
-        $("#backward-next-sem").show();
-    } else {
-        $("#forward-next-sem").show();
         $("#backward-next-sem").hide();
+    } else {
+        if (currTime >= NEXT_SEM_START) {
+            $("#forward-next-sem").hide();
+            $("#backward-next-sem").show();
+        } else {
+            $("#forward-next-sem").show();
+            $("#backward-next-sem").hide();
+        }
     }
 }
 
