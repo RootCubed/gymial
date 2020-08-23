@@ -86,7 +86,7 @@ body {
     position: fixed;
     left: -200px;
     width: 200px;
-    height: calc(100% - 60px);
+    height: calc(100vh - 60px);
     background-color: var(--background-secondary);
     z-index: 1;
 }
@@ -437,6 +437,8 @@ form button, #logout, #persplan {
     margin-top: 0;
     max-height: calc(100vh - 63px);
     overflow: hidden;
+    height: 100vh;
+    width: 100vw;
 }
 
 #panel-timetable.scrollTimetable {
@@ -532,7 +534,13 @@ form button, #logout, #persplan {
     to {transform: translateY(-50%)}
 }
 
-@media (min-width: 1025px){
+@media (max-width: 30em) {
+    .timetable-entry span {
+        font-size: 12px;
+    }
+}
+
+@media (min-width: 1025px) {
     #panels {
         width: calc(100vw - 200px);
         right: 0;
