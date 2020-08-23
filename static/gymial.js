@@ -41,6 +41,7 @@ let rawData, timetableData;
 let IDType = "class";
 let classID = 2497;
 let currPeriod = 73;
+let persData;
 
 if (window.localStorage.getItem("api")) {
     try {
@@ -261,6 +262,14 @@ $(document).ready(() => {
         Cookies.remove("username");
         Cookies.remove("apiToken");
         window.localStorage.removeItem("api");
+    });
+
+    $("#persplan").on("click", ev => {
+        classID = persData.PersonID;
+        IDType = "student";
+        currClassName = persData.Nachname + ", " + persData.Vorname;
+        init();
+        $("#link-timetable").click();
     });
 
     // logging in
@@ -494,9 +503,9 @@ function loadClass() {
 function getPersData() {
     fetch("/myData").then(res => res.json()).then(res => {
         if (res.total > 0) {
-            let data = res.data[0];
-            $("#ownName").text(data.Vorname + " " + data.Nachname);
-            $("#otherDetails").text(data.Adresse + ", " + data.PLZ + " " + data.Ort);
+            persData = res.data[0];
+            $("#ownName").text(persData.Vorname + " " + persData.Nachname);
+            $("#otherDetails").text(persData.Adresse + ", " + persData.PLZ + " " + persData.Ort);
             $("#login-form").hide();
             $("#accountinfo").show();
         }

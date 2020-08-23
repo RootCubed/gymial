@@ -418,13 +418,17 @@ input[type=text], input[type=password] {
     width: 60px;
 }
 
-form button, #logout {
+form button, #logout, #persplan {
     margin: 20px auto;
     -webkit-appearance: none;
     background-color: #dddddd;
     border-radius: 0;
     padding: 12px;
     display: block;
+}
+
+#persplan {
+    margin-bottom: 5px;
 }
 
 #panels {
