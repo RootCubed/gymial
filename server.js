@@ -16,6 +16,8 @@ redis.auth(rtg.auth.split(":")[1]);
 const { promisify } = require("util");
 const redisHGet = promisify(redis.hget).bind(redis);
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; // remove once the tam.ch certificate gets recognized
+
 app.use((req, res, next) => {
     if (req.header("x-forwarded-proto") !== "https" && req.hostname !== "localhost" && !req.hostname.includes("192.168")) {
         res.redirect(301, `https://${req.header("host")}${req.url}`);

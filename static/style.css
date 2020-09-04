@@ -425,6 +425,7 @@ form button, #logout, #persplan {
     border-radius: 0;
     padding: 12px;
     display: block;
+    font-size: 18px;
 }
 
 #persplan {
