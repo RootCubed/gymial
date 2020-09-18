@@ -411,8 +411,7 @@ app.get("/course-participants/:id", function (req, res) {
     });
 });
 
-// RIP people pictures 2017-2020
-/*app.get("/picture/:id", function (req, res) {
+app.get("/picture/:id", function (req, res) {
     if (!isAuthorized(cookieToUser(req.headers.cookie))) {
         res.status(401).end();
         return;
@@ -428,7 +427,7 @@ app.get("/course-participants/:id", function (req, res) {
         });
         res.end(Buffer.from(r, "base64"));
     });
-});*/
+});
 
 app.get("/resources/:time", function (req, res) {
     console.log("period", getPeriod(req.params.time));
