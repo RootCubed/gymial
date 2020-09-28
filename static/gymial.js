@@ -640,7 +640,7 @@ function convertToUsable(timetable) {
     }
     let minDate = getFirstDayOfWeek(new Date(parseInt(minimalLessons[0].lDate.substr(6))));
     for (let date = minDate; date < new Date(minDate.getTime() + DAY * 5); date = new Date(date.getTime() + DAY)) {
-        result[date.toLocaleDateString("de-CH", {timeZone: "UTC"})] = new Array(times.length).fill(null).map(() => []);
+        result[date.toLocaleDateString("de-CH", {timeZone: "Europe/Zurich"})] = new Array(times.length).fill(null).map(() => []);
     }
     // second pass of data, put all lessons in array
     for (let i = 0; i < minimalLessons.length; i++) {
@@ -701,7 +701,7 @@ function areLessonsIdentical(les1, les2) {
 }
 
 function dateToObjectKey(date) {
-    return new Date(parseInt(date.substr(6))).toLocaleDateString("de-CH", {timeZone: "UTC"});
+    return new Date(parseInt(date.substr(6))).toLocaleDateString("de-CH", {timeZone: "Europe/Zurich"});
 }
 
 function getFirstDayOfWeek(d) {
