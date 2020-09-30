@@ -530,6 +530,20 @@ form button, #logout, #persplan {
     width: 1px;
 }
 
+span svg line {
+    stroke-width: 2;
+    stroke: var(--color-primary);
+}
+
+span:not(#today) svg line {
+    stroke-linecap: round;
+}
+
+svg polygon {
+    stroke: none;
+    fill: var(--color-primary);
+}
+
 @keyframes scroll {
     from {transform: translateY(0)}
     to {transform: translateY(-50%)}

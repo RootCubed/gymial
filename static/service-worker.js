@@ -5,7 +5,6 @@ const CACHE_NAME = "siteCache";
 const URLS_CACHE = [
     "/",
     "/style.css",
-    "/calendar.svg",
     "/spinner.svg",
     "/jquery-3.5.1.min.js",
     "/gymial.js",
