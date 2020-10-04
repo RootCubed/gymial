@@ -412,20 +412,22 @@ app.get("/course-participants/:id", function (req, res) {
 });
 
 app.get("/picture/:id", function (req, res) {
-    if (!isAuthorized(cookieToUser(req.headers.cookie))) {
-        res.status(401).end();
-        return;
-    }
-    let body = {
-        "person": req.params.id,
-        "method": "POST"
-    };
-    getShit("/kzo/list/get-person-picture", body).then((r) => {
-        res.writeHead(200, {
-            "Content-Type": "image/jpeg",
-            "Content-Length": Buffer.from(r, "base64").length
+    isAuthorized(cookieToUser(req.headers.cookie)).then(isAuth => {
+        if (!isAuth) {
+            res.status(401).end();
+            return;
+        }
+        let body = {
+            "person": req.params.id,
+            "method": "POST"
+        };
+        getShit("/kzo/list/get-person-picture", body).then((r) => {
+            res.writeHead(200, {
+                "Content-Type": "image/jpeg",
+                "Content-Length": Buffer.from(r, "base64").length
+            });
+            res.end(Buffer.from(r, "base64"));
         });
-        res.end(Buffer.from(r, "base64"));
     });
 });
 
