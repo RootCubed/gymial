@@ -71,6 +71,10 @@ let token = "";
 
 const periods = [
     {
+        "period": 74,
+        "startTime": 1614553200000
+    },
+    {
         "period": 73,
         "startTime": 1597615200000
     },
