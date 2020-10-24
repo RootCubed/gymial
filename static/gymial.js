@@ -567,8 +567,10 @@ function classFromTTData(data) {
     }
     let best = ["", 0];
     for (let d in potentialClasses) {
-        best[0] = d;
-        best[1] = potentialClasses[d];
+        if (potentialClasses[d] > best[1]) {
+            best[0] = d;
+            best[1] = potentialClasses[d];
+        }
     }
     return best[0];
 }
