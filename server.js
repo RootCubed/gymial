@@ -507,8 +507,8 @@ app.get("/class-personal-details/:classID", function (req, res) {
             res.send(r);
         });
         */
-        let startTime = periods[1].startTime;
-        if (req.params.classID >= 2438) startTime = periods[0].startTime;
+        let startTime = periods[2].startTime;
+        if (req.params.classID >= 2438) startTime = periods[1].startTime;
         let body = {
             "startDate": startTime,
             "endDate": startTime + 4 * 24 * 60 * 60 * 1000,
