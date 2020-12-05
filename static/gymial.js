@@ -635,7 +635,7 @@ function convertToUsable(timetable) {
         };
         if (mLesson.cName == "IU") {
             if (!mLesson.sNames) continue;
-            if (!mLesson[0]) continue;
+            if (!mLesson.sNames[0]) continue;
             if (insPersonIds.indexOf(mLesson.sNames[0].studentId) > -1) continue;
             insPersonIds.push(mLesson.sNames[0].studentId);
         }
