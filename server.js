@@ -65,6 +65,7 @@ let options = {
     path: "/kzo/timetable/ajax-get-timetable",
     method: "POST",
     headers: headers,
+    referrerPolicy: "strict-origin-when-cross-origin"
 };
 
 let token = "";
@@ -225,6 +226,12 @@ function searchPeopleKzoCH(firstName, lastName, classToSearch) {
 function getShit(endpoint, body) {
     options.path = endpoint;
     body.csrfToken = token;
+    let oldRef = options.referrer;
+    let oldRef2 = headers.Referer;
+    if (body.periodId) {
+        options.referrer = "https://intranet.tam.ch/kzo/calendar/index/period/" + body.periodId;
+        options.headers.Referer = "https://intranet.tam.ch/kzo/calendar/index/period/" + body.periodId;
+    }
     return new Promise(function(resolve) {
         let str = "";
 
@@ -248,6 +255,8 @@ function getShit(endpoint, body) {
                         });
                     });
                 } else {
+                    options.referrer = oldRef;
+                    options.headers.Referer = oldRef2;
                     resolve(str);
                 }
             });

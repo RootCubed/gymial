@@ -29,7 +29,7 @@ const timesPost73 = [
 const shortTimesPost73 = [730, 825, 920, 1035, 1140, 1235, 1340, 1445, 1540, 1635, 1720];
 
 const NEXT_SEM_START = 1614553200000;
-const nextSemOnline = false;
+const nextSemOnline = true;
 
 let times = timesPre73;
 let shortTimes = shortTimesPre73;
