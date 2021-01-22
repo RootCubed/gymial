@@ -148,7 +148,7 @@ function objToCookie(obj) {
 
 function loginRegularKZO(user, pass) {
     return new Promise((resolve, reject) => {
-        nodeFetch("https://www.kzo.ch/index.php?id=intranet", {
+        nodeFetch("https://intranet.kzo.ch/index.php?id=intranet", {
             "headers": {
                 "accept": "text/html,application/xhtml+xml,application/xml",
                 "cache-control": "no-cache",
@@ -185,7 +185,7 @@ function searchPeopleKzoCH(firstName, lastName, classToSearch) {
         if (!kzoCHCookies.PHPSESSID) {
             await loginRegularKZO(process.env.user, process.env.password);
         }
-        nodeFetch("https://www.kzo.ch/index.php?id=549", {
+        nodeFetch("https://intranet.kzo.ch/index.php?id=549", {
             "headers": {
                 "accept": "text/html,application/xhtml+xml,application/xml;q=0.9",
                 "accept-charset": "utf-8;q=0.9",
@@ -199,7 +199,7 @@ function searchPeopleKzoCH(firstName, lastName, classToSearch) {
                 "upgrade-insecure-requests": "1",
                 "cookie": objToCookie(kzoCHCookies)
             },
-            "referrer": "https://www.kzo.ch/index.php?id=549",
+            "referrer": "https://intranet.kzo.ch/index.php?id=549",
             "referrerPolicy": "no-referrer-when-downgrade",
             "body": `vorname=${firstName}&nachname=${lastName}&klasse=${classToSearch}&search=%3E%3E+suchen`,
             "method": "POST",
