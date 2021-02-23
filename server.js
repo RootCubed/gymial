@@ -431,12 +431,12 @@ app.get("/picture/:id", function (req, res) {
             return;
         }
         let body = {
-            "studentIDs": JSON.stringify([req.params.id]),
+            "studentIDs": JSON.stringify([req.params.id.split(".")[0]]),
             "method": "POST"
         };
         getShit("/kzo/timetable/ajax-get-student-picture-data", body).then((r) => {
             let data = JSON.parse(r);
-            let buf = Buffer.from(data.data[0].substring(23), "base64")
+            let buf = Buffer.from(data.data[0].substring(23), "base64");
             res.writeHead(200, {
                 "Content-Type": "image/jpeg",
                 "Content-Length": buf.length
