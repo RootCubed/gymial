@@ -248,7 +248,7 @@ function getShit(endpoint, body) {
                             headers["Cookie"] = "username=liam.braun; school=kzo; sturmuser=liam.braun; " + token;
                         }
                         nodeFetch("https://intranet.tam.ch/kzo", {headers: headers}).then(r => r.text()).then(r => {
-                            token = r.match(/csrfToken='([0-z]+)/)[1];
+                            token = r.match(/csrfToken = '([0-z]+)/)[1];
                             getShit(endpoint, body).then(r => {
                                 resolve(r);
                             });
@@ -431,15 +431,17 @@ app.get("/picture/:id", function (req, res) {
             return;
         }
         let body = {
-            "person": req.params.id,
+            "studentIDs": JSON.stringify([req.params.id]),
             "method": "POST"
         };
-        getShit("/kzo/list/get-person-picture", body).then((r) => {
+        getShit("/kzo/timetable/ajax-get-student-picture-data", body).then((r) => {
+            let data = JSON.parse(r);
+            let buf = Buffer.from(data.data[0].substring(23), "base64")
             res.writeHead(200, {
                 "Content-Type": "image/jpeg",
-                "Content-Length": Buffer.from(r, "base64").length
+                "Content-Length": buf.length
             });
-            res.end(Buffer.from(r, "base64"));
+            res.end(buf);
         });
     });
 });
