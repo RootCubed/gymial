@@ -10,9 +10,9 @@ const iconv = require("iconv-lite");
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 
-const rtg = require("url").parse(process.env.REDISTOGO_URL);
+const rtg = new URL(process.env.REDISTOGO_URL);
 const redis = require("redis").createClient(rtg.port, rtg.hostname);
-redis.auth(rtg.auth.split(":")[1]);
+redis.auth(rtg.password);
 const { promisify } = require("util");
 const redisHGet = promisify(redis.hget).bind(redis);
 
@@ -52,7 +52,7 @@ let headers = {
     "Sec-Fetch-Site": "same-origin",
     "Sec-Fetch-Mode": "cors",
     "Referer": "https://intranet.tam.ch/kzo",
-    "Cookie": "username=liam.braun; school=kzo; sturmuser=liam.braun; sturmsession=61h71r9jtijgsammm7fu6lr4gl"
+    "Cookie": `username=${process.env.user}; school=kzo; sturmuser=${process.env.user}; sturmsession=`
 };
 
 let kzoCHCookies = {};
@@ -99,13 +99,19 @@ function login(username, password) {
             loginpassword: password,
             loginschool: "kzo"
         };
-    
-        options.path = "/kzo/";
 
-        let tmpOptions = JSON.parse(JSON.stringify(options));
-        tmpOptions.headers["Cookie"] = null;
+        let options = {
+            hostname: "intranet.tam.ch",
+            port: 443,
+            path: "/kzo/",
+            method: "POST",
+            headers: JSON.parse(JSON.stringify(headers)),
+            referrerPolicy: "strict-origin-when-cross-origin"
+        };
+
+        options.headers["Cookie"] = null;
     
-        let req = https.request(tmpOptions, res => {
+        let req = https.request(options, res => {
             let setCookies = res.headers["set-cookie"];
             let sturmsession;
             let str = "";
@@ -117,11 +123,10 @@ function login(username, password) {
                 }
             }
             if (!sturmsession) resolve();
-            let tmpOpts = JSON.parse(JSON.stringify(options));
-            tmpOpts.path = "/kzo/list/index/list/30";
-            tmpOpts.headers["Cookie"] = newCookies;
-            tmpOpts.method = "GET";
-            let req2 = https.request(tmpOpts, res => {
+            options.path = "/kzo/list/index/list/30";
+            options.headers["Cookie"] = newCookies;
+            options.method = "GET";
+            let req2 = https.request(options, res => {
                 res.on("data", d => {
                     str += d.toString();
                 });
@@ -223,11 +228,16 @@ function searchPeopleKzoCH(firstName, lastName, classToSearch) {
     });
 }
 
-function getShit(endpoint, body) {
-    options.path = endpoint;
+function intranetReq(endpoint, body) {
+    let options = {
+        hostname: "intranet.tam.ch",
+        port: 443,
+        path: endpoint,
+        method: "POST",
+        headers: JSON.parse(JSON.stringify(headers)),
+        referrerPolicy: "strict-origin-when-cross-origin"
+    };
     body.csrfToken = token;
-    let oldRef = options.referrer;
-    let oldRef2 = headers.Referer;
     if (body.periodId) {
         options.referrer = "https://intranet.tam.ch/kzo/calendar/index/period/" + body.periodId;
         options.headers.Referer = "https://intranet.tam.ch/kzo/calendar/index/period/" + body.periodId;
@@ -245,18 +255,16 @@ function getShit(endpoint, body) {
                     login(process.env.user, process.env.password).then((sessionToken) => {
                         if (sessionToken != null) {
                             let token = sessionToken[0];
-                            headers["Cookie"] = "username=liam.braun; school=kzo; sturmuser=liam.braun; " + token;
+                            headers["Cookie"] = `username=${process.env.user}; school=kzo; sturmuser=${process.env.user}; ` + token;
                         }
                         nodeFetch("https://intranet.tam.ch/kzo", {headers: headers}).then(r => r.text()).then(r => {
                             token = r.match(/csrfToken = '([0-z]+)/)[1];
-                            getShit(endpoint, body).then(r => {
+                            intranetReq(endpoint, body).then(r => {
                                 resolve(r);
                             });
                         });
                     });
                 } else {
-                    options.referrer = oldRef;
-                    options.headers.Referer = oldRef2;
                     resolve(str);
                 }
             });
@@ -379,7 +387,7 @@ app.get("/timetable/:type/:id/:time", function (req, res) {
             return;
     }
     body[req.params.type + "Id[]"] = req.params.id;
-    getShit("/kzo/timetable/ajax-get-timetable", body).then(r => {
+    intranetReq("/kzo/timetable/ajax-get-timetable", body).then(r => {
         isAuthorized(cookieToUser(req.headers.cookie)).then(isAuth => {
             if (!isAuth) {
                 let json = JSON.parse(r).data;
@@ -413,7 +421,7 @@ app.get("/course-participants/:id", function (req, res) {
         let body = {
             "method": "GET"
         };
-        getShit(`/kzo/list/getlist/list/40/id/${req.params.id}/period/73`, body).then(r => {
+        intranetReq(`/kzo/list/getlist/list/40/id/${req.params.id}/period/73`, body).then(r => {
             res.send(JSON.parse(r).data.map(el => {
                 return {
                     "name": el.Name + ", " + el.Vorname,
@@ -434,7 +442,7 @@ app.get("/picture/:id", function (req, res) {
             "studentIDs": JSON.stringify([req.params.id.split(".")[0]]),
             "method": "POST"
         };
-        getShit("/kzo/timetable/ajax-get-student-picture-data", body).then((r) => {
+        intranetReq("/kzo/timetable/ajax-get-student-picture-data", body).then((r) => {
             let data = JSON.parse(r);
             let buf = Buffer.from(data.data[0].substring(23), "base64");
             res.writeHead(200, {
@@ -447,12 +455,11 @@ app.get("/picture/:id", function (req, res) {
 });
 
 app.get("/resources/:time", function (req, res) {
-    console.log("period", getPeriod(req.params.time));
     let body = {
         "periodId": getPeriod(req.params.time),
         "method": "POST"
     };
-    getShit("/kzo/timetable/ajax-get-resources/", body).then(r => {
+    intranetReq("/kzo/timetable/ajax-get-resources/", body).then(r => {
         isAuthorized(cookieToUser(req.headers.cookie)).then(isAuth => {
             if (!isAuth) {
                 res.send({
@@ -479,7 +486,7 @@ app.get("/getName/:id", function (req, res) {
             "id": req.params.id,
             "method": "POST"
         };
-        getShit("/kzo/list/get-person-name", body).then((r) => {
+        intranetReq("/kzo/list/get-person-name", body).then((r) => {
             res.send(r);
         });
     });
@@ -507,19 +514,8 @@ app.get("/class-personal-details/:classID", function (req, res) {
             res.status(401).end();
             return;
         }
-        /*
-        (Taken down in the mean time)
-        let body = {
-            "method": "GET"
-        };
-        let period = 72;
-        if (req.params.classID >= 2438) period = 73;
-        getShit("/kzo/list/getlist/list/12/id/" + req.params.classID + "/period/" + period, body).then(r => {
-            res.send(r);
-        });
-        */
-        let startTime = periods[2].startTime;
-        if (req.params.classID >= 2438) startTime = periods[1].startTime;
+        let startTime = periods[1].startTime;
+        if (req.params.classID >= 2438) startTime = periods[0].startTime;
         let body = {
             "startDate": startTime,
             "endDate": startTime + 4 * 24 * 60 * 60 * 1000,
@@ -527,7 +523,7 @@ app.get("/class-personal-details/:classID", function (req, res) {
             "method": "POST",
             "classId[]": req.params.classID
         };
-        getShit("/kzo/timetable/ajax-get-timetable", body).then(r => {
+        intranetReq("/kzo/timetable/ajax-get-timetable", body).then(r => {
             let data = JSON.parse(r).data;
             let classList = [];
             for (let c of data) {
