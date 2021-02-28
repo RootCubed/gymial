@@ -516,8 +516,10 @@ form button, #logout, #persplan {
 #mensa-table {
     margin: 0 auto;
     height: 100%;
+    width: 100%;
     table-layout: fixed;
     border-collapse: collapse;
+    hyphens: auto;
 }
 
 #mensa-table th, #mensa-table td {
@@ -545,6 +547,7 @@ form button, #logout, #persplan {
     margin-left: 10px;
     background-color: white;
     border-radius: 0;
+    text-align: center;
 }
 
 #accountinfo {

@@ -531,17 +531,19 @@ function getPersData() {
 
 function loadMensa(name) {
     fetch("/mensa/" + name).then(res => res.json()).then(res => {
-        $("#mensa-table td").html("");
+        let tableHtml = "";
         let i = 0;
         for (let date in res) {
-            $("#mensa-table td").eq(i * 4).html(`<span class="mensa-date">${date}</span>`);
+            tableHtml += `<tr><td style="width: 15%;"><span class="mensa-date">${date}</span></td>`;
             let j = 0;
             for (let menu of res[date]) {
-                $("#mensa-table td").eq(i * 4 + 1 + j).append(`<span class="mensa-desc"><span style="font-weight: bold">${menu.title}</span><br>${menu.description}<br></span>`);
+                tableHtml += `<td><span class="mensa-desc"><span style="font-weight: bold">${menu.title}</span><br>${menu.description}<br></span></td>`;
                 j++;
             }
+            tableHtml += "</tr>";
             i++;
         }
+        $("#mensa-table tbody").html(tableHtml);
     });
 }
 
