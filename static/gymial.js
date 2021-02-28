@@ -349,7 +349,7 @@ $(document).ready(() => {
         return;
     });
 
-    $(window).resize(() => {
+    window.addEventListener("resize", () => {
         let wh = window.innerHeight;
         document.documentElement.style.setProperty('--wh', `${wh}px`);
 
