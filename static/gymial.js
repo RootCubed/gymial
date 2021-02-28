@@ -79,7 +79,7 @@ $(document).ready(() => {
     getPersData();
 
     // get mensa data
-    loadMensa("KZO");
+    loadMensa("KZO", false);
 
     // timetable entries
     $(document).on("click", ".timetable-entry:not(.empty):not(.timetable-time)", (el) => {
@@ -332,10 +332,16 @@ $(document).ready(() => {
                 currentView = 1;
                 break;
             case VIEW_NAMES[2]:
-                let html = VIEW_NAMES[2] + `<select id="mensa-select"><option>KZO</option><option>Schellerstrasse</option></select>`;
-                $("#current-class").html(html);
-                $("#mensa-select").on("change", () => {
-                    loadMensa($("#mensa-select").find(":selected").text());
+                let currMensa = "KZO";
+                $("#current-class").html(`${VIEW_NAMES[2]} <span id="toggle-mensa">${currMensa}</span>`);
+                $("#toggle-mensa").on("click", () => {
+                    if (currMensa == "KZO") {
+                        currMensa = "Schellerstrasse";
+                    } else {
+                        currMensa = "KZO";
+                    }
+                    $("#toggle-mensa").text(currMensa);
+                    loadMensa(currMensa, true);
                 });
                 $("#panel-timetable").addClass("scrollMensa");
                 $(".sidebar-link").removeClass("active");
@@ -529,21 +535,19 @@ function getPersData() {
     });
 }
 
-function loadMensa(name) {
+function loadMensa(name, showProgress) {
+    if (showProgress) progress(50);
     fetch("/mensa/" + name).then(res => res.json()).then(res => {
         let tableHtml = "";
-        let i = 0;
         for (let date in res) {
             tableHtml += `<tr><td style="width: 15%;"><span class="mensa-date">${date}</span></td>`;
-            let j = 0;
             for (let menu of res[date]) {
                 tableHtml += `<td><span class="mensa-desc"><span style="font-weight: bold">${menu.title}</span><br>${menu.description}<br></span></td>`;
-                j++;
             }
             tableHtml += "</tr>";
-            i++;
         }
         $("#mensa-table tbody").html(tableHtml);
+        if (showProgress) progress(100);
     });
 }
 

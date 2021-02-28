@@ -550,6 +550,11 @@ form button, #logout, #persplan {
     text-align: center;
 }
 
+#toggle-mensa {
+    color: #60c4ff;
+    cursor: pointer;
+}
+
 #accountinfo {
     color: var(--color-primary);
     text-align: center;
