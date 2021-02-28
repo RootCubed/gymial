@@ -29,7 +29,7 @@ const timesPost73 = [
 const shortTimesPost73 = [730, 825, 920, 1035, 1140, 1235, 1340, 1445, 1540, 1635, 1720];
 
 const NEXT_SEM_START = 1614553200000;
-const nextSemOnline = true;
+const nextSemOnline = false;
 
 let times = timesPre73;
 let shortTimes = shortTimesPre73;
@@ -39,9 +39,12 @@ const DAY = 24 * 60 * 60 * 1000;
 let rawData, timetableData;
 
 let IDType = "class";
-let classID = 2497;
-let currPeriod = 73;
+let classID = 2517;
+let currPeriod = 74;
 let persData;
+
+let wh = window.innerHeight;
+document.documentElement.style.setProperty('--wh', `${wh}px`);
 
 if (window.localStorage.getItem("api")) {
     try {
@@ -76,7 +79,7 @@ $(document).ready(() => {
     getPersData();
 
     // get mensa data
-    loadMensa();
+    loadMensa("KZO");
 
     // timetable entries
     $(document).on("click", ".timetable-entry:not(.empty):not(.timetable-time)", (el) => {
@@ -167,6 +170,7 @@ $(document).ready(() => {
 
     // clicking on class name
     $("#current-class").on("click", () => {
+        if (currentView != 0) return; // timetable
         if ($("#margin-details").is(":visible")) return;
         $("#overlay-lesson-tabs, #room-detail, #teacher-detail, #personal-shit").html("");
         $("#overlay-lesson-tabs").hide();
@@ -308,12 +312,16 @@ $(document).ready(() => {
         $("#margin-details").hide();
         $("#panel-timetable").removeClass();
         $("#panel-timetable").addClass("canScroll");
+        $("#week-btns").addClass("hide");
+        $("#current-class").addClass("noclick");
         switch(el.target.innerText) {
             case VIEW_NAMES[0]:
                 $("#current-class").text(currClassName);
                 $("#panel-timetable").addClass("scrollTimetable");
                 $(".sidebar-link").removeClass("active");
                 $("#link-timetable").addClass("active");
+                $("#week-btns").removeClass("hide");
+                $("#current-class").removeClass("noclick");
                 currentView = 0;
                 break;
             case VIEW_NAMES[1]:
@@ -324,7 +332,11 @@ $(document).ready(() => {
                 currentView = 1;
                 break;
             case VIEW_NAMES[2]:
-                $("#current-class").text(VIEW_NAMES[2]);
+                let html = VIEW_NAMES[2] + `<select id="mensa-select"><option>KZO</option><option>Schellerstrasse</option></select>`;
+                $("#current-class").html(html);
+                $("#mensa-select").on("change", () => {
+                    loadMensa($("#mensa-select").find(":selected").text());
+                });
                 $("#panel-timetable").addClass("scrollMensa");
                 $(".sidebar-link").removeClass("active");
                 $("#link-mensa").addClass("active");
@@ -337,7 +349,12 @@ $(document).ready(() => {
         return;
     });
 
-    $(window).resize(applyScrolling);
+    $(window).resize(() => {
+        let wh = window.innerHeight;
+        document.documentElement.style.setProperty('--wh', `${wh}px`);
+
+        applyScrolling();
+    });
 
     // web worker
     if (navigator.serviceWorker) {
@@ -473,6 +490,7 @@ function loadClass() {
                         let stLength = timetableData[day][i][0].lessonLength;
                         for (let j = 0; j < timetableData[day][i].length; j++) {
                             if (timetableData[day][i][j].lessonLength != stLength) {
+                                ignoreDouble = true;
                                 break;
                             }
                         }
@@ -480,8 +498,15 @@ function loadClass() {
                             continue;
                         }
                         let lLength = timetableData[day][i][0].lessonLength;
+                        let lengthName = "";
+                        if (lLength == 2) {
+                            lengthName = "double";
+                        }
+                        if (lLength == 3) {
+                            lengthName = "triple";
+                        }
                         $(".time-row").last().append(`
-                            <td rowspan=${lLength} class="timetable-entry" data="${day + ";" + i}"><div class="sc_cont"><div class="scroller-container"><div class="scroller">${lessons}<div class="addScroller"></div></div></div></div></td>
+                            <td rowspan=${lLength} class="timetable-entry" data="${day + ";" + i}"><div class="sc_cont"><div class="scroller-container ${lengthName}"><div class="scroller">${lessons}<div class="addScroller"></div></div></div></div></td>
                         `);
                     }
                 }
@@ -504,8 +529,9 @@ function getPersData() {
     });
 }
 
-function loadMensa() {
-    fetch("/mensa").then(res => res.json()).then(res => {
+function loadMensa(name) {
+    fetch("/mensa/" + name).then(res => res.json()).then(res => {
+        $("#mensa-table td").html("");
         let i = 0;
         for (let date in res) {
             $("#mensa-table td").eq(i * 4).html(`<span class="mensa-date">${date}</span>`);
@@ -633,7 +659,7 @@ function convertToUsable(timetable) {
         }
         minimalLessons.push(mLesson);
     }
-    let minDate = getFirstDayOfWeek(new Date(parseInt(minimalLessons[0].lDate.substr(6))));
+    let minDate = getFirstDayOfWeek(new Date(currTime));
     for (let date = minDate; date < new Date(minDate.getTime() + DAY * 5); date = new Date(date.getTime() + DAY)) {
         result[date.toLocaleDateString("de-CH", {timeZone: "Europe/Zurich"})] = new Array(times.length).fill(null).map(() => []);
     }
@@ -648,7 +674,9 @@ function convertToUsable(timetable) {
             index++;
         }
 
-        result[dateToObjectKey(lesson.lDate)][index].push(lesson);
+        if (result[dateToObjectKey(lesson.lDate)]) {
+            result[dateToObjectKey(lesson.lDate)][index].push(lesson);
+        }
     }
     // third pass of data, find double lessons
     for (let day in result) {

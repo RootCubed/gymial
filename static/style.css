@@ -84,6 +84,10 @@ body {
     cursor: pointer;
 }
 
+#current-class.noclick {
+    cursor: default;
+}
+
 #timetable {
     width: 100%;
     table-layout: fixed;
@@ -104,7 +108,8 @@ body {
     position: fixed;
     left: -200px;
     width: 200px;
-    height: calc(100vh - 60px);
+    height: calc(100vh - 64px);
+    height: calc(var(--wh) - 64px);
     background-color: var(--background-secondary);
     z-index: 1;
 }
@@ -161,6 +166,7 @@ body {
 
 .sc_cont {
     height: calc((100vh - 150px) / 11);
+    height: calc((var(--wh) - 150px) / 11);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -168,6 +174,7 @@ body {
 
 .timetable-lesson-times {
     height: calc((100vh - 150px) / 11);
+    height: calc((var(--wh) - 150px) / 11);
 }
 
 .scroller {
@@ -176,9 +183,20 @@ body {
 
 .scroller-container {
     height: calc((100vh - 150px) / 11 + 4px);
+    height: calc((var(--wh) - 150px) / 11 + 4px);
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.scroller-container.double {
+    height: calc(2 * (100vh - 150px) / 11 + 8px);
+    height: calc(2 * (var(--wh) - 150px) / 11 + 8px);
+}
+
+.scroller-container.triple {
+    height: calc(3 * (100vh - 150px) / 11 + 12px);
+    height: calc(3 * (var(--wh) - 150px) / 11 + 12px);
 }
 
 .timetable-entry {
@@ -364,10 +382,6 @@ img.teacher {
     stroke: var(--color-primary);
 }
 
-#open-menu {
-    stroke: var(--color-primary);
-}
-
 #today::before {
     content: attr(data-content);
     color: var(--color-primary);
@@ -383,7 +397,9 @@ img.teacher {
 
 #open-menu {
     float: left;
-    margin-right: 10px;
+    position: absolute;
+    left: 10px;
+    stroke: var(--color-primary);
 }
 
 form {
@@ -447,8 +463,10 @@ form button, #logout, #persplan {
     z-index: -1;
     margin-top: 0;
     max-height: calc(100vh - 63px);
+    max-height: calc(var(--wh) - 63px);
     overflow: hidden;
     height: 100vh;
+    height: var(--wh);
     width: 100vw;
 }
 
@@ -458,10 +476,12 @@ form button, #logout, #persplan {
 
 #panel-timetable.scrollLogin {
     margin-top: calc(-100vh + 63px);
+    margin-top: calc(var(--wh) * -1 + 63px);
 }
 
 #panel-timetable.scrollMensa {
     margin-top: calc(-200vh + 63px + 63px);
+    margin-top: calc(var(--wh) * -2 + 63px + 63px);
 }
 
 #invalid-login {
@@ -471,6 +491,7 @@ form button, #logout, #persplan {
 #panel-timetable {
     display: block;
     height: calc(100vh - 63px);
+    height: calc(var(--wh) - 63px);
 }
 
 #panel-timetable.canScroll {
@@ -480,13 +501,16 @@ form button, #logout, #persplan {
 
 #panel-account {
     padding: 20vh 10vw;
+    padding: calc(var(--wh) * 0.2) 10vw;
     background-color: var(--background-tertiary);
     height: calc(60vh - 63px);
+    height: calc(calc(var(--wh) * 0.6) - 63px);
 }
 
 #panel-mensa {
     color: var(--color-primary);
     height: calc(100vh - 63px);
+    height: calc(var(--wh) - 63px);
 }
 
 #mensa-table {
@@ -501,12 +525,11 @@ form button, #logout, #persplan {
 }
 
 #mensa-table tr:not(:last-child) {
-    border-bottom: 2px solid white;
+    border-bottom: 1px solid white;
 }
 
 .mensa-date {
     font-size: 15px;
-    margin: 10px;
     text-align: center;
     display: block;
 }
@@ -514,6 +537,14 @@ form button, #logout, #persplan {
 .mensa-desc {
     display: block;
     padding: 5px;
+}
+
+#mensa-select {
+    height: 30px;
+    font-size: 20px;
+    margin-left: 10px;
+    background-color: white;
+    border-radius: 0;
 }
 
 #accountinfo {
@@ -544,7 +575,13 @@ form button, #logout, #persplan {
 }
 
 #week-btns {
-    display: inline;
+    float: right;
+    transition: margin-right 0.5s;
+    position: relative;
+}
+
+#week-btns.hide {
+    margin-right: -200px;
 }
 
 span svg line {
@@ -596,6 +633,10 @@ svg polygon {
 }
 
 @media print {
+    :root {
+        --wh: 95vh !important;
+    }
+
     body {
         background-color: white;
     }

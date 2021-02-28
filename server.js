@@ -531,11 +531,20 @@ app.get("/period-from-time/:time", function (req, res) {
     res.end(getPeriod(req.params.time).toString());
 });
 
-let mensaPlan;
+let mensaPlanKZO;
+let mensaPlanScheller;
 
-app.get("/mensa", function (req, res) {
-    if (mensaPlan) {
-        res.send(mensaPlan).end();
+app.get("/mensa/KZO", function (req, res) {
+    if (mensaPlanKZO) {
+        res.send(mensaPlanKZO).end();
+        return;
+    }
+    res.status(404).end();
+});
+
+app.get("/mensa/Schellerstrasse", function (req, res) {
+    if (mensaPlanScheller) {
+        res.send(mensaPlanScheller).end();
         return;
     }
     res.status(404).end();
@@ -544,37 +553,42 @@ app.get("/mensa", function (req, res) {
 updateMensaCache();
 setInterval(updateMensaCache, 1000 * 60 * 60);
 
-function updateMensaCache() {
-    nodeFetch("https://menu.sv-group.ch/typo3conf/ext/netv_svg_menumob/ajax.getContent.php", {
+async function updateMensaCache() {
+    mensaPlanKZO = await readMensa(7912);
+    mensaPlanScheller = await readMensa(7913);
+}
+
+async function readMensa(identifier) {
+    let f = await nodeFetch("https://menu.sv-group.ch/typo3conf/ext/netv_svg_menumob/ajax.getContent.php", {
         "headers": {
             "content-type": "application/x-www-form-urlencoded",
         },
-        "body": "action=getMenuplan&params%5Bbranchidentifier%5D=7912",
+        "body": `action=getMenuplan&params%5Bbranchidentifier%5D=${identifier}`,
         "method": "POST",
         "mode": "cors"
-    }).then(res => res.json()).then(res => {
-        mensaPlan = res[0].html;
-        const dom = new JSDOM(res[0].html);
-        let menu = {};
-        let days = dom.window.document.getElementsByClassName("day-tab");
-        for (let day of days) {
-            let menus = day.getElementsByClassName("details-menu");
-            let dayName = day.getElementsByClassName("details-date")[0].textContent;
-            dayName = dayName.split(". ").join(".");
-            menu[dayName] = [];
-            for (let m of menus) {
-                let kitchenName = m.getElementsByClassName("details-menu-type")[0].textContent;
-                let menuName = m.getElementsByClassName("details-menu-name")[0].textContent;
-                let menuDescription = m.getElementsByClassName("details-menu-trimmings")[0].textContent;
-                menu[dayName].push({
-                    kitchen: kitchenName,
-                    title: menuName,
-                    description: menuDescription.replace(/\n/g, ' ').replace(/  /g, ' ')
-                });
-            }
-        }
-        mensaPlan = menu;
     });
+    let json = await f.json();
+
+    const dom = new JSDOM(json[0].html);
+    let menu = {};
+    let days = dom.window.document.getElementsByClassName("day-tab");
+    for (let day of days) {
+        let menus = day.getElementsByClassName("details-menu");
+        let dayName = day.getElementsByClassName("details-date")[0].textContent;
+        dayName = dayName.split(". ").join(".");
+        menu[dayName] = [];
+        for (let m of menus) {
+            let kitchenName = m.getElementsByClassName("details-menu-type")[0].textContent;
+            let menuName = m.getElementsByClassName("details-menu-name")[0].textContent;
+            let menuDescription = m.getElementsByClassName("details-menu-trimmings")[0].textContent;
+            menu[dayName].push({
+                kitchen: kitchenName,
+                title: menuName,
+                description: menuDescription.replace(/\n/g, ' ').replace(/  /g, ' ')
+            });
+        }
+    }
+    return menu;
 }
 
 app.listen(PORT, () => console.log("Web server is up and running on port " + PORT));
