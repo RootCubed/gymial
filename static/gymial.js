@@ -306,10 +306,11 @@ $(document).ready(() => {
     // sidebar link
     $(".sidebar-link").click(el => {
         $("#margin-details").hide();
+        $("#panel-timetable").removeClass();
+        $("#panel-timetable").addClass("canScroll");
         switch(el.target.innerText) {
             case VIEW_NAMES[0]:
                 $("#current-class").text(currClassName);
-                $("#panel-timetable").removeClass();
                 $("#panel-timetable").addClass("scrollTimetable");
                 $(".sidebar-link").removeClass("active");
                 $("#link-timetable").addClass("active");
@@ -317,7 +318,6 @@ $(document).ready(() => {
                 break;
             case VIEW_NAMES[1]:
                 $("#current-class").text(VIEW_NAMES[1]);
-                $("#panel-timetable").removeClass();
                 $("#panel-timetable").addClass("scrollLogin");
                 $(".sidebar-link").removeClass("active");
                 $("#link-account").addClass("active");
@@ -325,7 +325,6 @@ $(document).ready(() => {
                 break;
             case VIEW_NAMES[2]:
                 $("#current-class").text(VIEW_NAMES[2]);
-                $("#panel-timetable").removeClass();
                 $("#panel-timetable").addClass("scrollMensa");
                 $(".sidebar-link").removeClass("active");
                 $("#link-mensa").addClass("active");
@@ -334,6 +333,7 @@ $(document).ready(() => {
         }
         $("#mainWindow").delay(500).removeClass("toRight");
         $("#sidebar").delay(500).removeClass("visible");
+        setTimeout(() => $("#panel-timetable").removeClass("canScroll"), 500);
         return;
     });
 
@@ -473,7 +473,6 @@ function loadClass() {
                         let stLength = timetableData[day][i][0].lessonLength;
                         for (let j = 0; j < timetableData[day][i].length; j++) {
                             if (timetableData[day][i][j].lessonLength != stLength) {
-                                ignoreDouble = true;
                                 break;
                             }
                         }
@@ -481,15 +480,8 @@ function loadClass() {
                             continue;
                         }
                         let lLength = timetableData[day][i][0].lessonLength;
-                        let lengthName = "";
-                        if (lLength == 2) {
-                            lengthName = "double";
-                        }
-                        if (lLength == 3) {
-                            lengthName = "triple";
-                        }
                         $(".time-row").last().append(`
-                            <td rowspan=${lLength} class="timetable-entry" data="${day + ";" + i}"><div class="sc_cont"><div class="scroller-container ${lengthName}"><div class="scroller">${lessons}<div class="addScroller"></div></div></div></div></td>
+                            <td rowspan=${lLength} class="timetable-entry" data="${day + ";" + i}"><div class="sc_cont"><div class="scroller-container"><div class="scroller">${lessons}<div class="addScroller"></div></div></div></div></td>
                         `);
                     }
                 }

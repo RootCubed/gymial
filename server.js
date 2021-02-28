@@ -59,15 +59,6 @@ let kzoCHCookies = {};
 
 const PORT = process.env.PORT || 3000;
 
-let options = {
-    hostname: "intranet.tam.ch",
-    port: 443,
-    path: "/kzo/timetable/ajax-get-timetable",
-    method: "POST",
-    headers: headers,
-    referrerPolicy: "strict-origin-when-cross-origin"
-};
-
 let token = "";
 
 const periods = [

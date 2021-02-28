@@ -19,9 +19,27 @@
     --class-special: #add770;
 }
 
+body.dark {
+    --background-primary: #020202;
+    --background-secondary: #1b1b1b;
+    --background-tertiary: #1d1d1d;
+    --color-primary: #fff;
+    --color-secondary: #fff;
+    --color-progress-bar: #329f5b;
+    --class-lesson-bg: #09233e;
+    --class-no-lesson-bg: #2f2f2f;
+    --class-hover: #071b2f;
+    --class-cancelled: #a73b3b;
+    --class-special: #0e4e16;
+}
+
 body {
     background-color: var(--background-primary);
     overflow: hidden;
+}
+
+* {
+    transition: color 0.2s, background-color 0.2s;
 }
 
 #scrollLimiter {
@@ -161,14 +179,6 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.scroller-container.double {
-    height: calc(2 * (100vh - 150px) / 11 + 8px);
-}
-
-.scroller-container.triple {
-    height: calc(3 * (100vh - 150px) / 11 + 12px);
 }
 
 .timetable-entry {
@@ -461,6 +471,9 @@ form button, #logout, #persplan {
 #panel-timetable {
     display: block;
     height: calc(100vh - 63px);
+}
+
+#panel-timetable.canScroll {
     transition-property: margin-top;
     transition-duration: 0.5s;
 }
@@ -530,6 +543,10 @@ form button, #logout, #persplan {
     width: 1px;
 }
 
+#week-btns {
+    display: inline;
+}
+
 span svg line {
     stroke-width: 2;
     stroke: var(--color-primary);
@@ -552,6 +569,14 @@ svg polygon {
 @media (max-width: 30em) {
     .timetable-entry span {
         font-size: 12px;
+    }
+
+    .mensa-date {
+        font-size: 12px;
+    }
+
+    .mensa-desc {
+        font-size: 13px;
     }
 }
 
