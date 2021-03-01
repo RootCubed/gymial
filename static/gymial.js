@@ -39,7 +39,7 @@ const DAY = 24 * 60 * 60 * 1000;
 let rawData, timetableData;
 
 let IDType = "class";
-let classID = 2517;
+let classID = 2559;
 let currPeriod = 74;
 let persData;
 
@@ -398,8 +398,15 @@ function init() {
         classes = classes.data;
         let oldClassList = classList;
         classList = classes;
-        if (oldClassList[0]) {
-            if (IDType == "class" && classes[0].classId != oldClassList[0].classId) {
+        if (IDType == "class") {
+            let cInClassList = false;
+            for (let c of classes) {
+                if (c.classId == classID) {
+                    cInClassList = true;
+                    break;
+                }
+            }
+            if (!cInClassList || (oldClassList[0] && classes[0].classId != oldClassList[0].classId)) {
                 if (window.localStorage.getItem("class")) {
                     try {
                         let json = JSON.parse(window.localStorage.getItem("class"));
