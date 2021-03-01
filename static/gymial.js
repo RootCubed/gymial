@@ -356,12 +356,8 @@ $(document).ready(() => {
         return;
     });
 
-    window.addEventListener("resize", () => {
-        let wh = window.innerHeight;
-        document.documentElement.style.setProperty('--wh', `${wh}px`);
-
-        applyScrolling();
-    });
+    window.addEventListener("resize", resizeScreen);
+    window.addEventListener("orientationchange", resizeScreen);
 
     // web worker
     if (navigator.serviceWorker) {
@@ -557,6 +553,14 @@ function loadMensa(name, showProgress) {
         $("#mensa-table tbody").html(tableHtml);
         if (showProgress) progress(100);
     });
+}
+
+function resizeScreen() {
+    let wh = window.innerHeight;
+    if (document.documentElement.style.getPropertyValue("--wh") != `${wh}px`) {
+        document.documentElement.style.setProperty("--wh", `${wh}px`);
+        applyScrolling();
+    }
 }
 
 function applyScrolling() {
