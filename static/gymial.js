@@ -43,6 +43,8 @@ let classID = 2559;
 let currPeriod = 74;
 let persData;
 
+let currMensa = "KZO";
+
 let wh = window.innerHeight;
 document.documentElement.style.setProperty('--wh', `${wh}px`);
 
@@ -332,7 +334,6 @@ $(document).ready(() => {
                 currentView = 1;
                 break;
             case VIEW_NAMES[2]:
-                let currMensa = "KZO";
                 $("#current-class").html(`${VIEW_NAMES[2]} <span id="toggle-mensa">${currMensa}</span>`);
                 $("#toggle-mensa").on("click", () => {
                     if (currMensa == "KZO") {
