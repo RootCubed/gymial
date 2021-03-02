@@ -127,7 +127,8 @@ body {
 .sidebar-link {
     display: block;
     margin: 10px;
-    padding: 10px;
+    padding: 10px 0px;
+    font-size: 18px;
     text-align: center;
     cursor: pointer;
     color: #a8cdff;
@@ -143,7 +144,7 @@ body {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 0;
+    bottom: 10px;
 }
 
 #search-dropdown {

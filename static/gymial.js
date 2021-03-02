@@ -314,7 +314,6 @@ $(document).ready(() => {
         $("#margin-details").hide();
         $("#panel-timetable").removeClass();
         $("#panel-timetable").addClass("canScroll");
-        $("#week-btns").addClass("hide");
         $("#current-class").addClass("noclick");
         switch(el.target.innerText) {
             case VIEW_NAMES[0]:
@@ -331,6 +330,7 @@ $(document).ready(() => {
                 $("#panel-timetable").addClass("scrollLogin");
                 $(".sidebar-link").removeClass("active");
                 $("#link-account").addClass("active");
+                $("#week-btns").addClass("hide");
                 currentView = 1;
                 break;
             case VIEW_NAMES[2]:
@@ -347,6 +347,7 @@ $(document).ready(() => {
                 $("#panel-timetable").addClass("scrollMensa");
                 $(".sidebar-link").removeClass("active");
                 $("#link-mensa").addClass("active");
+                $("#week-btns").addClass("hide");
                 currentView = 2;
                 break;
         }
