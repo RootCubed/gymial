@@ -579,8 +579,18 @@ async function readMensa(identifier) {
         menu[dayName] = [];
         for (let m of menus) {
             let kitchenName = m.getElementsByClassName("details-menu-type")[0].textContent;
-            let menuName = m.getElementsByClassName("details-menu-name")[0].textContent;
-            let menuDescription = m.getElementsByClassName("details-menu-trimmings")[0].textContent;
+            let menuName = m.getElementsByClassName("details-menu-name");
+            let menuDescription = m.getElementsByClassName("details-menu-trimmings");
+            if (menuName.length == 0) {
+                menuName = "";
+            } else {
+                menuName = menuName[0].textContent;
+            }
+            if (menuDescription.length == 0) {
+                menuDescription = "";
+            } else {
+                menuDescription = menuDescription[0].textContent;
+            }
             menu[dayName].push({
                 kitchen: kitchenName,
                 title: menuName,
