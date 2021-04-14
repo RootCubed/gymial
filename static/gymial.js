@@ -266,8 +266,14 @@ $(document).ready(() => {
         window.localStorage.setItem("search-history", JSON.stringify(searches));
         classID = parseInt(classID.substr(1));
         $("#classSelect").val("");
-        $("#search-dropdown span").remove();
         init();
+    });
+
+    // clicking away from search box
+    $(document).on("click", "", el => {
+        if (el.target.id != "classSelect") {
+            hideSearchResults();
+        }
     });
 
     // person click in lesson view
@@ -822,4 +828,8 @@ function filterObjects() {
             $("#search-results").append(`<span class="searchResult" data="s${found.personId}">${found.name.replace(/\(.+?\)/, '')}</span>`);
         }
     }
+}
+
+function hideSearchResults() {
+    $("#search-dropdown span").remove();
 }
