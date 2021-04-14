@@ -19,7 +19,7 @@ const redisHGet = promisify(redis.hget).bind(redis);
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; // remove once the tam.ch certificate gets recognized
 
 app.use((req, res, next) => {
-    if (req.header("x-forwarded-proto") !== "https" && req.hostname !== "localhost" && !req.hostname.includes("192.168")) {
+    if (req.header("x-forwarded-proto") !== "https" && req.hostname !== "localhost" && !req.hostname.includes("192.168") && !req.hostname.includes("rootcubed.dev")) {
         res.redirect(301, `https://${req.header("host")}${req.url}`);
     } else {
         if (req.headers.cookie) {
@@ -419,28 +419,6 @@ app.get("/course-participants/:id", function (req, res) {
                     "id": el.PersonID
                 };
             }));
-        });
-    });
-});
-
-app.get("/picture/:id", function (req, res) {
-    isAuthorized(cookieToUser(req.headers.cookie)).then(isAuth => {
-        if (!isAuth) {
-            res.status(401).end();
-            return;
-        }
-        let body = {
-            "studentIDs": JSON.stringify([req.params.id.split(".")[0]]),
-            "method": "POST"
-        };
-        intranetReq("/kzo/timetable/ajax-get-student-picture-data", body).then((r) => {
-            let data = JSON.parse(r);
-            let buf = Buffer.from(data.data[0].substring(23), "base64");
-            res.writeHead(200, {
-                "Content-Type": "image/jpeg",
-                "Content-Length": buf.length
-            });
-            res.end(buf);
         });
     });
 });
