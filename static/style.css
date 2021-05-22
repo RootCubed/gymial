@@ -16,7 +16,7 @@
     --class-no-lesson-bg: #888;
     --class-hover: #aaa;
     --class-cancelled: #ff5e48;
-    --class-special: #add770;
+    --class-special: #e2f7a4;
 }
 
 body.dark {
@@ -26,11 +26,11 @@ body.dark {
     --color-primary: #fff;
     --color-secondary: #fff;
     --color-progress-bar: #329f5b;
-    --class-lesson-bg: #09233e;
+    --class-lesson-bg: #243240;
     --class-no-lesson-bg: #2f2f2f;
-    --class-hover: #071b2f;
+    --class-hover: #273e54;
     --class-cancelled: #a73b3b;
-    --class-special: #0e4e16;
+    --class-special: #2b201b;
 }
 
 body {
@@ -229,6 +229,12 @@ body {
     background-color: var(--class-special);
     padding: 10px;
     border-radius: 10px;
+    
+}
+
+.special:hover {
+    cursor: default !important;
+    background-color: var(--class-special) !important;
 }
 
 .empty {
@@ -264,6 +270,8 @@ body {
 span.entry-title {
     font-weight: bold;
     display: inline-block;
+    word-break: break-word;
+    hyphens: auto;
 }
 
 #margin-details {

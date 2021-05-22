@@ -86,9 +86,10 @@ $(document).ready(() => {
     // timetable entries
     $(document).on("click", ".timetable-entry:not(.empty):not(.timetable-time)", (el) => {
         let lessonIndex = $(el.currentTarget).attr("data").split(';');
-        let lessons = timetableData[lessonIndex[0]][lessonIndex[1]];
+        let lessons = timetableData[lessonIndex[0]][lessonIndex[1]].data;
         let htmlString = "";
         for (let lesson of lessons) {
+            if (lesson.special) return;
             htmlString += `<a class="overlay-tab">${lesson.cName}</a>`
         }
         $("#overlay-lesson-tabs").show();
@@ -170,8 +171,17 @@ $(document).ready(() => {
         }
     });
 
+    let myAccountClickCount = 0;
+
     // clicking on class name
     $("#current-class").on("click", () => {
+        if (currentView == 1) {
+            myAccountClickCount++;
+        } else myAccountClickCount = 0;
+        if (myAccountClickCount == 10) {
+            myAccountClickCount = 0;
+            document.body.classList.toggle("dark");
+        }
         if (currentView != 0) return; // timetable
         if ($("#margin-details").is(":visible")) return;
         $("#overlay-lesson-tabs, #room-detail, #teacher-detail, #personal-shit").html("");
@@ -478,37 +488,33 @@ function loadClass() {
                     `<tr class="time-row"><td class="timetable-entry timetable-time timetable-lesson-times">${timeRows}</td></tr>`
                 );
                 for (let day in timetableData) {
-                    let lessons = "";
-                    for (let lesson of timetableData[day][i]) {
-                        let modText = "";
-                        if (lesson.special) modText = "special";
-                        if (lesson.cancelled) modText = "cancelled";
-                        lessons += `<div class="${modText}"><span class="entry-title">${lesson.cName}</span>`;
-                        if (lesson.room != "") {
-                            lessons += `<span class="entry-room">${lesson.room}</span>`;
-                        }
-                        if (lesson.tAcronym != "") {
-                            lessons += `<span class="entry-teacher">${lesson.tAcronym}</span>`;
-                        }
-                        if (lesson.sNames != undefined && lesson.sNames.length > 0) {
-                            lessons += (lesson.cName == "IU") ? `<br><span class="entry-instrName">${lesson.sNames[0].studentName}</span>` : "";
-                        }
-                        lessons += "</div>";
+                    if (timetableData[day][i].type == "ignore") {
+                        continue;
                     }
-                    if (!timetableData[day][i][0]) {
-                        $(".time-row").last().append(`<td class="timetable-entry empty"><div class="sc_cont"></div></td>`);
-                    } else {
-                        let stLength = timetableData[day][i][0].lessonLength;
-                        for (let j = 0; j < timetableData[day][i].length; j++) {
-                            if (timetableData[day][i][j].lessonLength != stLength) {
-                                ignoreDouble = true;
-                                break;
+                    let lessons = "";
+                    let isSpecial = "";
+                    if (timetableData[day][i].type == "lesson") {
+                        for (let lesson of timetableData[day][i].data) {
+                            let modText = "";
+                            if (lesson.special) isSpecial = "special";
+                            if (lesson.cancelled) modText = "cancelled";
+                            lessons += `<div class="${modText}"><span class="entry-title">${lesson.cName}</span>`;
+                            if (lesson.room != "") {
+                                lessons += `<span class="entry-room">${lesson.room}</span>`;
                             }
+                            if (lesson.tAcronym != "") {
+                                lessons += `<span class="entry-teacher">${lesson.tAcronym}</span>`;
+                            }
+                            if (lesson.sNames != undefined && lesson.sNames.length > 0) {
+                                lessons += (lesson.cName == "IU") ? `<br><span class="entry-instrName">${lesson.sNames[0].studentName}</span>` : "";
+                            }
+                            lessons += "</div>";
                         }
-                        if (timetableData[day][i][0].hideForMultiple) {
-                            continue;
-                        }
-                        let lLength = timetableData[day][i][0].lessonLength;
+                    }
+                    if (timetableData[day][i].type == "empty") {
+                        $(".time-row").last().append(`<td rowspan=${timetableData[day][i].length} class="timetable-entry empty"><div class="sc_cont"></div></td>`);
+                    } else {
+                        let lLength = timetableData[day][i].length;
                         let lengthName = "";
                         if (lLength == 2) {
                             lengthName = "double";
@@ -517,7 +523,7 @@ function loadClass() {
                             lengthName = "triple";
                         }
                         $(".time-row").last().append(`
-                            <td rowspan=${lLength} class="timetable-entry" data="${day + ";" + i}"><div class="sc_cont"><div class="scroller-container ${lengthName}"><div class="scroller">${lessons}<div class="addScroller"></div></div></div></div></td>
+                            <td rowspan=${lLength} class="timetable-entry ${isSpecial}" data="${day + ";" + i}"><div class="sc_cont"><div class="scroller-container ${lengthName}"><div class="scroller">${lessons}<div class="addScroller"></div></div></div></div></td>
                         `);
                     }
                 }
@@ -664,8 +670,6 @@ function convertToUsable(timetable) {
             tFull: lesson.teacherFullName,
             room: lesson.roomName,
             sNames: lesson.student,
-            lessonLength: 1,
-            hideForMultiple: false,
             fullDay: lesson.isAllDay,
             special: lesson.timetableEntryTypeId == 15,
             cancelled: lesson.timetableEntryTypeId == 11
@@ -680,11 +684,21 @@ function convertToUsable(timetable) {
     }
     let minDate = getFirstDayOfWeek(new Date(currTime));
     for (let date = minDate; date < new Date(minDate.getTime() + DAY * 5); date = new Date(date.getTime() + DAY)) {
-        result[date.toLocaleDateString("de-CH", {timeZone: "Europe/Zurich"})] = new Array(times.length).fill(null).map(() => []);
+        result[date.toLocaleDateString("de-CH", {timeZone: "Europe/Zurich"})] = 
+        new Array(times.length).fill(null).map(() => {
+            return {
+                type: "empty",
+                length: 1,
+                data: []
+            };
+        });
     }
     // second pass of data, put all lessons in array
     for (let i = 0; i < minimalLessons.length; i++) {
         let lesson = minimalLessons[i];
+
+        if (!result[dateToObjectKey(lesson.lDate)]) continue;
+
         let tmpTime = lesson.lStart.split(':');
         let shortTime = parseInt(tmpTime[0] + tmpTime[1]);
 
@@ -693,9 +707,8 @@ function convertToUsable(timetable) {
             index++;
         }
 
-        if (result[dateToObjectKey(lesson.lDate)]) {
-            result[dateToObjectKey(lesson.lDate)][index].push(lesson);
-        }
+        result[dateToObjectKey(lesson.lDate)][index].type = "lesson";
+        result[dateToObjectKey(lesson.lDate)][index].data.push(lesson);
     }
     // third pass of data, find double lessons
     for (let day in result) {
@@ -708,13 +721,23 @@ function convertToUsable(timetable) {
             let compLesson = result[day][currRef];
             let currLesson = result[day][i];
 
-            if (areLessonsIdentical(currLesson, compLesson)) {
+            if (currLesson && currLesson.data.length > 0 && currLesson.data[0].fullDay) {
+                result[day][i].type = "lesson";
+                result[day][i].length = 11;
+                result[day][i].data = [result[day][i].data[0]]; // only use the full day info
+                for (let i = 1; i < result[day].length; i++) {
+                    result[day][i].type = "ignore";
+                }
+                break;
+            }
+
+            if (currLesson && compLesson && areLessonsIdentical(currLesson.data, compLesson.data)) {
                 lessonLength++;
             } else {
-                if (result[day][currRef] && result[day][currRef].length > 0) {
-                    result[day][currRef][0].lessonLength = lessonLength;
+                if (result[day][currRef] && result[day][currRef].length > 0) { // && result[day][currRef].type != "empty"
+                    result[day][currRef].length = lessonLength;
                     for (let cLes = currRef + 1; cLes < currRef + lessonLength; cLes++) {
-                        result[day][cLes][0].hideForMultiple = true;
+                        result[day][cLes].type = "ignore";
                     }
                 }
                 currRef = i;
