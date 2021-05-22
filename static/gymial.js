@@ -64,6 +64,13 @@ if (window.localStorage.getItem("class")) {
     } catch (e) {}
 }
 
+let searches = [];
+if (window.localStorage.getItem("search-history")) {
+    try {
+        searches = JSON.parse(window.localStorage.getItem("search-history"));
+    } catch (e) {}
+}
+
 let currTime = getFirstDayOfWeek(new Date()).getTime();
 
 let classList = [];
@@ -237,13 +244,14 @@ $(document).ready(() => {
 
     // clicking on search result
     $(document).on("click", ".searchResult", el => {
-        $("#current-class").text(el.target.innerText);
+        let name = el.target.innerText;
+        $("#current-class").text(name);
         classID = el.target.getAttribute("data");
         switch(classID[0]) {
             case 'c':
                 IDType = "class";
                 if (!nextSemOnline || currTime < NEXT_SEM_START) {
-                    window.localStorage.setItem("class", JSON.stringify({id: classID.substr(1), name: el.target.innerText}));
+                    window.localStorage.setItem("class", JSON.stringify({id: classID.substr(1), name: name}));
                 }
                 break;
             case 't':
@@ -256,10 +264,26 @@ $(document).ready(() => {
                 IDType = "room";
                 break;
         }
+        searches.unshift({
+            id: classID,
+            name: name,
+            auth: true
+        });
+        searches = searches.filter((v, i, a) => {
+            return a.findIndex(t => (t.id === v.id && t.name === v.name)) === i;
+        });
+        searches = searches.slice(0, 7); // max 7 search results
+        window.localStorage.setItem("search-history", JSON.stringify(searches));
         classID = parseInt(classID.substr(1));
         $("#classSelect").val("");
-        $("#search-dropdown span").remove();
         init();
+    });
+
+    // clicking away from search box
+    $(document).on("click", "", el => {
+        if (el.target.id != "classSelect") {
+            hideSearchResults();
+        }
     });
 
     // person click in lesson view
@@ -802,6 +826,9 @@ function filterObjects() {
     let input = $("#classSelect").val().toLowerCase().replace(' ', '');
     $("#search-results span").remove();
     if (input.length < 1) {
+        for (let search of searches) {
+            $("#search-results").append(`<span class="searchResult" data="${search.id}">${search.name}</span>`);
+        }
         return;
     }
     let t = classList.filter(val => {
@@ -824,4 +851,8 @@ function filterObjects() {
             $("#search-results").append(`<span class="searchResult" data="s${found.personId}">${found.name.replace(/\(.+?\)/, '')}</span>`);
         }
     }
+}
+
+function hideSearchResults() {
+    $("#search-dropdown span").remove();
 }
