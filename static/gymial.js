@@ -191,7 +191,7 @@ $(document).ready(() => {
         }
         if (currentView != 0) return; // timetable
         if ($("#margin-details").is(":visible")) return;
-        $("#overlay-lesson-tabs, #room-detail, #teacher-detail, #personal-shit").html("");
+        $("#overlay-lesson-tabs, #room-detail, #teacher-detail, #detail-view").html("");
         $("#overlay-lesson-tabs").hide();
         if (IDType == "class") {
             fetch(`/class-personal-details/${classID}`)
@@ -204,9 +204,9 @@ $(document).ready(() => {
                     return;
                 };
                 $("#margin-details").fadeIn();
-                $("#personal-shit").html("<h1 style='margin-bottom: 20px'>Klassenliste " + $("#current-class").text() + "</h1>");
+                $("#detail-view").html("<h1 style='margin-bottom: 20px'>Klassenliste " + $("#current-class").text() + "</h1>");
                 for (let student of res) {
-                    $("#personal-shit").append(
+                    $("#detail-view").append(
                         `<div class="student"><p class="studentName">${student.studentName}</p></div>`
                     );
                 }
@@ -229,13 +229,13 @@ $(document).ready(() => {
                         for (let i = 3; i < 6; i++) {
                             personalStuff += "<p>" + res[0][i] + "</p>";
                         }
-                        $("#personal-shit").html(
+                        $("#detail-view").html(
                             `<div class="student"><h1>${personName.firstname + " " + personName.lastname}</h1><br><div class="personalDetails">${personalStuff}</div></div>`
                         );
                     });
                 });
             } else {
-                $("#personal-shit").html(
+                $("#detail-view").html(
                     `<div class="student"><h1>${$("#current-class").text()}</h1><br><p>Lehrerinformationen werden bald hinzugefügt.</p></div>`
                 );
             }
@@ -546,6 +546,9 @@ function loadClass() {
                         if (lLength == 3) {
                             lengthName = "triple";
                         }
+                        if (lLength == 11) {
+                            lengthName = "fullday"
+                        }
                         $(".time-row").last().append(`
                             <td rowspan=${lLength} class="timetable-entry ${isSpecial}" data="${day + ";" + i}"><div class="sc_cont"><div class="scroller-container ${lengthName}"><div class="scroller">${lessons}<div class="addScroller"></div></div></div></div></td>
                         `);
@@ -586,10 +589,28 @@ function loadMensa(name, showProgress) {
     });
 }
 
+let lastEvTime;
+let timeout = false;
+let debounceDelay = 100;
 function resizeScreen() {
+    // still set the wh variable, but we don't re-apply the scrolling effect yet
     let wh = window.innerHeight;
     if (document.documentElement.style.getPropertyValue("--wh") != `${wh}px`) {
         document.documentElement.style.setProperty("--wh", `${wh}px`);
+    }
+
+    lastEvTime = Date.now();
+    if (timeout == false) {
+        timout = true;
+        setTimeout(resizeEnd, debounceDelay);
+    }
+}
+
+function resizeEnd() {
+    if (Date.now() - lastEvTime < debounceDelay) {
+        setTimeout(resizeEnd, debounceDelay);
+    } else {
+        timeout = false;
         applyScrolling();
     }
 }
@@ -655,7 +676,7 @@ function idToName(id) {
 
 function setLessonData(lesson) {
     $("#teacher-detail").text(lesson.tFull);
-    $("#personal-shit").html("<div class='names'></div>");
+    $("#detail-view").html("<div class='names'></div>");
     if (lesson.cId) {
         fetch("/course-participants/" + lesson.cId).then(r => {
             if (r.status == 401) return 401;
@@ -669,10 +690,10 @@ function setLessonData(lesson) {
             for (let r of res) {
                 html += `<span class="student studentName person-link" data="${r.id}">${r.name}</span>`
             }
-            $("#personal-shit div").html(html);
+            $("#detail-view div").html(html);
         });
     } else {
-        $("#personal-shit div").html("Keine Informationen über die Teilnehmer an diesem Kurs!");
+        $("#detail-view div").html("Keine Informationen über die Teilnehmer an diesem Kurs!");
     }
 }
 

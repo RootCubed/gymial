@@ -184,21 +184,26 @@ body {
 }
 
 .scroller-container {
-    height: calc((100vh - 150px) / 11 + 4px);
-    height: calc((var(--wh) - 150px) / 11 + 4px);
+    height: calc((100vh - 150px) / 11);
+    height: calc((var(--wh) - 150px) / 11);
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .scroller-container.double {
-    height: calc(2 * (100vh - 150px) / 11 + 8px);
-    height: calc(2 * (var(--wh) - 150px) / 11 + 8px);
+    height: calc(2 * (100vh - 150px) / 11);
+    height: calc(2 * (var(--wh) - 150px) / 11);
 }
 
 .scroller-container.triple {
-    height: calc(3 * (100vh - 150px) / 11 + 12px);
-    height: calc(3 * (var(--wh) - 150px) / 11 + 12px);
+    height: calc(3 * (100vh - 150px) / 11);
+    height: calc(3 * (var(--wh) - 150px) / 11);
+}
+
+.scroller-container.fullday {
+    height: calc(100vh - 150px);
+    height: calc(var(--wh) - 150px);
 }
 
 .timetable-entry {
@@ -228,8 +233,6 @@ body {
 
 .special {
     background-color: var(--class-special);
-    padding: 10px;
-    border-radius: 10px;
     
 }
 
@@ -270,9 +273,13 @@ body {
 
 span.entry-title {
     font-weight: bold;
-    display: inline-block;
-    word-break: break-word;
+}
+
+.sc_cont span {
     hyphens: auto;
+    -ms-hyphens: auto;
+    -webkit-hyphens: auto;
+    display: inline-block;
 }
 
 #margin-details {
@@ -334,7 +341,7 @@ span.entry-title {
     margin-top: 10px;
 }
 
-#personal-shit img:not(.teacher) {
+#detail-view img:not(.teacher) {
     width: 100px;
     border-radius: 5px;
 }
@@ -356,7 +363,7 @@ img.teacher {
     display: block;
 }
 
-#personal-shit {
+#detail-view {
     width: calc(100% - 50px);
     margin-left: 30px;
     margin-top: 15px;
@@ -376,7 +383,7 @@ img.teacher {
     font-size: 16px;
 }
 
-#teacher-personal-shit p {
+#teacher-detail-view p {
     padding: 10px;
 }
 
