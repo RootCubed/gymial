@@ -28,7 +28,7 @@ const timesPost73 = [
 ];
 const shortTimesPost73 = [730, 825, 920, 1035, 1140, 1235, 1340, 1445, 1540, 1635, 1720];
 
-const NEXT_SEM_START = 1614553200000;
+const NEXT_SEM_START = 1629752236880;
 const nextSemOnline = false;
 
 let times = timesPre73;
@@ -499,6 +499,11 @@ function loadClass(startAtZero) {
             progress(50);
             return response.json();
         }).then(json => {
+            if (json.error) {
+                displayError("TAM-Fehler", json.error);
+                progress(100);
+                return;
+            }
             if (IDType == "class") {
                 for (let i = 0; i < classList.length; i++) {
                     if (!classList[i].classId) break;

@@ -63,6 +63,10 @@ let token = "";
 
 const periods = [
     {
+        "period": 75,
+        "startTime": 1629752236880
+    },
+    {
         "period": 74,
         "startTime": 1614553200000
     },
@@ -229,10 +233,6 @@ function intranetReq(endpoint, body) {
         referrerPolicy: "strict-origin-when-cross-origin"
     };
     body.csrfToken = token;
-    if (body.periodId) {
-        options.referrer = "https://intranet.tam.ch/kzo/calendar/index/period/" + body.periodId;
-        options.headers.Referer = "https://intranet.tam.ch/kzo/calendar/index/period/" + body.periodId;
-    }
     return new Promise(function(resolve) {
         let str = "";
 
@@ -380,24 +380,28 @@ app.get("/timetable/:type/:id/:time", function (req, res) {
     body[req.params.type + "Id[]"] = req.params.id;
     intranetReq("/kzo/timetable/ajax-get-timetable", body).then(r => {
         isAuthorized(cookieToUser(req.headers.cookie)).then(isAuth => {
+            let json = JSON.parse(r);
+            if (json.status != 1) {
+                res.send({"error": json.message});
+                return;
+            }
             if (!isAuth) {
-                let json = JSON.parse(r).data;
                 const propsToKeep = [
                     "id", "periodId", "start", "end", "lessonDate", "lessonStart", "lessonEnd", "lessonDuration",
                     "timetableEntryTypeId", "timetableEntryType", "timetableEntryTypeLong", "timetableEntryTypeShort",
                     "title", "courseId", "courseName", "course", "subjectName", "classId", "className", "teacherAcronym",
                     "roomId", "roomName", "teacherId", "isAllDay"
                 ]
-                let basicJSON = new Array(json.length);
-                for (let i = 0; i < json.length; i++) {
+                let basicJSON = new Array(json.data.length);
+                for (let i = 0; i < json.data.length; i++) {
                     basicJSON[i] = {};
                     for (let p of propsToKeep) {
-                        basicJSON[i][p] = json[i][p];
+                        basicJSON[i][p] = json.data[i][p];
                     }
                 }
                 res.send(basicJSON);
             } else {
-                res.send(JSON.parse(r).data);
+                res.send(json.data);
             }
         });
     });
