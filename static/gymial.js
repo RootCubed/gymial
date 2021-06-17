@@ -104,15 +104,13 @@ $(document).ready(() => {
         $("#overlay-lesson-tabs").children().eq(0).addClass("active");
         setLessonData(lessons[0]);
         $("#margin-details").fadeIn();
-        $(".overlay-tab").on("click", (el) => {
-            let index = 0;
+        $(".overlay-tab").on("click", el => {
             let tg = el.target;
-            $("#overlay-lesson-tabs").children().removeClass("active");
+            let currActive = document.querySelector("#overlay-lesson-tabs .active");
+            if (tg == currActive) return;
+            $(currActive).removeClass("active");
             $(tg).addClass("active");
-            while (tg.previousSibling != null) {
-                tg = tg.previousSibling;
-                index++;
-            }
+            let index = Array.from(tg.parentNode.children).indexOf(tg);
             setLessonData(lessons[index]);
         });
     });
@@ -120,26 +118,26 @@ $(document).ready(() => {
         currTime -= DAY * 7;
         weekOffset--;
         $("#today").attr("data-content", weekOffset).addClass("repaint").removeClass("repaint"); // small hack for WebKit browsers
-        init();
+        loadClass();
     });
     $("#today").on("click", () => {
         currTime = getFirstDayOfWeek(new Date()).getTime();
         weekOffset = 0;
         $("#today").attr("data-content", weekOffset).addClass("repaint").removeClass("repaint");
-        init();
+        loadClass();
     });
     $("#week-forward").on("click", () => {
         currTime += DAY * 7;
         weekOffset++;
         $("#today").attr("data-content", weekOffset).addClass("repaint").removeClass("repaint");
-        init();
+        loadClass();
     });
     $("#forward-next-sem").on("click", () => {
         currTime = NEXT_SEM_START;
         let now = getFirstDayOfWeek(new Date()).getTime();
         weekOffset = Math.floor((NEXT_SEM_START - now) / (DAY * 7));
         $("#today").attr("data-content", weekOffset).addClass("repaint").removeClass("repaint");
-        init();
+        loadClass();
     });
     $("#backward-next-sem").on("click", () => {
         $("#today").click();
@@ -184,7 +182,9 @@ $(document).ready(() => {
     $("#current-class").on("click", () => {
         if (currentView == 1) {
             myAccountClickCount++;
-        } else myAccountClickCount = 0;
+        } else {
+            myAccountClickCount = 0;
+        }
         if (myAccountClickCount == 10) {
             myAccountClickCount = 0;
             document.body.classList.toggle("dark");
@@ -269,6 +269,7 @@ $(document).ready(() => {
             name: name,
             auth: true
         });
+        // get rid of duplicated entries, removing all but the first occurrence
         searches = searches.filter((v, i, a) => {
             return a.findIndex(t => (t.id === v.id && t.name === v.name)) === i;
         });
@@ -276,7 +277,7 @@ $(document).ready(() => {
         window.localStorage.setItem("search-history", JSON.stringify(searches));
         classID = parseInt(classID.substr(1));
         $("#classSelect").val("");
-        init();
+        loadClass();
     });
 
     // clicking away from search box
@@ -291,7 +292,7 @@ $(document).ready(() => {
         IDType = "student";
         classID = parseInt(el.target.getAttribute("data"));
         $("#current-class").text(el.target.innerText);
-        init();
+        loadClass();
         $("#margin-details").fadeOut();
     });
 
@@ -308,7 +309,7 @@ $(document).ready(() => {
         classID = persData.PersonID;
         IDType = "student";
         currClassName = persData.Nachname + ", " + persData.Vorname;
-        init();
+        loadClass();
         $("#link-timetable").click();
     });
 
@@ -337,7 +338,7 @@ $(document).ready(() => {
             Cookies.set("username", $("#login-user").val(), {expires: 30, path: ""});
             Cookies.set("apiToken", token, {expires: 30, path: ""});
             getPersData();
-            init();
+            init(); // resources will be different when logged in
             $("#link-timetable").click();
         });
         return false;
@@ -465,6 +466,7 @@ function init() {
 
 function loadClass() {
     progress(40);
+    $("#timetable tbody").html("");
     fetch(`/period-from-time/${currTime}`)
     .then(r => r.json())
     .then(perID => {
@@ -676,7 +678,7 @@ function idToName(id) {
 
 function setLessonData(lesson) {
     $("#teacher-detail").text(lesson.tFull);
-    $("#detail-view").html("<div class='names'></div>");
+    $("#detail-view").html("<div id='names'></div>");
     if (lesson.cId) {
         fetch("/course-participants/" + lesson.cId).then(r => {
             if (r.status == 401) return 401;
@@ -810,6 +812,14 @@ function areLessonsIdentical(les1, les2) {
     return true;
 }
 
+function arraysAreEqual(ar1, ar2) {
+    if (ar1.length !== ar2.length) return false;
+    for (let i = 0; i < ar1.length; i++) {
+        if (ar1[i].studentId !== ar2[i].studentId) return false;
+    }
+    return true;
+}
+
 function dateToObjectKey(date) {
     return new Date(parseInt(date.substr(6))).toLocaleDateString("de-CH", {timeZone: "Europe/Zurich"});
 }
@@ -818,14 +828,6 @@ function getFirstDayOfWeek(d) {
     let day = d.getDay();
     let diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
     return new Date(d.setDate(diff));
-}
-
-function arraysAreEqual(ar1, ar2) {
-    if (ar1.length !== ar2.length) return false;
-    for (let i = 0; i < ar1.length; i++) {
-        if (ar1[i].studentId !== ar2[i].studentId) return false;
-    }
-    return true;
 }
 
 function progress(number) {

@@ -300,6 +300,8 @@ span.entry-title {
     background-color: #222222f8;
     border-radius: 5px;
     overflow: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .icon-x::before {
@@ -333,6 +335,8 @@ span.entry-title {
 
 #lesson-detail {
     color: white;
+    height: 100%;
+    overflow-y: auto;
 }
 
 #room-detail, #teacher-detail {
@@ -353,8 +357,9 @@ img.teacher {
     float: left;
 }
 
-.names {
+#names {
     float: left;
+    padding-bottom: 15px;
 }
 
 .person-link {
