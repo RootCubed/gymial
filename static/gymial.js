@@ -118,26 +118,26 @@ $(document).ready(() => {
         currTime -= DAY * 7;
         weekOffset--;
         $("#today").attr("data-content", weekOffset).addClass("repaint").removeClass("repaint"); // small hack for WebKit browsers
-        loadClass();
+        loadClass(true);
     });
     $("#today").on("click", () => {
         currTime = getFirstDayOfWeek(new Date()).getTime();
         weekOffset = 0;
         $("#today").attr("data-content", weekOffset).addClass("repaint").removeClass("repaint");
-        loadClass();
+        loadClass(true);
     });
     $("#week-forward").on("click", () => {
         currTime += DAY * 7;
         weekOffset++;
         $("#today").attr("data-content", weekOffset).addClass("repaint").removeClass("repaint");
-        loadClass();
+        loadClass(true);
     });
     $("#forward-next-sem").on("click", () => {
         currTime = NEXT_SEM_START;
         let now = getFirstDayOfWeek(new Date()).getTime();
         weekOffset = Math.floor((NEXT_SEM_START - now) / (DAY * 7));
         $("#today").attr("data-content", weekOffset).addClass("repaint").removeClass("repaint");
-        loadClass();
+        loadClass(true);
     });
     $("#backward-next-sem").on("click", () => {
         $("#today").click();
@@ -277,7 +277,7 @@ $(document).ready(() => {
         window.localStorage.setItem("search-history", JSON.stringify(searches));
         classID = parseInt(classID.substr(1));
         $("#classSelect").val("");
-        loadClass();
+        loadClass(true);
     });
 
     // clicking away from search box
@@ -292,7 +292,7 @@ $(document).ready(() => {
         IDType = "student";
         classID = parseInt(el.target.getAttribute("data"));
         $("#current-class").text(el.target.innerText);
-        loadClass();
+        loadClass(true);
         $("#margin-details").fadeOut();
     });
 
@@ -309,7 +309,7 @@ $(document).ready(() => {
         classID = persData.PersonID;
         IDType = "student";
         currClassName = persData.Nachname + ", " + persData.Vorname;
-        loadClass();
+        loadClass(true);
         $("#link-timetable").click();
     });
 
@@ -416,6 +416,7 @@ $(document).ready(() => {
 });
 
 function init() {
+    $("#error-timetable").hide();
     progress(10);
     enableDisableSemButton();
     $("#timetable tbody").html("");
@@ -460,16 +461,26 @@ function init() {
                 }
             }
         }
-        loadClass();
+        loadClass(false);
     });
 }
 
-function loadClass() {
-    progress(40);
+let classLoadingController = new AbortController()
+let classLoadingSignal = classLoadingController.signal;
+
+function loadClass(startAtZero) {
+    $("#error-timetable").hide();
+    if (startAtZero) progress(10);
+    classLoadingController.abort();
+    classLoadingController = new AbortController()
+    classLoadingSignal = classLoadingController.signal;
     $("#timetable tbody").html("");
-    fetch(`/period-from-time/${currTime}`)
+    fetch(`/period-from-time/${currTime}`, {
+        signal: classLoadingSignal
+    })
     .then(r => r.json())
     .then(perID => {
+        progress(30);
         if (parseInt(perID) >= 73) {
             times = timesPost73;
             shortTimes = shortTimesPost73;
@@ -482,7 +493,9 @@ function loadClass() {
             init();
             return;
         }
-        fetch(`/timetable/${IDType}/${classID}/${currTime}`).then(response => {
+        fetch(`/timetable/${IDType}/${classID}/${currTime}`, {
+            signal: classLoadingSignal
+        }).then(response => {
             progress(50);
             return response.json();
         }).then(json => {
@@ -559,7 +572,23 @@ function loadClass() {
             }
             applyScrolling();
             progress(100);
+        })
+        .catch(e => {
+            if (e.name !== "AbortError") {
+                console.error(`Error loading /timetable/${IDType}/${classID}/${currTime}`);
+                displayError("Netzwerkfehler", "Beim Laden des Studenplans ist etwas schiefgelaufen. Stelle sicher, dass du eine Internetverbindung hast. " +
+                "Sonst ist möglicherweise das TAM-Intranet offline, weshalb momentan keine Stundenpläne geladen werden können.");
+            }
+            progress(100);
         });
+    })
+    .catch(e => {
+        if (e.name !== "AbortError") {
+            console.error(`Error loading /period-from-time/${currTime}`);
+            displayError("Netzwerkfehler", "Beim Laden des Studenplans ist etwas schiefgelaufen. Stelle sicher, dass du eine Internetverbindung hast. " +
+            "Sonst ist möglicherweise das TAM-Intranet offline, weshalb momentan keine Stundenpläne geladen werden können.");
+        }
+        progress(100);
     });
 }
 
@@ -878,4 +907,10 @@ function filterObjects() {
 
 function hideSearchResults() {
     $("#search-dropdown span").remove();
+}
+
+function displayError(title, message) {
+    $("#error-title").text(title);
+    $("#error-desc").text(message);
+    $("#error-timetable").fadeIn(100);
 }

@@ -282,6 +282,32 @@ span.entry-title {
     display: inline-block;
 }
 
+#error-timetable {
+    text-align: center;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+#error-timetable img {
+    display: inline-block;
+}
+
+#error-title {
+    font-size: 30px;
+    font-weight: bold;
+    margin-bottom: 100px;
+    color: #e23535;
+}
+
+#error-desc {
+    font-size: 20px;
+    padding: 20px;
+}
+
 #margin-details {
     display: none;
     position: fixed;
