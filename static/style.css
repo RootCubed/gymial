@@ -43,7 +43,7 @@ body {
     transition: color 0.2s, background-color 0.2s;
 }
 
-a {
+a:not(.overlay-tab) {
     color: var(--link-color);
 }
 
