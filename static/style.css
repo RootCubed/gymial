@@ -17,6 +17,7 @@
     --class-hover: #aaa;
     --class-cancelled: #ff5e48;
     --class-special: #e2f7a4;
+    --link-color: #a8cdff;
 }
 
 body.dark {
@@ -40,6 +41,10 @@ body {
 
 * {
     transition: color 0.2s, background-color 0.2s;
+}
+
+a {
+    color: var(--link-color);
 }
 
 #scrollLimiter {
@@ -131,7 +136,7 @@ body {
     font-size: 18px;
     text-align: center;
     cursor: pointer;
-    color: #a8cdff;
+    color: var(--link-color);
     transition: background-color 0.5s, color 0.5s;
 }
 
@@ -299,13 +304,13 @@ span.entry-title {
 #error-title {
     font-size: 30px;
     font-weight: bold;
-    margin-bottom: 100px;
-    color: #e23535;
+    margin-bottom: 50px;
 }
 
 #error-desc {
     font-size: 20px;
     padding: 20px;
+    line-height: 1.4;
 }
 
 #margin-details {
@@ -389,7 +394,7 @@ img.teacher {
 }
 
 .person-link {
-    color: #76ccff;
+    color: var(--link-color);
     cursor: pointer;
     display: block;
 }

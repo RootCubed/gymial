@@ -582,7 +582,7 @@ function loadClass(startAtZero) {
             if (e.name !== "AbortError") {
                 console.error(`Error loading /timetable/${IDType}/${classID}/${currTime}`);
                 displayError("Netzwerkfehler", "Beim Laden des Studenplans ist etwas schiefgelaufen. Stelle sicher, dass du eine Internetverbindung hast. " +
-                "Sonst ist möglicherweise das TAM-Intranet offline, weshalb momentan keine Stundenpläne geladen werden können.");
+                "Andernfalls ist vermutlich das <a href='https://intranet.tam.ch/kzo/'>TAM-Intranet</a> momentan nicht erreichbar.");
             }
             progress(100);
         });
@@ -591,7 +591,7 @@ function loadClass(startAtZero) {
         if (e.name !== "AbortError") {
             console.error(`Error loading /period-from-time/${currTime}`);
             displayError("Netzwerkfehler", "Beim Laden des Studenplans ist etwas schiefgelaufen. Stelle sicher, dass du eine Internetverbindung hast. " +
-            "Sonst ist möglicherweise das TAM-Intranet offline, weshalb momentan keine Stundenpläne geladen werden können.");
+            "Andernfalls ist vermutlich das <a href='https://intranet.tam.ch/kzo/'>TAM-Intranet</a> momentan nicht erreichbar.");
         }
         progress(100);
     });
@@ -916,6 +916,6 @@ function hideSearchResults() {
 
 function displayError(title, message) {
     $("#error-title").text(title);
-    $("#error-desc").text(message);
+    $("#error-desc").html(message);
     $("#error-timetable").fadeIn(100);
 }
