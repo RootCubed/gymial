@@ -128,7 +128,8 @@ function initGymial() {
         todayEl.setAttribute("data-content", weekOffset);
         todayEl.classList.add("repaint");
         todayEl.classList.remove("repaint"); // small hack for WebKit browsers
-    }
+    };
+
     $i("week-back").addEventListener("click", () => {
         currTime -= DAY * 7;
         weekOffset--;
@@ -496,15 +497,21 @@ function clickPersonInLessonView(el) {
     $i("margin-details").classList.remove("visible");
 }
 
-let classLoadingController = new AbortController()
-let classLoadingSignal = classLoadingController.signal;
+let canUseAbortController = !!AbortController;
+let classLoadingController, classLoadingSignal;
+if (canUseAbortController) {
+    classLoadingController = new AbortController();
+    classLoadingSignal = classLoadingController.signal;
+}
 
 function loadClass(startAtZero) {
     $i("error-timetable").classList.remove("visible");
     if (startAtZero) progress(10);
-    classLoadingController.abort();
-    classLoadingController = new AbortController()
-    classLoadingSignal = classLoadingController.signal;
+    if (canUseAbortController) {
+        classLoadingController.abort();
+        classLoadingController = new AbortController();
+        classLoadingSignal = classLoadingController.signal;
+    }
     $s("#timetable tbody").innerHTML = "";
     fetch(`/period-from-time/${currTime}`, {
         signal: classLoadingSignal
