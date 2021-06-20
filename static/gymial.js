@@ -173,10 +173,8 @@ function initGymial() {
         var t = event.touches[0];
         if (Math.abs(swipeStartY - t.screenY) < 20) {
             if (swipeStartX - t.screenX < -50) {
-                $i("mainWindow").classList.add("toRight");
                 $i("sidebar").classList.add("visible");
             } else if (swipeStartX - t.screenX > 50) {
-                $i("mainWindow").classList.remove("toRight");
                 $i("sidebar").classList.remove("visible");
             }
         }
