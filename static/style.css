@@ -37,9 +37,22 @@ body.dark {
 body {
     background-color: var(--background-primary);
     overflow: hidden;
+    --wh: 100vh;
+}
+
+.no-transition * {
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    -ms-transition: none !important;
+    -o-transition: none !important;
+    transition: none !important;
 }
 
 * {
+    -webkit-transition: color 0.2s, background-color 0.2s;
+    -moz-transition: color 0.2s, background-color 0.2s;
+    -ms-transition: color 0.2s, background-color 0.2s;
+    -o-transition: color 0.2s, background-color 0.2s;
     transition: color 0.2s, background-color 0.2s;
 }
 
@@ -63,8 +76,11 @@ a:not(.overlay-tab) {
 }
 
 #progress-bar {
-    transition: width 0.5s,
-        background-color 0.5s;
+    -webkit-transition: width 0.5s, background-color 0.5s;
+    -moz-transition: width 0.5s, background-color 0.5s;
+    -ms-transition: width 0.5s, background-color 0.5s;
+    -o-transition: width 0.5s, background-color 0.5s;
+    transition: width 0.5s, background-color 0.5s;
     background-color: var(--color-progress-bar);
     height: 2px;
     border: none;
@@ -109,6 +125,10 @@ a:not(.overlay-tab) {
 }
 
 #sidebar {
+    -webkit-transition: left 0.5s;
+    -moz-transition: left 0.5s;
+    -ms-transition: left 0.5s;
+    -o-transition: left 0.5s;
     transition: left 0.5s;
     position: fixed;
     left: -200px;
@@ -137,6 +157,10 @@ a:not(.overlay-tab) {
     text-align: center;
     cursor: pointer;
     color: var(--link-color);
+    -webkit-transition: background-color 0.5s, color 0.5s;
+    -moz-transition: background-color 0.5s, color 0.5s;
+    -ms-transition: background-color 0.5s, color 0.5s;
+    -o-transition: background-color 0.5s, color 0.5s;
     transition: background-color 0.5s, color 0.5s;
 }
 
@@ -304,6 +328,10 @@ span.entry-title {
 #error-timetable.visible {
     visibility: visible;
     opacity: 1;
+    -webkit-transition: opacity 500ms ease-in-out, visibility 500ms ease-in-out;
+    -moz-transition: opacity 500ms ease-in-out, visibility 500ms ease-in-out;
+    -ms-transition: opacity 500ms ease-in-out, visibility 500ms ease-in-out;
+    -o-transition: opacity 500ms ease-in-out, visibility 500ms ease-in-out;
     transition: opacity 500ms ease-in-out, visibility 500ms ease-in-out;
 }
 
@@ -333,6 +361,10 @@ span.entry-title {
     left: 0;
     padding: 10vh 10vw;
     z-index: 2;
+    -webkit-transition: opacity 500ms ease-in-out, visibility 500ms ease-in-out;
+    -moz-transition: opacity 500ms ease-in-out, visibility 500ms ease-in-out;
+    -ms-transition: opacity 500ms ease-in-out, visibility 500ms ease-in-out;
+    -o-transition: opacity 500ms ease-in-out, visibility 500ms ease-in-out;
     transition: opacity 500ms ease-in-out, visibility 500ms ease-in-out;
 }
 
@@ -565,8 +597,11 @@ form button, #logout, #persplan {
 }
 
 #panel-timetable.canScroll {
-    transition-property: margin-top;
-    transition-duration: 0.5s;
+    -webkit-transition: margin-top 0.5s;
+    -moz-transition: margin-top 0.5s;
+    -ms-transition: margin-top 0.5s;
+    -o-transition: margin-top 0.5s;
+    transition: margin-top 0.5s;
 }
 
 #panel-account {
@@ -654,6 +689,10 @@ form button, #logout, #persplan {
 
 #week-btns {
     float: right;
+    -webkit-transition: margin-right 0.5s;
+    -moz-transition: margin-right 0.5s;
+    -ms-transition: margin-right 0.5s;
+    -o-transition: margin-right 0.5s;
     transition: margin-right 0.5s;
     position: relative;
 }

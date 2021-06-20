@@ -46,7 +46,7 @@ let persData;
 let currMensa = "KZO";
 
 let wh = window.innerHeight;
-document.documentElement.style.setProperty('--wh', `${wh}px`);
+document.body.style.setProperty('--wh', `${wh}px`);
 
 let $s = selector => document.querySelector(selector);
 let $i = id => document.getElementById(id);
@@ -93,6 +93,7 @@ if (document.readyState != "loading"){
 
 function initGymial() {
     $i("today").setAttribute("data-content", weekOffset);
+    $i("margin-details").classList.remove("no-transition");
 
     // try to see if we are already logged in
     getPersData();
@@ -415,6 +416,14 @@ function init() {
             }
         }
         loadClass(false);
+    })
+    .catch(e => {
+        if (e.name !== "AbortError") {
+            console.error(`Error loading /resources/${currTime}`);
+            displayError("Netzwerkfehler", "Beim Laden des Studenplans ist etwas schiefgelaufen. Stelle sicher, dass du eine Internetverbindung hast. " +
+            "Andernfalls ist vermutlich das <a href='https://intranet.tam.ch/kzo/'>TAM-Intranet</a> momentan nicht erreichbar.");
+        }
+        progress(100);
     });
 }
 
@@ -650,8 +659,8 @@ let debounceDelay = 100;
 function resizeScreen() {
     // still set the wh variable, but we don't re-apply the scrolling effect yet
     let wh = window.innerHeight;
-    if (document.documentElement.style.getPropertyValue("--wh") != `${wh}px`) {
-        document.documentElement.style.setProperty("--wh", `${wh}px`);
+    if (document.body.style.getPropertyValue("--wh") != `${wh}px`) {
+        document.body.style.setProperty("--wh", `${wh}px`);
     }
 
     lastEvTime = Date.now();
