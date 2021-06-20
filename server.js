@@ -6,6 +6,7 @@ const nodeFetch = require("node-fetch");
 const cors = require("cors");
 const crypto = require("crypto");
 const compression = require("compression");
+const minify = require("express-minify");
 const iconv = require("iconv-lite");
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
@@ -38,6 +39,12 @@ app.use((req, res, next) => {
 
 app.use(cors());
 app.use(compression());
+app.use(minify({
+    cache: "./cache",
+    jsMatch: /javascript/,
+    cssMatch: /css/,
+    jsonMatch: false
+}));
 app.use(express.static("static"));
 
 let headers = {
@@ -488,7 +495,7 @@ app.get("/class-personal-details/:classID", function (req, res) {
             return;
         }
         let startTime = periods[1].startTime;
-        if (req.params.classID >= 2438) startTime = periods[0].startTime;
+        if (req.params.classID >= 2564) startTime = periods[0].startTime;
         let body = {
             "startDate": startTime,
             "endDate": startTime + 4 * 24 * 60 * 60 * 1000,
