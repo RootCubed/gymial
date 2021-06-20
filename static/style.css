@@ -40,7 +40,7 @@ body {
     --wh: 100vh;
 }
 
-.no-transition * {
+.no-transition {
     -webkit-transition: none !important;
     -moz-transition: none !important;
     -ms-transition: none !important;
@@ -84,6 +84,7 @@ a:not(.overlay-tab) {
     height: 2px;
     border: none;
     margin: 0;
+    width: 0;
 }
 
 #classSelect {
