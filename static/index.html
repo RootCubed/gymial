@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=0.7, maximum-scale=0.7">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script defer src="jquery-3.5.1.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
     <script defer src="gymial.js"></script>
     <link rel="stylesheet" href="style.css">
@@ -28,7 +27,7 @@
             </span>
             <h1 id="current-class">C6c</h1>
             <div id="week-btns">
-                <span id="forward-next-sem" class="buttonSpan">
+                <span id="forward-next-sem" class="buttonSpan" style="display: none;">
                     <svg width="30" height="30">
                         <line x1="28" y1="15" x2="15" y2="5"></line>
                         <line x1="28" y1="15" x2="15" y2="25"></line>
@@ -59,7 +58,7 @@
                         <line x1="2" y1="15" x2="30" y2="15"></line>
                     </svg>
                 </span>
-                <span id="backward-next-sem" class="buttonSpan">
+                <span id="backward-next-sem" class="buttonSpan" style="display: none;">
                     <svg width="30" height="30">
                         <line x1="2" y1="15" x2="15" y2="5"></line>
                         <line x1="2" y1="15" x2="15" y2="25"></line>
@@ -94,7 +93,7 @@
                     <tbody>
                     </tbody>
                 </table>
-                <div id="error-timetable" style="display: none;">
+                <div id="error-timetable">
                     <svg width="125" height="125" viewBox="0 0 180 180">
                         <circle fill="#f44336" cx="90" cy="90" r="80" stroke="white" stroke-width="5" />
                         <path fill="white" d="M77,32L103,32L100,115L80,115Z"></path>
@@ -104,7 +103,7 @@
                     <span id="error-desc">ERROR_DESC</span>
                 </div>
             </div>
-            <div id="panel-account">
+            <div id="panel-account" style="display: none;">
                 <form id="login-form" method="post" onsubmit="return false">
                     <h3 style="text-align: center; margin-bottom: 20px;">Melde dich an, um Klassenlisten, Instrumentalstunden und Lehrerstundenpläne zu sehen.</h3>
                     <label id="label-user">Name (vorname.nachname)</label>
@@ -127,7 +126,7 @@
                     <button id="logout">Abmelden</button>
                 </div>
             </div>
-            <div id="panel-mensa">
+            <div id="panel-mensa" style="display: none;">
                 <table id="mensa-table">
                     <tbody>
                         <tr>
@@ -165,7 +164,7 @@
             </div>
         </div>
     </div>
-    <div id="margin-details" class="overlay-window">
+    <div id="margin-details">
         <div id="details-overlay">
             <span class="icon-x"></span>
             <div id="overlay-lesson-tabs"></div>
@@ -177,6 +176,9 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div id="hint-new-timetable" style="display: none">
+        <span>Die neuen Stundenpläne sind jetzt online. Schaue sie dir hier an!</span>
     </div>
 </body>
 </html>

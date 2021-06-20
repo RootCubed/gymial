@@ -278,6 +278,7 @@ a:not(.overlay-tab) {
 
 span.entry-title {
     font-weight: bold;
+    text-decoration: none !important;
 }
 
 .sc_cont span {
@@ -285,9 +286,12 @@ span.entry-title {
     -ms-hyphens: auto;
     -webkit-hyphens: auto;
     display: inline-block;
+    text-decoration: inherit;
 }
 
 #error-timetable {
+    visibility: hidden;
+    opacity: 0;
     text-align: center;
     color: white;
     display: flex;
@@ -295,6 +299,12 @@ span.entry-title {
     justify-content: center;
     align-items: center;
     height: 100%;
+}
+
+#error-timetable.visible {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 500ms ease-in-out, visibility 500ms ease-in-out;
 }
 
 #error-timetable img {
@@ -314,7 +324,8 @@ span.entry-title {
 }
 
 #margin-details {
-    display: none;
+    visibility: hidden;
+    opacity: 0;
     position: fixed;
     width: 80%;
     height: 80%;
@@ -322,6 +333,12 @@ span.entry-title {
     left: 0;
     padding: 10vh 10vw;
     z-index: 2;
+    transition: opacity 500ms ease-in-out, visibility 500ms ease-in-out;
+}
+
+#margin-details.visible {
+    visibility: visible;
+    opacity: 1;
 }
 
 #details-overlay {
@@ -657,6 +674,29 @@ span:not(#today) svg line {
 svg polygon {
     stroke: none;
     fill: var(--color-primary);
+}
+
+#hint-new-timetable {
+    position: absolute;
+    right: 0;
+    background-color: #e1dc38;
+    padding: 15px;
+    width: 250px;
+    border-radius: 0.5em;
+    line-height: 1.1;
+    box-shadow: -5px 10px 14px 3px #000000b3;
+}
+
+div#hint-new-timetable:after {
+    content: '';position: absolute;
+    top: 0;
+    right: 3%;
+    width: 0;
+    height: 0;border: 18px solid transparent;
+    border-bottom-color: #e1dc38;
+    border-top: 0;
+    margin-left: -18px;
+    margin-top: -18px;
 }
 
 @keyframes scroll {

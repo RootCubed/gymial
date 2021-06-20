@@ -1,12 +1,11 @@
 // Version string to force reload after update
-// v0.13.1
+// v0.13.2
 
 const CACHE_NAME = "siteCache";
 const URLS_CACHE = [
     "/",
     "/style.css",
     "/spinner.svg",
-    "/jquery-3.5.1.min.js",
     "/gymial.js",
     "/manifest.webmanifest",
     "/apple-touch-icon.png",

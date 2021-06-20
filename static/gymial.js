@@ -48,6 +48,10 @@ let currMensa = "KZO";
 let wh = window.innerHeight;
 document.documentElement.style.setProperty('--wh', `${wh}px`);
 
+let $s = selector => document.querySelector(selector);
+let $i = id => document.getElementById(id);
+let $c = className => Array(...document.getElementsByClassName(className));
+
 if (window.localStorage.getItem("api")) {
     try {
         let json = JSON.parse(window.localStorage.getItem("api"));
@@ -60,7 +64,7 @@ if (window.localStorage.getItem("class")) {
     try {
         let json = JSON.parse(window.localStorage.getItem("class"));
         classID = json.id;
-        $("#current-class").text(json.name);
+        $i("current-class").innerText = json.name;
     } catch (e) {}
 }
 
@@ -81,8 +85,14 @@ let currentView = 0;
 const VIEW_NAMES = ["Stundenplan", "Mein Account", "Mensaplan"];
 let currClassName = "C6c";
 
-$(document).ready(() => {
-    $("#today").attr("data-content", weekOffset);
+if (document.readyState != "loading"){
+    initGymial();
+} else {
+    document.addEventListener("DOMContentLoaded", initGymial);
+}
+
+function initGymial() {
+    $i("today").setAttribute("data-content", weekOffset);
 
     // try to see if we are already logged in
     getPersData();
@@ -91,60 +101,61 @@ $(document).ready(() => {
     loadMensa("KZO", false);
 
     // timetable entries
-    $(document).on("click", ".timetable-entry:not(.empty):not(.timetable-time)", (el) => {
-        let lessonIndex = $(el.currentTarget).attr("data").split(';');
-        let lessons = timetableData[lessonIndex[0]][lessonIndex[1]].data;
-        let htmlString = "";
-        for (let lesson of lessons) {
-            if (lesson.special) return;
-            htmlString += `<a class="overlay-tab">${lesson.cName}</a>`
+    document.addEventListener("click", el => {
+        let tg = el.target;
+
+        while (tg && tg.parentNode) {
+            if (tg.classList.contains("timetable-entry") && !tg.classList.contains("empty") && !tg.classList.contains("timetable-time")) {
+                clickTimetableEntry(tg);
+            } else if (tg.classList.contains("searchResult")) {
+                clickSearchResult(tg);
+            } else if (tg.classList.contains("person-link")) {
+                clickPersonInLessonView(tg);
+            }
+            tg = tg.parentNode;
         }
-        $("#overlay-lesson-tabs").show();
-        $("#overlay-lesson-tabs").html(htmlString);
-        $("#overlay-lesson-tabs").children().eq(0).addClass("active");
-        setLessonData(lessons[0]);
-        $("#margin-details").fadeIn();
-        $(".overlay-tab").on("click", el => {
-            let tg = el.target;
-            let currActive = document.querySelector("#overlay-lesson-tabs .active");
-            if (tg == currActive) return;
-            $(currActive).removeClass("active");
-            $(tg).addClass("active");
-            let index = Array.from(tg.parentNode.children).indexOf(tg);
-            setLessonData(lessons[index]);
-        });
-    });
-    $("#week-back").on("click", () => {
+        
+        if (el.target.id != "classSelect") {
+            hideSearchResults();
+        }
+    }, false);
+
+    let refreshTodayEl = () => {
+        let todayEl = $i("today");
+        todayEl.setAttribute("data-content", weekOffset);
+        todayEl.classList.add("repaint");
+        todayEl.classList.remove("repaint"); // small hack for WebKit browsers
+    }
+    $i("week-back").addEventListener("click", () => {
         currTime -= DAY * 7;
         weekOffset--;
-        $("#today").attr("data-content", weekOffset).addClass("repaint").removeClass("repaint"); // small hack for WebKit browsers
+        refreshTodayEl();
         loadClass(true);
     });
-    $("#today").on("click", () => {
+    $i("today").addEventListener("click", () => {
         currTime = getFirstDayOfWeek(new Date()).getTime();
         weekOffset = 0;
-        $("#today").attr("data-content", weekOffset).addClass("repaint").removeClass("repaint");
+        refreshTodayEl();
         loadClass(true);
     });
-    $("#week-forward").on("click", () => {
+    $i("week-forward").addEventListener("click", () => {
         currTime += DAY * 7;
         weekOffset++;
-        $("#today").attr("data-content", weekOffset).addClass("repaint").removeClass("repaint");
+        refreshTodayEl();
         loadClass(true);
     });
-    $("#forward-next-sem").on("click", () => {
+    $i("forward-next-sem").addEventListener("click", () => {
         currTime = NEXT_SEM_START;
         let now = getFirstDayOfWeek(new Date()).getTime();
         weekOffset = Math.floor((NEXT_SEM_START - now) / (DAY * 7));
-        $("#today").attr("data-content", weekOffset).addClass("repaint").removeClass("repaint");
+        refreshTodayEl();
         loadClass(true);
     });
-    $("#backward-next-sem").on("click", () => {
-        $("#today").click();
+    $i("backward-next-sem").addEventListener("click", () => {
+        $i("today").click();
     });
-    $("#open-menu").on("click", () => {
-        $("#mainWindow").toggleClass("toRight");
-        $("#sidebar").toggleClass("visible");
+    $i("open-menu").addEventListener("click", () => {
+        $i("sidebar").classList.toggle("visible");
     });
 
     // swiping for side panel
@@ -159,27 +170,26 @@ $(document).ready(() => {
         var t = event.touches[0];
         if (Math.abs(swipeStartY - t.screenY) < 20) {
             if (swipeStartX - t.screenX < -50) {
-                $("#mainWindow").addClass("toRight");
-                $("#sidebar").addClass("visible");
+                $i("mainWindow").classList.add("toRight");
+                $i("sidebar").classList.add("visible");
             } else if (swipeStartX - t.screenX > 50) {
-                $("#mainWindow").removeClass("toRight");
-                $("#sidebar").removeClass("visible");
+                $i("mainWindow").classList.remove("toRight");
+                $i("sidebar").classList.remove("visible");
             }
         }
     });
-    $(document).on("mousedown", ".overlay-window", event => {
-        if ($(event.target).is(".overlay-window")) {
-            $(event.target).fadeOut();
-        }
-        if ($(event.target).is(".icon-x")) {
-            $(event.target).parent().parent().fadeOut();
-        }
+    $i("margin-details").addEventListener("click", el => {
+        if (el.target.id != "margin-details") return;
+        $i("margin-details").classList.remove("visible");
+    });
+    $c("icon-x")[0].addEventListener("click", () => {
+        $i("margin-details").classList.remove("visible");
     });
 
     let myAccountClickCount = 0;
 
     // clicking on class name
-    $("#current-class").on("click", () => {
+    $i("current-class").addEventListener("click", () => {
         if (currentView == 1) {
             myAccountClickCount++;
         } else {
@@ -190,9 +200,12 @@ $(document).ready(() => {
             document.body.classList.toggle("dark");
         }
         if (currentView != 0) return; // timetable
-        if ($("#margin-details").is(":visible")) return;
-        $("#overlay-lesson-tabs, #room-detail, #teacher-detail, #detail-view").html("");
-        $("#overlay-lesson-tabs").hide();
+        if ($i("margin-details").classList.contains("visible")) return;
+        $i("overlay-lesson-tabs").innerHTML = "";
+        $i("room-detail").innerHTML = "";
+        $i("teacher-detail").innerHTML = "";
+        $i("detail-view").innerHTML = "";
+        $i("overlay-lesson-tabs").style.display = "none";
         if (IDType == "class") {
             fetch(`/class-personal-details/${classID}`)
             .then(response => {
@@ -200,19 +213,18 @@ $(document).ready(() => {
                 return response.json();
             }).then(res => {
                 if (res == 401) {
-                    $(".sidebar-link").eq(1).click();
+                    $i("link-account").click();
                     return;
                 };
-                $("#margin-details").fadeIn();
-                $("#detail-view").html("<h1 style='margin-bottom: 20px'>Klassenliste " + $("#current-class").text() + "</h1>");
+                $i("margin-details").classList.add("visible");
+                let htmlToAdd = `<h1 style="margin-bottom: 20px">Klassenliste ${$i("current-class").innerText}</h1>`;
                 for (let student of res) {
-                    $("#detail-view").append(
-                        `<div class="student"><p class="studentName">${student.studentName}</p></div>`
-                    );
+                    htmlToAdd += `<div class="student"><p class="studentName">${student.studentName}</p></div>`;
                 }
+                $i("detail-view").innerHTML += htmlToAdd;
             });
         } else {
-            $("#margin-details").fadeIn();
+            $i("margin-details").classList.add("visible");
             if (IDType == "student") {
                 fetch("/getName/" + parseInt(classID)).then(res => res.json()).then(personName => {
                     fetch(`/search-internal-kzoCH/${personName.firstname}/${personName.lastname}/_`).then(response => {
@@ -222,175 +234,116 @@ $(document).ready(() => {
                         return response.json();
                     }).then(res => {
                         if (res == 401) {
-                            $(".sidebar-link").eq(1).click();
+                            $i("link-account").click();
                             return;
                         };
                         let personalStuff = "";
                         for (let i = 3; i < 6; i++) {
                             personalStuff += "<p>" + res[0][i] + "</p>";
                         }
-                        $("#detail-view").html(
-                            `<div class="student"><h1>${personName.firstname + " " + personName.lastname}</h1><br><div class="personalDetails">${personalStuff}</div></div>`
-                        );
+                        $i("detail-view").innerHTML =
+                            `<div class="student"><h1>${personName.firstname + " " + personName.lastname}</h1><br><div class="personalDetails">${personalStuff}</div></div>`;
                     });
                 });
             } else {
-                $("#detail-view").html(
-                    `<div class="student"><h1>${$("#current-class").text()}</h1><br><p>Lehrerinformationen werden bald hinzugefügt.</p></div>`
-                );
+                $i("detail-view").innerHTML =
+                    `<div class="student"><h1>${$i("current-class").innerText}</h1><br><p>Lehrerinformationen werden bald hinzugefügt.</p></div>`;
             }
         }
     });
 
-    // clicking on search result
-    $(document).on("click", ".searchResult", el => {
-        let name = el.target.innerText;
-        $("#current-class").text(name);
-        classID = el.target.getAttribute("data");
-        switch(classID[0]) {
-            case 'c':
-                IDType = "class";
-                if (!nextSemOnline || currTime < NEXT_SEM_START) {
-                    window.localStorage.setItem("class", JSON.stringify({id: classID.substr(1), name: name}));
-                }
-                break;
-            case 't':
-                IDType = "teacher";
-                break;
-            case 's':
-                IDType = "student";
-                break;
-            case 'r':
-                IDType = "room";
-                break;
-        }
-        searches.unshift({
-            id: classID,
-            name: name,
-            auth: true
-        });
-        // get rid of duplicated entries, removing all but the first occurrence
-        searches = searches.filter((v, i, a) => {
-            return a.findIndex(t => (t.id === v.id && t.name === v.name)) === i;
-        });
-        searches = searches.slice(0, 7); // max 7 search results
-        window.localStorage.setItem("search-history", JSON.stringify(searches));
-        classID = parseInt(classID.substr(1));
-        $("#classSelect").val("");
-        loadClass(true);
-    });
-
-    // clicking away from search box
-    $(document).on("click", "", el => {
-        if (el.target.id != "classSelect") {
-            hideSearchResults();
-        }
-    });
-
-    // person click in lesson view
-    $(document).on("click", ".person-link", el => {
-        IDType = "student";
-        classID = parseInt(el.target.getAttribute("data"));
-        $("#current-class").text(el.target.innerText);
-        loadClass(true);
-        $("#margin-details").fadeOut();
-    });
-
-    $("#logout").on("click", ev => {
-        $("#invalid-login").hide();
-        $("#login-form").show();
-        $("#accountinfo").hide();
+    $i("logout").addEventListener("click", ev => {
+        $i("invalid-login").style.display = "none";
+        $i("login-form").style.display = "inline";
+        $i("accountinfo").style.display = "none";
         Cookies.remove("username");
         Cookies.remove("apiToken");
         window.localStorage.removeItem("api");
     });
 
-    $("#persplan").on("click", ev => {
+    $i("persplan").addEventListener("click", ev => {
         classID = persData.PersonID;
         IDType = "student";
         currClassName = persData.Nachname + ", " + persData.Vorname;
         loadClass(true);
-        $("#link-timetable").click();
+        $i("link-timetable").click();
     });
 
     // logging in
-    $("#login-form").on("submit", ev => {
-        $("#invalid-login").hide();
-        $("#login-submit").hide();
-        $("#button-spinner img").show();
+    $i("login-form").addEventListener("submit", ev => {
+        $i("invalid-login").style.display = "none";
+        $i("login-submit").style.display = "none";
+        let spinner = $s("#button-spinner img");
+        spinner.style.display = "inline";
         ev.preventDefault();
-        $("#login-user").val($("#login-user").val());
         fetch("/auth", {
             method: "post",
-            body: `user=${$("#login-user").val()}&pass=${$("#login-pw").val()}`
+            body: `user=${$i("login-user").value}&pass=${$i("login-pw").value}`
         }).then(res => {
             if (res.status == 401) {
                 // Unsuccessful authentication
-                $("#invalid-login").show();
-                $("#login-submit").show();
-                $("#button-spinner img").hide();
+                $i("invalid-login").display.style = "inline";
+                $i("login-submit").display.style = "inline";
+                spinner.style.display = "none";
                 return;
             }
             return res.text();
         }).then(token => {
             if (!token) return;
-            window.localStorage.setItem("api", JSON.stringify({username: $("#login-user").val(), token: token}));
-            Cookies.set("username", $("#login-user").val(), {expires: 30, path: ""});
+            window.localStorage.setItem("api", JSON.stringify({username: $i("login-user").value, token: token}));
+            Cookies.set("username", $i("login-user").value, {expires: 30, path: ""});
             Cookies.set("apiToken", token, {expires: 30, path: ""});
             getPersData();
             init(); // resources will be different when logged in
-            $("#link-timetable").click();
+            $i("link-timetable").click();
         });
         return false;
     });
 
     // sidebar link
-    $(".sidebar-link").click(el => {
-        $("#margin-details").hide();
-        $("#panel-timetable").removeClass();
-        $("#panel-timetable").addClass("canScroll");
-        $("#current-class").addClass("noclick");
+    $c("sidebar-link").forEach(el => el.addEventListener("click", el => {
+        $i("margin-details").classList.remove("visible");
+        $i("panel-timetable").className = "canScroll";
+        $i("current-class").classList.add("noclick");
+        $c("sidebar-link").forEach(el => el.classList.remove("active"));
         switch(el.target.innerText) {
             case VIEW_NAMES[0]:
-                $("#current-class").text(currClassName);
-                $("#panel-timetable").addClass("scrollTimetable");
-                $(".sidebar-link").removeClass("active");
-                $("#link-timetable").addClass("active");
-                $("#week-btns").removeClass("hide");
-                $("#current-class").removeClass("noclick");
+                $i("current-class").innerText = currClassName;
+                $i("panel-timetable").classList.add("scrollTimetable");
+                $c("sidebar-link").forEach(el => el.classList.remove("active"));
+                $i("link-timetable").classList.add("active");
+                $i("week-btns").classList.remove("hide");
+                $i("current-class").classList.remove("noclick");
                 currentView = 0;
                 break;
             case VIEW_NAMES[1]:
-                $("#current-class").text(VIEW_NAMES[1]);
-                $("#panel-timetable").addClass("scrollLogin");
-                $(".sidebar-link").removeClass("active");
-                $("#link-account").addClass("active");
-                $("#week-btns").addClass("hide");
+                $i("current-class").innerText = VIEW_NAMES[1];
+                $i("panel-timetable").classList.add("scrollLogin");
+                $i("link-account").classList.add("active");
+                $i("week-btns").classList.add("hide");
                 currentView = 1;
                 break;
             case VIEW_NAMES[2]:
-                $("#current-class").html(`${VIEW_NAMES[2]} <span id="toggle-mensa">${currMensa}</span>`);
-                $("#toggle-mensa").on("click", () => {
+                $i("current-class").innerHTML = `${VIEW_NAMES[2]} <span id="toggle-mensa">${currMensa}</span>`;
+                $i("toggle-mensa").addEventListener("click", () => {
                     if (currMensa == "KZO") {
                         currMensa = "Schellerstrasse";
                     } else {
                         currMensa = "KZO";
                     }
-                    $("#toggle-mensa").text(currMensa);
+                    $i("toggle-mensa").innerText = currMensa;
                     loadMensa(currMensa, true);
                 });
-                $("#panel-timetable").addClass("scrollMensa");
-                $(".sidebar-link").removeClass("active");
-                $("#link-mensa").addClass("active");
-                $("#week-btns").addClass("hide");
+                $i("panel-timetable").classList.add("scrollMensa");
+                $i("link-mensa").classList.add("active");
+                $i("week-btns").classList.add("hide");
                 currentView = 2;
                 break;
         }
-        $("#mainWindow").delay(500).removeClass("toRight");
-        $("#sidebar").delay(500).removeClass("visible");
-        setTimeout(() => $("#panel-timetable").removeClass("canScroll"), 500);
+        $i("sidebar").classList.remove("visible");
+        setTimeout(() => $i("panel-timetable").classList.remove("canScroll"), 500);
         return;
-    });
+    }));
 
     window.addEventListener("resize", resizeScreen);
     window.addEventListener("orientationchange", resizeScreen);
@@ -413,19 +366,19 @@ $(document).ready(() => {
     }
 
     init();
-});
+}
 
 function init() {
-    $("#error-timetable").hide();
+    $i("error-timetable").classList.remove("visible");
     progress(10);
     enableDisableSemButton();
-    $("#timetable tbody").html("");
+    $s("#timetable tbody").innerHTML = "";
     fetch(`/resources/${currTime}`).then(response => {
         return response.json();
     }).then(classes => {
         progress(20);
         if (classes.offline) {
-            $("#current-class").text("Offline");
+            $i("current-class").innerText = "Offline";
             progress(0);
             return;
         }
@@ -446,18 +399,18 @@ function init() {
                         let json = JSON.parse(window.localStorage.getItem("class"));
                         if (classID == json.id) throw "localStorage is from this semester";
                         classID = json.id;
-                        $("#current-class").text(json.name);
+                        $i("current-class").innerText = json.name;
                     } catch (e) {
                         classID = classes[0].classId;
                         IDType = "class";
                         currClassName = classes[0].className.replace(' ', '');
-                        $("#current-class").text(currClassName);
+                        $i("current-class").innerText = currClassName;
                     }
                 } else {
                     classID = classes[0].classId;
                     IDType = "class";
                     currClassName = classes[0].className.replace(' ', '');
-                    $("#current-class").text(currClassName);
+                    $i("current-class").innerText = currClassName;
                 }
             }
         }
@@ -465,16 +418,85 @@ function init() {
     });
 }
 
+function clickTimetableEntry(el) {
+    let lessonIndex = el.getAttribute("data").split(';');
+    let lessons = timetableData[lessonIndex[0]][lessonIndex[1]].data;
+    let htmlString = "";
+    for (let lesson of lessons) {
+        if (lesson.special) return;
+        htmlString += `<a class="overlay-tab">${lesson.cName}</a>`
+    }
+    $i("overlay-lesson-tabs").style.display = "inline";
+    $i("overlay-lesson-tabs").innerHTML = htmlString;
+    $i("overlay-lesson-tabs").children[0].classList.add("active");
+    setLessonData(lessons[0]);
+    $i("margin-details").classList.add("visible");
+    $c("overlay-tab").forEach(el => el.addEventListener("click", el => {
+        let tg = el.target;
+        let currActive = document.querySelector("#overlay-lesson-tabs .active");
+        if (tg == currActive) return;
+        currActive.classList.remove("active");
+        tg.classList.add("active");
+        let index = Array.from(tg.parentNode.children).indexOf(tg);
+        setLessonData(lessons[index]);
+    }));
+}
+
+function clickSearchResult(el) {
+    let name = el.innerText;
+    $i("current-class").innerText = name;
+    classID = el.getAttribute("data");
+    switch(classID[0]) {
+        case 'c':
+            IDType = "class";
+            if (!nextSemOnline || currTime < NEXT_SEM_START) {
+                window.localStorage.setItem("class", JSON.stringify({id: classID.substr(1), name: name}));
+            }
+            break;
+        case 't':
+            IDType = "teacher";
+            break;
+        case 's':
+            IDType = "student";
+            break;
+        case 'r':
+            IDType = "room";
+            break;
+    }
+    searches.unshift({
+        id: classID,
+        name: name,
+        auth: true
+    });
+    // get rid of duplicated entries, removing all but the first occurrence
+    searches = searches.filter((v, i, a) => {
+        return a.findIndex(t => (t.id === v.id && t.name === v.name)) === i;
+    });
+    searches = searches.slice(0, 7); // max 7 search results
+    window.localStorage.setItem("search-history", JSON.stringify(searches));
+    classID = parseInt(classID.substr(1));
+    $i("classSelect").value = "";
+    loadClass(true);
+}
+
+function clickPersonInLessonView(el) {
+    IDType = "student";
+    classID = parseInt(el.getAttribute("data"));
+    $i("current-class").innerText = el.innerText;
+    loadClass(true);
+    $i("margin-details").classList.remove("visible");
+}
+
 let classLoadingController = new AbortController()
 let classLoadingSignal = classLoadingController.signal;
 
 function loadClass(startAtZero) {
-    $("#error-timetable").hide();
+    $i("error-timetable").classList.remove("visible");
     if (startAtZero) progress(10);
     classLoadingController.abort();
     classLoadingController = new AbortController()
     classLoadingSignal = classLoadingController.signal;
-    $("#timetable tbody").html("");
+    $s("#timetable tbody").innerHTML = "";
     fetch(`/period-from-time/${currTime}`, {
         signal: classLoadingSignal
     })
@@ -509,15 +531,14 @@ function loadClass(startAtZero) {
                     if (!classList[i].classId) break;
                     if (classList[i].classId == classID) {
                         currClassName = classList[i].className.replace(' ', '');
-                        $("#current-class").text(currClassName);
+                        $i("current-class").innerText = currClassName;
                     }
                 }
             }
             if (IDType == "student") {
-                $("#current-class").text(idToName(classID) + " (" + classFromTTData(json).replace(/ /g, '') + ")");
+                $i("current-class").innerText = idToName(classID) + " (" + classFromTTData(json).replace(/ /g, '') + ")";
             }
-            let mainDiv = $("#timetable tbody");
-            mainDiv.html("");
+            mainDivHTML = "";
             progress(60);
             rawData = json;
             timetableData = convertToUsable(json);
@@ -525,12 +546,10 @@ function loadClass(startAtZero) {
             for (let day in timetableData) {
                 dates += `<th class="timetable-date">${day}</th>`;
             }
-            mainDiv.append(`<tr><td class="timetable-time"></td>${dates}</tr>`);
+            mainDivHTML += `<tr><td class="timetable-time"></td>${dates}</tr>`;
             for (let i = 0; i < times.length; i++) {
                 let timeRows = times[i];
-                mainDiv.append(
-                    `<tr class="time-row"><td class="timetable-entry timetable-time timetable-lesson-times">${timeRows}</td></tr>`
-                );
+                mainDivHTML += `<tr class="time-row"><td class="timetable-entry timetable-time timetable-lesson-times">${timeRows}</td>`;
                 for (let day in timetableData) {
                     if (timetableData[day][i].type == "ignore") {
                         continue;
@@ -556,7 +575,7 @@ function loadClass(startAtZero) {
                         }
                     }
                     if (timetableData[day][i].type == "empty") {
-                        $(".time-row").last().append(`<td rowspan=${timetableData[day][i].length} class="timetable-entry empty"><div class="sc_cont"></div></td>`);
+                        mainDivHTML += `<td rowspan=${timetableData[day][i].length} class="timetable-entry empty"><div class="sc_cont"></div></td>`;
                     } else {
                         let lLength = timetableData[day][i].length;
                         let lengthName = "";
@@ -569,12 +588,12 @@ function loadClass(startAtZero) {
                         if (lLength == 11) {
                             lengthName = "fullday"
                         }
-                        $(".time-row").last().append(`
-                            <td rowspan=${lLength} class="timetable-entry ${isSpecial}" data="${day + ";" + i}"><div class="sc_cont"><div class="scroller-container ${lengthName}"><div class="scroller">${lessons}<div class="addScroller"></div></div></div></div></td>
-                        `);
+                        mainDivHTML += `<td rowspan=${lLength} class="timetable-entry ${isSpecial}" data="${day + ";" + i}"><div class="sc_cont"><div class="scroller-container ${lengthName}"><div class="scroller">${lessons}<div class="addScroller"></div></div></div></div></td>`;
                     }
                 }
+                mainDivHTML += `</tr>`;
             }
+            $s("#timetable tbody").innerHTML = mainDivHTML;
             applyScrolling();
             progress(100);
         })
@@ -601,10 +620,10 @@ function getPersData() {
     fetch("/myData").then(res => res.json()).then(res => {
         if (res.total > 0) {
             persData = res.data[0];
-            $("#ownName").text(persData.Vorname + " " + persData.Nachname);
-            $("#otherDetails").text(persData.Adresse + ", " + persData.PLZ + " " + persData.Ort);
-            $("#login-form").hide();
-            $("#accountinfo").show();
+            $i("ownName").innerText = persData.Vorname + " " + persData.Nachname;
+            $i("otherDetails").innerText = persData.Adresse + ", " + persData.PLZ + " " + persData.Ort;
+            $i("login-form").style.display = "none";
+            $i("accountinfo").style.display = "inline";
         }
     });
 }
@@ -620,7 +639,7 @@ function loadMensa(name, showProgress) {
             }
             tableHtml += "</tr>";
         }
-        $("#mensa-table tbody").html(tableHtml);
+        $s("#mensa-table tbody").innerHTML = tableHtml;
         if (showProgress) progress(100);
     });
 }
@@ -652,28 +671,28 @@ function resizeEnd() {
 }
 
 function applyScrolling() {
-    $(".time-row .scroller").each(function(index) {
-        let scrollerEl = $(this);
-        scrollerEl.removeClass("scrolling");
-        scrollerEl.children().last().html("");
-        if (scrollerEl.height() > scrollerEl.parent().height()) {
-            scrollerEl.addClass("scrolling");
-            scrollerEl.children().last().html(scrollerEl.html());
+    $c("scroller").forEach(scrollerEl => {
+        scrollerEl.classList.remove("scrolling");
+        let addScroller = scrollerEl.getElementsByClassName("addScroller")[0];
+        addScroller.innerHTML = "";
+        if (scrollerEl.offsetHeight > scrollerEl.parentNode.offsetHeight) {
+            scrollerEl.classList.add("scrolling");
+            addScroller.innerHTML = scrollerEl.innerHTML; // duplicate text
         }
     });
 }
 
 function enableDisableSemButton() {
     if (!nextSemOnline) {
-        $("#forward-next-sem").hide();
-        $("#backward-next-sem").hide();
+        $i("forward-next-sem").style.display = "none";
+        $i("backward-next-sem").style.display = "none";
     } else {
         if (currTime >= NEXT_SEM_START) {
-            $("#forward-next-sem").hide();
-            $("#backward-next-sem").show();
+            $i("forward-next-sem").style.display = "none";
+            $i("backward-next-sem").style.display = "inline";
         } else {
-            $("#forward-next-sem").show();
-            $("#backward-next-sem").hide();
+            $i("forward-next-sem").style.display = "inline";
+            $i("backward-next-sem").style.display = "none";
         }
     }
 }
@@ -711,25 +730,25 @@ function idToName(id) {
 }
 
 function setLessonData(lesson) {
-    $("#teacher-detail").text(lesson.tFull);
-    $("#detail-view").html("<div id='names'></div>");
+    $i("teacher-detail").innerText = lesson.tFull;
+    $i("detail-view").innerHTML = "<div id='names'></div>";
     if (lesson.cId) {
         fetch("/course-participants/" + lesson.cId).then(r => {
             if (r.status == 401) return 401;
             return r.json();
         }).then(res => {
             if (res == 401) {
-                $(".sidebar-link").eq(1).click();
+                $i("link-account").click();
                 return;
             }
             let html = "";
             for (let r of res) {
                 html += `<span class="student studentName person-link" data="${r.id}">${r.name}</span>`
             }
-            $("#detail-view div").html(html);
+            $i("names").innerHTML = html;
         });
     } else {
-        $("#detail-view div").html("Keine Informationen über die Teilnehmer an diesem Kurs!");
+        $i("names").innerHTML = "Keine Informationen über die Teilnehmer an diesem Kurs!";
     }
 }
 
@@ -865,26 +884,26 @@ function getFirstDayOfWeek(d) {
 }
 
 function progress(number) {
-    $("#progress-bar").css("width", number + "%");
+    $i("progress-bar").style.width = number + "%";
     if (number === 100) {
         setTimeout (() => {
-            $("#progress-bar").css("background-color", "white");
+            $i("progress-bar").style.backgroundColor = "white";
         }, 500);
         setTimeout (() => {
-            $("#progress-bar").css("width", "0%");
+            $i("progress-bar").style.width = "0%";
         }, 1000);
         setTimeout (() => {
-            $("#progress-bar").css("background-color", "#329F5B");
+            $i("progress-bar").style.backgroundColor = "#329F5B";
         }, 1500);
     }
 }
 
 function filterObjects() {
-    let input = $("#classSelect").val().toLowerCase().replace(' ', '');
-    $("#search-results span").remove();
+    let input = $i("classSelect").value.toLowerCase().replace(' ', '');
+    $i("search-results").innerHTML = "";
     if (input.length < 1) {
         for (let search of searches) {
-            $("#search-results").append(`<span class="searchResult" data="${search.id}">${search.name}</span>`);
+            $i("search-results").innerHTML += `<span class="searchResult" data="${search.id}">${search.name}</span>`;
         }
         return;
     }
@@ -897,25 +916,27 @@ function filterObjects() {
             return val.name.toLowerCase().includes(input);
         }
     });
+    let resultHTML = "";
     for (let found of t) {
         if (found.classId) {
-            $("#search-results").append(`<span class="searchResult" data="c${found.classId}">${found.className.replace(' ', '')}</span>`);
+            resultHTML += `<span class="searchResult" data="c${found.classId}">${found.className.replace(' ', '')}</span>`;
         } else if (found.acronym) {
-            $("#search-results").append(`<span class="searchResult" data="t${found.personId}">${found.name.replace(/\(.+?\)/, '')}</span>`);
+            resultHTML += `<span class="searchResult" data="t${found.personId}">${found.name.replace(/\(.+?\)/, '')}</span>`;
         } else if (found.room) {
-            $("#search-results").append(`<span class="searchResult" data="r${found.roomId}">${found.room}</span>`);
+            resultHTML += `<span class="searchResult" data="r${found.roomId}">${found.room}</span>`;
         } else {
-            $("#search-results").append(`<span class="searchResult" data="s${found.personId}">${found.name.replace(/\(.+?\)/, '')}</span>`);
+            resultHTML += `<span class="searchResult" data="s${found.personId}">${found.name.replace(/\(.+?\)/, '')}</span>`;
         }
     }
+    $i("search-results").innerHTML = resultHTML;
 }
 
 function hideSearchResults() {
-    $("#search-dropdown span").remove();
+    $i("search-results").innerHTML = "";
 }
 
 function displayError(title, message) {
-    $("#error-title").text(title);
-    $("#error-desc").html(message);
-    $("#error-timetable").fadeIn(100);
+    $i("error-title").innerText = title;
+    $i("error-desc").innerHTML = message;
+    $i("error-timetable").classList.add("visible");
 }
