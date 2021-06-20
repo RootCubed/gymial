@@ -93,7 +93,9 @@ if (document.readyState != "loading"){
 
 function initGymial() {
     $i("today").setAttribute("data-content", weekOffset);
-    $i("margin-details").classList.remove("no-transition");
+    setTimeout(() => {
+        document.body.classList.remove("no-transition");
+    }, 100);
 
     // try to see if we are already logged in
     getPersData();
