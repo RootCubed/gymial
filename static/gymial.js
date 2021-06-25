@@ -29,7 +29,7 @@ const timesPost73 = [
 const shortTimesPost73 = [730, 825, 920, 1035, 1140, 1235, 1340, 1445, 1540, 1635, 1720];
 
 const NEXT_SEM_START = 1629752236880;
-const nextSemOnline = false;
+const nextSemOnline = true;
 
 let times = timesPre73;
 let shortTimes = shortTimesPre73;
@@ -68,11 +68,20 @@ if (window.localStorage.getItem("class")) {
     } catch (e) {}
 }
 
-let searches = [];
-if (window.localStorage.getItem("search-history")) {
-    try {
-        searches = JSON.parse(window.localStorage.getItem("search-history"));
-    } catch (e) {}
+let searchHistoryName, searches;
+loadSearchHistory();
+
+if (nextSemOnline && window.localStorage) {
+    let shouldShowHint = false;
+    if (window.localStorage.getItem("seenNextSemHint")) {
+        if (window.localStorage.getItem("seenNextSemHint") < currPeriod) shouldShowHint = true;
+    } else {
+        window.localStorage.setItem("seenNextSemHint", currPeriod);
+        shouldShowHint = true;
+    }
+    if (shouldShowHint) {
+        $i("hint-new-timetable").classList.add("visible");
+    }
 }
 
 let currTime = getFirstDayOfWeek(new Date()).getTime();
@@ -128,6 +137,7 @@ function initGymial() {
         todayEl.setAttribute("data-content", weekOffset);
         todayEl.classList.add("repaint");
         todayEl.classList.remove("repaint"); // small hack for WebKit browsers
+        $i("hint-new-timetable").classList.remove("visible");
     };
 
     $i("week-back").addEventListener("click", () => {
@@ -483,7 +493,7 @@ function clickSearchResult(el) {
         return a.findIndex(t => (t.id === v.id && t.name === v.name)) === i;
     });
     searches = searches.slice(0, 7); // max 7 search results
-    window.localStorage.setItem("search-history", JSON.stringify(searches));
+    window.localStorage.setItem(searchHistoryName, JSON.stringify(searches));
     classID = parseInt(classID.substr(1));
     $i("classSelect").value = "";
     loadClass(true);
@@ -528,6 +538,7 @@ function loadClass(startAtZero) {
         }
         if (parseInt(perID) != currPeriod) {
             currPeriod = parseInt(perID);
+            loadSearchHistory();
             init();
             return;
         }
@@ -710,6 +721,16 @@ function enableDisableSemButton() {
             $i("forward-next-sem").style.display = "inline";
             $i("backward-next-sem").style.display = "none";
         }
+    }
+}
+
+function loadSearchHistory() {
+    searchHistoryName = "search-history" + currPeriod;
+    searches = [];
+    if (window.localStorage.getItem(searchHistoryName)) {
+        try {
+            searches = JSON.parse(window.localStorage.getItem(searchHistoryName));
+        } catch (e) {}
     }
 }
 

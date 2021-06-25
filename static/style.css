@@ -718,12 +718,13 @@ svg polygon {
 #hint-new-timetable {
     position: absolute;
     right: 0;
-    background-color: #e1dc38;
+    background-color: #f3f016;
     padding: 15px;
-    width: 250px;
     border-radius: 0.5em;
     line-height: 1.1;
     box-shadow: -5px 10px 14px 3px #000000b3;
+    transition: opacity 0.5s;
+    opacity: 0;
 }
 
 div#hint-new-timetable:after {
@@ -732,10 +733,14 @@ div#hint-new-timetable:after {
     right: 3%;
     width: 0;
     height: 0;border: 18px solid transparent;
-    border-bottom-color: #e1dc38;
+    border-bottom-color: #f3f016;
     border-top: 0;
     margin-left: -18px;
     margin-top: -18px;
+}
+
+#hint-new-timetable.visible {
+    opacity: 1;
 }
 
 @keyframes scroll {
