@@ -40,7 +40,6 @@ app.use((req, res, next) => {
 app.use(cors());
 app.use(compression());
 app.use(minify({
-    cache: "./cache",
     jsMatch: /javascript/,
     cssMatch: /css/,
     jsonMatch: false
@@ -239,6 +238,10 @@ function intranetReq(endpoint, body) {
         headers: JSON.parse(JSON.stringify(headers)),
         referrerPolicy: "strict-origin-when-cross-origin"
     };
+    if (body.periodId == periods[0].period) {
+        options.referrer = "https://intranet.tam.ch/kzo/calendar/index/period/" + body.periodId;
+        options.headers.Referer = "https://intranet.tam.ch/kzo/calendar/index/period/" + body.periodId;
+    }
     body.csrfToken = token;
     return new Promise(function(resolve) {
         let str = "";
