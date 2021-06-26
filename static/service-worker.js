@@ -1,5 +1,5 @@
 // Version string to force reload after update
-// v0.14.0
+const VERSION = "v0.14.0"
 
 const CACHE_NAME = "siteCache";
 const URLS_CACHE = [
@@ -41,23 +41,6 @@ self.addEventListener("fetch", ev => {
             return res;
         }
 
-        return fetch(ev.request)/*.then(fetchRes => {
-            // Check if we received a valid response
-            if(!fetchRes || fetchRes.status !== 200 || fetchRes.type !== "basic") {
-                return fetchRes;
-            }
-
-            // IMPORTANT: Clone the response. A response is a stream
-            // and because we want the browser to consume the response
-            // as well as the cache consuming the response, we need
-            // to clone it so we have two streams.
-            var responseToCache = fetchRes.clone();
-
-            caches.open(CACHE_NAME).then(cache => {
-                cache.put(ev.request, responseToCache);
-            });
-
-            return fetchRes;
-        });*/
+        return fetch(ev.request);
     }));
 });
