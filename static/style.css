@@ -778,25 +778,38 @@ div#hint-new-timetable:after {
 }
 
 @media print {
-    :root {
-        --wh: 95vh !important;
+
+    html, body {
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
     body {
         background-color: white;
+        --wh: 95vh !important;
     }
 
     #panels, #panel-timetable {
         height: 100vh;
         max-height: 100vh;
+        width: 100vw;
     }
 
-    #panel-account, #panel-mensa {
+    #sidebar, #panel-account, #panel-mensa {
         display: none;
     }
 
-    #selection {
+    #scrollLimiter {
+        background: none;
+    }
+
+    #selection * {
         display: none;
+    }
+
+    #current-class {
+        display: inline-block;
+        color: black;
     }
 
     .timetable-time, .timetable-date {
@@ -804,12 +817,13 @@ div#hint-new-timetable:after {
     }
 
     .timetable-entry:not(.timetable-time) {
-        border: 2px solid black
+        border: 2px solid black;
+        background: none;
     }
 
     .timetable-entry.empty {
-        background: transparent;
-        border: transparent;
+        background: none;
+        border: none;
     }
 
     .scrolling {
