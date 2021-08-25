@@ -39,8 +39,8 @@ const DAY = 24 * 60 * 60 * 1000;
 let rawData, timetableData;
 
 let IDType = "class";
-let classID = 2559;
-let currPeriod = 74;
+let classID = 2580;
+let currPeriod = 75;
 let persData;
 
 let currMensa = "KZO";
@@ -231,7 +231,7 @@ function initGymial() {
                 $i("margin-details").classList.add("visible");
                 let htmlToAdd = `<h1 style="margin-bottom: 20px">Klassenliste ${$i("current-class").innerText}</h1>`;
                 for (let student of res) {
-                    htmlToAdd += `<div class="student"><p class="studentName">${student.studentName}</p></div>`;
+                    htmlToAdd += `<span class="student studentName person-link" data="${student.studentId}">${student.studentName}</span>`;
                 }
                 $i("detail-view").innerHTML += htmlToAdd;
             });

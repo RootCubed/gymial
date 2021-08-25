@@ -522,7 +522,6 @@ app.get("/class-personal-details/:classID", function (req, res) {
                     }
                 }
             }
-            console.log(potentialClassLists);
             let best = {count:0};
             for (let d in potentialClassLists) {
                 if (potentialClassLists[d].count > best.count) {
