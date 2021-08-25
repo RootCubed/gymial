@@ -508,13 +508,28 @@ app.get("/class-personal-details/:classID", function (req, res) {
         };
         intranetReq("/kzo/timetable/ajax-get-timetable", body).then(r => {
             let data = JSON.parse(r).data;
-            let classList = [];
-            for (let c of data) {
-                if (c.classId.length == 1 && c.student.length > classList.length) {
-                    classList = c.student;
+            let potentialClassLists = {};
+            for (let d of data) {
+                if (d.classId.length == 1) {
+                    let studStr = d.student.reduce((a, v) => a + v.studentName + ";", "");
+                    if (potentialClassLists[studStr]) {
+                        potentialClassLists[studStr].count++;
+                    } else {
+                        potentialClassLists[studStr] = {
+                            count: 0,
+                            studentArray: d.student
+                        };
+                    }
                 }
             }
-            res.send(classList);
+            console.log(potentialClassLists);
+            let best = {count:0};
+            for (let d in potentialClassLists) {
+                if (potentialClassLists[d].count > best.count) {
+                    best = potentialClassLists[d];
+                }
+            }
+            res.send(best.studentArray);
         });
     });
 });

@@ -496,6 +496,7 @@ function clickSearchResult(el) {
     window.localStorage.setItem(searchHistoryName, JSON.stringify(searches));
     classID = parseInt(classID.substr(1));
     $i("classSelect").value = "";
+    gtag("event", "searchResClick");
     loadClass(true);
 }
 
@@ -515,6 +516,7 @@ if (canUseAbortController) {
 }
 
 function loadClass(startAtZero) {
+    gtag("event", "loadClass");
     $i("error-timetable").classList.remove("visible");
     if (startAtZero) progress(10);
     if (canUseAbortController) {
