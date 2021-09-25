@@ -132,9 +132,9 @@ function login(username, password) {
                     str += d.toString();
                 });
                 res.on("end", () => {
-                    let user = "";
+                    let user = {data: []};
                     try {
-                        user = JSON.parse(str.match(/personData = \[([^\]]+)\],/)[1]);
+                        user = {data: [JSON.parse(str.match(/personData = \[([^\]]+)\],/)[1])]};
                     } catch (err) {}
                     resolve([sturmsession, user]);
                 });
