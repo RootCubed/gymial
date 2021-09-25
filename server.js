@@ -124,7 +124,7 @@ function login(username, password) {
                 }
             }
             if (!sturmsession) resolve();
-            options.path = "/kzo/list/index/list/30";
+            options.path = "/kzo/list/get-person-detail-list/list/30/id/0/noListData/1/selector/config-list-edit";
             options.headers["Cookie"] = newCookies;
             options.method = "GET";
             let req2 = https.request(options, res => {
@@ -132,7 +132,10 @@ function login(username, password) {
                     str += d.toString();
                 });
                 res.on("end", () => {
-                    let user = JSON.parse(str.match(/{\"data\":\[.+?}\].*?}/g));
+                    let user = "";
+                    try {
+                        user = JSON.parse(str.match(/personData = \[([^\]]+)\],/)[1]);
+                    } catch (err) {}
                     resolve([sturmsession, user]);
                 });
             });
