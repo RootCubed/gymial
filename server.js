@@ -134,7 +134,7 @@ function login(username, password) {
                 res.on("end", () => {
                     let user = {data: []};
                     try {
-                        user = {data: [JSON.parse(str.match(/personData = \[([^\]]+)\],/)[1])]};
+                        user = {data: [JSON.parse(str.match(/personData = \[([^\]]+)\],/)[1])], count: 1};
                     } catch (err) {}
                     resolve([sturmsession, user]);
                 });
