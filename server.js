@@ -305,6 +305,7 @@ function cookieToUser(cookie) {
             cookies[value.split('=')[0]] = value.split('=')[1];
         }
     }
+    if (!cookies.username) return cookies;
     cookies.username = toStandardFormat(cookies.username);
     return cookies;
 }
