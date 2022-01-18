@@ -262,7 +262,7 @@ function intranetReq(endpoint, body) {
                             headers["Cookie"] = `username=${process.env.user}; school=kzo; sturmuser=${process.env.user}; ` + token;
                         }
                         nodeFetch("https://intranet.tam.ch/kzo", {headers: headers}).then(r => r.text()).then(r => {
-                            token = r.match(/csrfToken='([0-z]+)/)[1];
+                            token = r.match(/csrfToken ?= ?'([0-z]+)/)[1];
                             intranetReq(endpoint, body).then(r => {
                                 resolve(r);
                             });
@@ -305,6 +305,7 @@ function cookieToUser(cookie) {
             cookies[value.split('=')[0]] = value.split('=')[1];
         }
     }
+    if (!cookies.username) return cookies;
     cookies.username = toStandardFormat(cookies.username);
     return cookies;
 }
