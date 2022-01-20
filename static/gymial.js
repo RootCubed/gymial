@@ -76,9 +76,9 @@ if (nextSemOnline && window.localStorage) {
     if (window.localStorage.getItem("seenNextSemHint")) {
         if (window.localStorage.getItem("seenNextSemHint") < currPeriod) shouldShowHint = true;
     } else {
-        window.localStorage.setItem("seenNextSemHint", currPeriod);
         shouldShowHint = true;
     }
+    window.localStorage.setItem("seenNextSemHint", currPeriod);
     if (shouldShowHint) {
         $i("hint-new-timetable").classList.add("visible");
     }
