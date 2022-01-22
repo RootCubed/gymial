@@ -2,7 +2,7 @@
   "name": "gymial",
   "version": "1.0.0",
   "engines": {
-    "node": "12.14.1"
+    "node": "14.15.5"
   },
   "description": "An open-source KZO timetable",
   "main": "server.js",
