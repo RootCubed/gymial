@@ -1,23 +1,21 @@
-const querystring = require("querystring");
-const https = require("https");
-const express = require("express");
+import querystring from "querystring";
+import https from "https";
+import express from "express";
 const app = express();
-const nodeFetch = require("node-fetch");
-const cors = require("cors");
-const crypto = require("crypto");
-const compression = require("compression");
-const minify = require("express-minify");
-const iconv = require("iconv-lite");
-const jsdom = require("jsdom");
-const { JSDOM } = jsdom;
+import nodeFetch from "node-fetch";
+import cors from "cors";
+import crypto from "crypto";
+import compression from"compression";
+import minify from "express-minify";
+import iconv from "iconv-lite";
+import { JSDOM } from "jsdom";
 
 const rtg = new URL(process.env.REDISTOGO_URL);
-const redis = require("redis").createClient(rtg.port, rtg.hostname);
+import redisModule from "redis";
+const redis = redisModule.createClient(rtg.port, rtg.hostname);
 redis.auth(rtg.password);
-const { promisify } = require("util");
+import { promisify } from "util";
 const redisHGet = promisify(redis.hget).bind(redis);
-
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; // remove once the tam.ch certificate gets recognized
 
 app.use((req, res, next) => {
     if (req.header("x-forwarded-proto") !== "https" && req.hostname !== "localhost" && !req.hostname.includes("192.168") && !req.hostname.includes("rootcubed.dev")) {
@@ -285,13 +283,14 @@ function intranetReq(endpoint, body) {
 
 async function verifyAuthentication(username, password) {
     let token = await login(username, password);
+    if (!token) return false;
     redis.hset("user:" + username, "persData", JSON.stringify(token[1]));
-    return !!(token);
+    return true;
 }
 
 function getPeriod(time) {
     let currPeriod;
-    for (period of periods) {
+    for (let period of periods) {
         if (time >= period.startTime) {
             currPeriod = period.period;
             break;
@@ -317,7 +316,7 @@ function cookieToUser(cookie) {
 async function isAuthorized(user) {
     if (!user) return false;
     if (!user.username || !user.apiToken) return false;
-    correctAPIToken = await redisHGet("user:" + user.username, "token");
+    let correctAPIToken = await redisHGet("user:" + user.username, "token");
     if (correctAPIToken == null) return false;
     return (user.apiToken == correctAPIToken);
 }
@@ -347,9 +346,9 @@ app.post("/auth", function (req, res) {
                         if (res == null) redis.hset("user:" + bodyJSON.user, "requests", 0);
                     });
                     res.send(token).end();
-                    return;
+                } else {
+                    res.status(401).end();
                 }
-                res.status(401).end();
             });
         }
     });

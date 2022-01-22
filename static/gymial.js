@@ -294,8 +294,8 @@ function initGymial() {
         }).then(res => {
             if (res.status == 401) {
                 // Unsuccessful authentication
-                $i("invalid-login").display.style = "inline";
-                $i("login-submit").display.style = "inline";
+                $i("invalid-login").style.display = "block";
+                $i("login-submit").style.display = "inline";
                 spinner.style.display = "none";
                 return;
             }
