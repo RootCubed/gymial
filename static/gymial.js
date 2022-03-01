@@ -577,7 +577,7 @@ function loadClass(startAtZero) {
             }
             mainDivHTML += `<tr><td class="timetable-time"></td>${dates}</tr>`;
             for (let i = 0; i < times.length; i++) {
-                let timeRows = times[i];
+                let timeRows = times[i].replace(/-/g, "-<wbr>");
                 mainDivHTML += `<tr class="time-row"><td class="timetable-entry timetable-time timetable-lesson-times">${timeRows}</td>`;
                 for (let day in timetableData) {
                     if (timetableData[day][i].type == "ignore") {
