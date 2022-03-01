@@ -39,8 +39,8 @@ const DAY = 24 * 60 * 60 * 1000;
 let rawData, timetableData;
 
 let IDType = "class";
-let classID = 2580;
-let currPeriod = 75;
+let classID = 2659;
+let currPeriod = 76;
 let persData;
 
 let currMensa = "KZO";
