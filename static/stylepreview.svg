@@ -1,20 +1,26 @@
 <svg width="400" height="500" viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" >
     <symbol id="stylepreview">
-        <rect stroke-width="5" rx="40" id="border" height="450" width="350" x="25" y="25" stroke="var(--sp_line)" fill="var(--sp_bg)"/>
-        <line stroke-width="5" x1="140" y1="25"  x2="140" y2="475" stroke="var(--sp_line)"/>
-        <line stroke-width="5" x1="140" y1="100" x2="375" y2="100" stroke="var(--sp_line)"/>
+        <path stroke-width="5" id="border" d="M 140 100 L 140 475 L 50 475 A 25 25 90 0 1 25 450 L 25 100 Z" stroke="var(--sp_line)" fill="var(--sp_bg1)"/>
+        <path stroke-width="5" id="border" d="M 50 25 L 350 25 A 25 25 90 0 1 375 50 L 375 100 L 25 100 L 25 50 A 25 25 90 0 1 50 25" stroke="var(--sp_line)" fill="var(--sp_bg2)"/>
+        <path stroke-width="5" id="border" d="M 140 100 L 375 100 L 375 450 A 25 25 90 0 1 350 475 L 140 475 Z" stroke="var(--sp_line)" fill="var(--sp_bg1)"/>
+        <line stroke-width="5" stroke-linecap="square" x1="30" y1="100" x2="370" y2="100" stroke="var(--sp_progress)"/>
 
-        <rect rx="15" id="svg_4" x="155" y="120" width="205" height="75"  stroke-width="0" stroke="var(--sp_line)" fill="var(--sp_c_bg)"/>
-        <rect rx="10" id="svg_4" x="165" y="135" width="185" height="40"  stroke-width="0" stroke="var(--sp_line)" fill="var(--sp_cancel)"/>
-        <rect rx="15" id="svg_5" height="150" width="205" x="155" y="210" stroke-width="0" stroke="var(--sp_line)" fill="var(--sp_c_bg)"/>
-        <rect rx="15" id="svg_6" height="75"  width="205" x="155" y="375" stroke-width="0" stroke="var(--sp_line)" fill="var(--sp_nc_bg)"/>
-        <text class="cl" x="255" y="155">AM  04  Hu</text>
-        <line stroke-linecap="round" stroke-width="3" x1="170" y1="155" x2="345" y2="155" stroke="var(--sp_line)"/>
-        <text class="cl" x="255" y="270" >E  1C  Cj</text>
-        <text class="cl" x="255" y="300" >M  68  Mz</text>
+        <rect rx="15" x="155" y="120" width="205" height="75"  storke-width="0" fill="var(--sp_c_bg)"/>
+        <rect rx="10" x="165" y="135" width="185" height="40"  storke-width="0" fill="var(--sp_cancel)"/>
+        <rect rx="15" height="150" width="205" x="155" y="210" storke-width="0" fill="var(--sp_c_bg)"/>
+        <rect rx="10" x="165" y="287" width="185" height="40"  storke-width="0" fill="var(--sp_special)"/>
+        <rect rx="15" height="75"  width="205" x="155" y="375" storke-width="0" fill="var(--sp_nc_bg)"/>
+        <text class="cl" x="255" y="155"><tspan style="font-weight: bold;">AM</tspan>  <tspan>04  Hu</tspan></text>
+        <line stroke-linecap="round" stroke-width="3" x1="235" y1="157" x2="280" y2="157" stroke="var(--sp_line)"/>
+        <line stroke-linecap="round" stroke-width="3" x1="290" y1="157" x2="340" y2="157" stroke="var(--sp_line)"/>
+        <text class="cl" x="255" y="265" ><tspan style="font-weight: bold;">E</tspan>  <tspan>1C  Cj</tspan></text>
+        <text class="cl" x="255" y="305" ><tspan style="font-weight: bold;">Spezial</tspan></text>
+        
+        <rect x="40" y="115" width="85" height="30" fill="#cfcfcf"/>
 
-        <line stroke-linecap="round" x1="50" y1="100" x2="115" y2="100" stroke-width="10" stroke="var(--sp_line2)"/>
-        <line stroke-linecap="round" x1="50" y1="130" x2="115" y2="130" stroke-width="10" stroke="var(--sp_line2)"/>
-        <line stroke-linecap="round" x1="230" y1="65" x2="270" y2="65" stroke-width="10" stroke="var(--sp_line2)"/>
+        <line stroke-linecap="round" x1="50" y1="130" x2="115" y2="130" stroke-width="10" stroke="#000"/>
+        <line stroke-linecap="round" x1="50" y1="170" x2="115" y2="170" stroke-width="10" stroke="var(--sp_col2)"/>
+        <line stroke-linecap="round" x1="50" y1="210" x2="115" y2="210" stroke-width="10" stroke="var(--sp_col2)"/>
+        <line stroke-linecap="round" x1="175" y1="65" x2="225" y2="65" stroke-width="10" stroke="var(--sp_col1)"/>
     </symbol>
 </svg>

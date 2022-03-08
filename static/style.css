@@ -8,7 +8,6 @@
 :root {
     --background-primary: #333;
     --background-secondary: #37373b;
-    --background-tertiary: #222;
     --color-primary: #fff;
     --color-secondary: #000;
     --color-progress-bar: #329f5b;
@@ -23,7 +22,6 @@
 body.dark {
     --background-primary: #020202;
     --background-secondary: #1b1b1b;
-    --background-tertiary: #1d1d1d;
     --color-primary: #fff;
     --color-secondary: #fff;
     --color-progress-bar: #329f5b;
@@ -635,7 +633,7 @@ form button, #logout, #persplan {
 #panel-settings {
     padding: 10vh 10vw;
     padding: calc(var(--wh) * .1) 10vw;
-    background-color: var(--background-tertiary);
+    background-color: var(--background-secondary);
     height: calc(60vh - 63px);
     height: calc(calc(var(--wh) * .8) - 63px);
     overflow-y: auto;
@@ -748,6 +746,66 @@ span:not(#today) svg line {
 svg polygon {
     stroke: none;
     fill: var(--color-primary);
+}
+
+#stylepicker_cont {
+    position: relative;
+}
+
+#stylepicker {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #eee;
+    padding: 15px;
+    text-align: center;
+    width: auto;
+    display: inline-block;
+    cursor: pointer;
+    box-shadow: 10px 10px 15px 1px #000000;
+    border-radius: 25px;
+    transition: box-shadow .2s, top .2s, left .2s;
+}
+
+#stylepicker:hover {
+    top: -3px;
+    left: -3px;
+    box-shadow: 12px 12px 20px 1px #000000;
+}
+
+#stylepicker:active {
+    top: 3px;
+    left: 3px;
+    box-shadow: 7px 7px 10px 1px #000000;
+    transition: box-shadow 0s, top 0s, left 0s;
+}
+
+#stylepicker span {
+    padding: 10px;
+    font-weight: bold;
+}
+
+.stylepreview {
+    height: 25vh;
+}
+
+.stylepreview * {
+    font-family: Tahoma, sans-serif;
+    font-size: 30px;
+    dominant-baseline: central;
+    white-space: pre;
+    text-anchor: middle;
+
+    --sp_bg1: #333;
+    --sp_bg2: #37373b;
+    --sp_line: black;
+    --sp_col1: #fff;
+    --sp_col2: #a8cdff;
+    --sp_c_bg: #ddd;
+    --sp_nc_bg: #888;
+    --sp_cancel: #ff5e48;
+    --sp_special: #e2f7a4;
+    --sp_progress: #329f5b;
 }
 
 #hint-new-timetable {

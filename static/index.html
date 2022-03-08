@@ -19,9 +19,9 @@
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+      //gtag('js', new Date());
 
-      gtag('config', 'G-WYE0MDHZXP');
+      //gtag('config', 'G-WYE0MDHZXP');
     </script>
 </head>
 <body>
@@ -135,33 +135,14 @@
                     <button id="persplan">Persönlicher Stundenplan</button>
                     <button id="logout">Abmelden</button>
                 </div>
-                <div id="stylepicker">
-                    <svg id="style_light" viewBox="0 0 400 500" >
-                        <style>
-                            text {
-                                font-family: Tahoma, Verdana, sans-serif;
-                                font-size: 30px;
-                                font-weight: bold;
-                                dominant-baseline: central;
-                                white-space: pre;
-                                text-anchor: middle;
-                            }
-                        </style>
-                        <use xlink:href="stylepreview.svg#stylepreview"></use>
-                    </svg>
-                    <svg id="style_dark" viewBox="0 0 400 500" >
-                        <style>
-                            text {
-                                font-family: Tahoma, Verdana, sans-serif;
-                                font-size: 30px;
-                                font-weight: bold;
-                                dominant-baseline: central;
-                                white-space: pre;
-                                text-anchor: middle;
-                            }
-                        </style>
-                        <use xlink:href="stylepreview.svg#stylepreview"></use>
-                    </svg>
+                <div id="stylepicker_cont">
+                    <div id="stylepicker">
+                        <span>Style ändern</span>
+                        <br>
+                        <svg class="stylepreview" viewBox="0 0 400 500">
+                            <use xlink:href="stylepreview.svg#stylepreview"></use>
+                        </svg>
+                    </div>
                 </div>
             </div>
             <div id="panel-mensa">
