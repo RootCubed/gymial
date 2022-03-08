@@ -88,8 +88,9 @@
                 <div id="search-results"></div>
             </div>
             <span id="link-timetable" class="sidebar-link active">Stundenplan</span>
-            <span id="link-account" class="sidebar-link">Mein Account</span>
+            <span id="link-settings" class="sidebar-link">Einstellungen</span>
             <span id="link-mensa" class="sidebar-link">Mensaplan</span>
+            <span id="link-grades" class="sidebar-link">Noten</span>
             <div id="sidebar-bottom">
                 <a class="sidebar-link bottom" href="https://discord.gg/wM4Wsts" rel="noopener" target="_blank">Entwicklungs-Discord-Server</a>
                 <a class="sidebar-link bottom" href="https://github.com/LetsPlentendo-CH/gymial" rel="noopener" target="_blank">Gymial auf GitHub</a>
@@ -112,7 +113,7 @@
                     <span id="error-desc">ERROR_DESC</span>
                 </div>
             </div>
-            <div id="panel-account">
+            <div id="panel-settings">
                 <form id="login-form" method="post" onsubmit="return false">
                     <h3 style="text-align: center; margin-bottom: 20px;">Melde dich an, um Klassenlisten, Instrumentalstunden und Lehrerstundenpläne zu sehen.</h3>
                     <label id="label-user">Name (vorname.nachname)</label>
@@ -133,6 +134,34 @@
                     <div id="otherDetails"></div>
                     <button id="persplan">Persönlicher Stundenplan</button>
                     <button id="logout">Abmelden</button>
+                </div>
+                <div id="stylepicker">
+                    <svg id="style_light" viewBox="0 0 400 500" >
+                        <style>
+                            text {
+                                font-family: Tahoma, Verdana, sans-serif;
+                                font-size: 30px;
+                                font-weight: bold;
+                                dominant-baseline: central;
+                                white-space: pre;
+                                text-anchor: middle;
+                            }
+                        </style>
+                        <use xlink:href="stylepreview.svg#stylepreview"></use>
+                    </svg>
+                    <svg id="style_dark" viewBox="0 0 400 500" >
+                        <style>
+                            text {
+                                font-family: Tahoma, Verdana, sans-serif;
+                                font-size: 30px;
+                                font-weight: bold;
+                                dominant-baseline: central;
+                                white-space: pre;
+                                text-anchor: middle;
+                            }
+                        </style>
+                        <use xlink:href="stylepreview.svg#stylepreview"></use>
+                    </svg>
                 </div>
             </div>
             <div id="panel-mensa">
@@ -170,6 +199,9 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+            <div id="panel-grades">
+                <p>Gymial Notenrechner</p>
             </div>
         </div>
     </div>

@@ -509,7 +509,6 @@ form {
     display: block;
     color: var(--color-primary);
     position: relative;
-    height: calc(100% - 40px);
     max-width: 50vw;
     margin: 20px auto;
 }
@@ -560,6 +559,30 @@ form button, #logout, #persplan {
     margin-bottom: 5px;
 }
 
+#style_light, #style_dark {
+    cursor: pointer;
+    width: 40%;
+}
+
+#style_light {
+    --sp_bg: #333;
+    --sp_line: black;
+    --sp_line2: white;
+    --sp_c_bg: #ddd;
+    --sp_nc_bg: #888;
+    --sp_cancel: #ff5e48;
+}
+
+#style_dark {
+    float: right;
+    --sp_bg: #333;
+    --sp_line: black;
+    --sp_line2: white;
+    --sp_c_bg: #ddd;
+    --sp_nc_bg: #888;
+    --sp_cancel: #ff5e48;
+}
+
 #panels {
     position: absolute;
     z-index: -1;
@@ -586,6 +609,11 @@ form button, #logout, #persplan {
     margin-top: calc(var(--wh) * -2 + 63px + 63px);
 }
 
+#panel-timetable.scrollGrades {
+    margin-top: calc(-300vh + 63px + 63px + 63px);
+    margin-top: calc(var(--wh) * -3 + 63px + 63px + 63px);
+}
+
 #invalid-login {
     color: #ec6969;
 }
@@ -604,15 +632,22 @@ form button, #logout, #persplan {
     transition: margin-top 0.5s;
 }
 
-#panel-account {
-    padding: 20vh 10vw;
-    padding: calc(var(--wh) * 0.2) 10vw;
+#panel-settings {
+    padding: 10vh 10vw;
+    padding: calc(var(--wh) * .1) 10vw;
     background-color: var(--background-tertiary);
     height: calc(60vh - 63px);
-    height: calc(calc(var(--wh) * 0.6) - 63px);
+    height: calc(calc(var(--wh) * .8) - 63px);
+    overflow-y: auto;
 }
 
 #panel-mensa {
+    color: var(--color-primary);
+    height: calc(100vh - 63px);
+    height: calc(var(--wh) - 63px);
+}
+
+#panel-grades {
     color: var(--color-primary);
     height: calc(100vh - 63px);
     height: calc(var(--wh) - 63px);
@@ -795,7 +830,7 @@ div#hint-new-timetable:after {
         width: 100vw;
     }
 
-    #sidebar, #panel-account, #panel-mensa {
+    #sidebar, #panel-settings, #panel-mensa, #panel-grades {
         display: none;
     }
 

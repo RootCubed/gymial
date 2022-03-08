@@ -91,7 +91,7 @@ let classList = [];
 let weekOffset = 0;
 
 let currentView = 0;
-const VIEW_NAMES = ["Stundenplan", "Mein Account", "Mensaplan"];
+const VIEW_NAMES = ["Stundenplan", "Einstellungen", "Mensaplan", "Noten"];
 let currClassName = "C6c";
 
 if (document.readyState != "loading"){
@@ -225,7 +225,7 @@ function initGymial() {
                 return response.json();
             }).then(res => {
                 if (res == 401) {
-                    $i("link-account").click();
+                    $i("link-settings").click();
                     return;
                 };
                 $i("margin-details").classList.add("visible");
@@ -246,7 +246,7 @@ function initGymial() {
                         return response.json();
                     }).then(res => {
                         if (res == 401) {
-                            $i("link-account").click();
+                            $i("link-settings").click();
                             return;
                         };
                         let personalStuff = "";
@@ -331,7 +331,7 @@ function initGymial() {
             case VIEW_NAMES[1]:
                 $i("current-class").innerText = VIEW_NAMES[1];
                 $i("panel-timetable").classList.add("scrollLogin");
-                $i("link-account").classList.add("active");
+                $i("link-settings").classList.add("active");
                 $i("week-btns").classList.add("hide");
                 currentView = 1;
                 break;
@@ -350,6 +350,13 @@ function initGymial() {
                 $i("link-mensa").classList.add("active");
                 $i("week-btns").classList.add("hide");
                 currentView = 2;
+                break;
+            case VIEW_NAMES[3]:
+                $i("current-class").innerText = VIEW_NAMES[3];
+                $i("panel-timetable").classList.add("scrollGrades");
+                $i("link-grades").classList.add("active");
+                $i("week-btns").classList.add("hide");
+                currentView = 1;
                 break;
         }
         $i("sidebar").classList.remove("visible");
@@ -560,12 +567,14 @@ function loadClass(startAtZero) {
                     if (!classList[i].classId) break;
                     if (classList[i].classId == classID) {
                         currClassName = classList[i].className.replace(' ', '');
-                        $i("current-class").innerText = currClassName;
                     }
                 }
+            } else if (IDType == "student") {
+                currClassName = idToName(classID) + " (" + classFromTTData(json).replace(/ /g, '') + ")";
             }
-            if (IDType == "student") {
-                $i("current-class").innerText = idToName(classID) + " (" + classFromTTData(json).replace(/ /g, '') + ")";
+            // if the user hasn't clicked away yet
+            if (currentView == 0) {
+                $i("current-class").innerText = currClassName;
             }
             mainDivHTML = "";
             progress(60);
@@ -777,7 +786,7 @@ function setLessonData(lesson) {
             return r.json();
         }).then(res => {
             if (res == 401) {
-                $i("link-account").click();
+                $i("link-settings").click();
                 return;
             }
             let html = "";

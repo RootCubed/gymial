@@ -1,0 +1,20 @@
+<svg width="400" height="500" viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" >
+    <symbol id="stylepreview">
+        <rect stroke-width="5" rx="40" id="border" height="450" width="350" x="25" y="25" stroke="var(--sp_line)" fill="var(--sp_bg)"/>
+        <line stroke-width="5" x1="140" y1="25"  x2="140" y2="475" stroke="var(--sp_line)"/>
+        <line stroke-width="5" x1="140" y1="100" x2="375" y2="100" stroke="var(--sp_line)"/>
+
+        <rect rx="15" id="svg_4" x="155" y="120" width="205" height="75"  stroke-width="0" stroke="var(--sp_line)" fill="var(--sp_c_bg)"/>
+        <rect rx="10" id="svg_4" x="165" y="135" width="185" height="40"  stroke-width="0" stroke="var(--sp_line)" fill="var(--sp_cancel)"/>
+        <rect rx="15" id="svg_5" height="150" width="205" x="155" y="210" stroke-width="0" stroke="var(--sp_line)" fill="var(--sp_c_bg)"/>
+        <rect rx="15" id="svg_6" height="75"  width="205" x="155" y="375" stroke-width="0" stroke="var(--sp_line)" fill="var(--sp_nc_bg)"/>
+        <text class="cl" x="255" y="155">AM  04  Hu</text>
+        <line stroke-linecap="round" stroke-width="3" x1="170" y1="155" x2="345" y2="155" stroke="var(--sp_line)"/>
+        <text class="cl" x="255" y="270" >E  1C  Cj</text>
+        <text class="cl" x="255" y="300" >M  68  Mz</text>
+
+        <line stroke-linecap="round" x1="50" y1="100" x2="115" y2="100" stroke-width="10" stroke="var(--sp_line2)"/>
+        <line stroke-linecap="round" x1="50" y1="130" x2="115" y2="130" stroke-width="10" stroke="var(--sp_line2)"/>
+        <line stroke-linecap="round" x1="230" y1="65" x2="270" y2="65" stroke-width="10" stroke="var(--sp_line2)"/>
+    </symbol>
+</svg>
