@@ -762,10 +762,6 @@ svg polygon {
     overflow-x: auto;
 }
 
-#stylepicker_cont.selecting {
-    cursor: default;
-}
-
 #stylepicker_cont span {
     display: block;
 }
@@ -788,7 +784,7 @@ svg polygon {
     border-color: #0000;
     border-width: 2px;
     border-radius: 10px;
-    border-style: dotted;
+    border-style: dashed;
 }
 
 .stylepreview_cont:hover {
@@ -798,6 +794,7 @@ svg polygon {
 .stylepreview_cont.selected {
     border-color: black;
     background-color: #0005;
+    border-color: var(--color-primary);
 }
 
 .stylepreview {
