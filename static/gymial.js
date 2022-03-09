@@ -230,12 +230,15 @@ function initGymial() {
     // swiping for side panel
     let swipeStartX = 0;
     let swipeStartY = 0;
+    let allowSwipe = false;
     document.addEventListener("touchstart", event => {
         let t = event.touches[0];
         swipeStartX = t.screenX; 
         swipeStartY = t.screenY;
+        allowSwipe = !$i("stylepicker_cont").contains(t.target);
     });
     document.addEventListener("touchmove", event => {
+        if (!allowSwipe) return;
         var t = event.touches[0];
         if (Math.abs(swipeStartY - t.screenY) < 20) {
             if (swipeStartX - t.screenX < -50) {
