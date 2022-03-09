@@ -49,7 +49,6 @@ a:not(.overlay-tab) {
 
 #scrollLimiter {
     overflow: hidden;
-    background-color: var(--bg-primary);
 }
 
 #selection {
@@ -75,7 +74,7 @@ a:not(.overlay-tab) {
     width: 0;
 }
 
-#classSelect {
+#class-select {
     padding: 6px;
     font-size: 20px;
     width: calc(100% - 36px);
@@ -87,7 +86,6 @@ a:not(.overlay-tab) {
     padding: 6px;
     display: inline-block;
     color: var(--color-primary);
-    font-weight: bold;
     font-size: 25px;
     cursor: pointer;
 }
@@ -100,15 +98,6 @@ a:not(.overlay-tab) {
     width: 100%;
     table-layout: fixed;
     border-spacing: 4px;
-    line-height: 1;
-}
-
-.class-col {
-    width: 100px;
-}
-
-.class-col {
-    width: calc((100% - 100px) / 6);
 }
 
 #sidebar {
@@ -158,8 +147,6 @@ a:not(.overlay-tab) {
 
 #sidebar-bottom {
     position: absolute;
-    left: 0;
-    right: 0;
     bottom: 10px;
 }
 
@@ -195,16 +182,11 @@ a:not(.overlay-tab) {
     height: calc((var(--wh) - 150px) / 11);
 }
 
-.scroller {
-    text-align: center;
-}
-
 .scroller-container {
     height: calc((100vh - 150px) / 11);
     height: calc((var(--wh) - 150px) / 11);
     display: flex;
     align-items: center;
-    justify-content: center;
 }
 
 .scroller-container.double {
@@ -227,8 +209,7 @@ a:not(.overlay-tab) {
     color: var(--color-secondary);
     text-align: center;
     border-radius: 0.5em;
-    overflow-y: hidden;
-    overflow-x: hidden;
+    overflow: hidden;
 }
 
 .timetable-entry:not(.empty):not(.timetable-time) {
@@ -249,7 +230,6 @@ a:not(.overlay-tab) {
 
 .special {
     background-color: var(--class-special);
-    
 }
 
 .special:hover {
@@ -507,15 +487,6 @@ form {
     margin: 0 10%;
 }
 
-@media only screen and (max-width: 600px) {
-    form button {
-        font-size: 20px;
-    }
-    form input {
-        font-size: 20px;
-    }
-}
-
 label {
     padding: 12px 0px 12px 0;
     display: inline-block;
@@ -524,7 +495,6 @@ label {
 input[type=text], input[type=password] {
     width: 100%;
     padding: 12px 20px;
-    margin: 8px 0;
     box-sizing: border-box;
 }
 
@@ -559,15 +529,12 @@ button, #logout, #persplan {
 
 #panels {
     position: absolute;
-    z-index: -1;
-    margin-top: 0;
-    max-height: calc(100vh - 63px);
-    max-height: calc(var(--wh) - 63px);
+    height: calc(100vh - 63px);
+    height: calc(var(--wh) - 63px);
     overflow: hidden;
-    height: 100vh;
-    height: var(--wh);
     width: 100vw;
     background-color: var(--bg-secondary);
+    color: var(--color-primary);
 }
 
 #panel-timetable.scrollTimetable {
@@ -593,8 +560,7 @@ button, #logout, #persplan {
     color: #ec6969;
 }
 
-#panel-timetable {
-    display: block;
+#panel-timetable, #panel-mensa {
     height: calc(100vh - 63px);
     height: calc(var(--wh) - 63px);
 }
@@ -607,24 +573,12 @@ button, #logout, #persplan {
     transition: margin-top 0.5s;
 }
 
-#panel-settings {
+#panel-settings, #panel-grades {
     padding: 5vh 10vw;
     padding: calc(var(--wh) * 0.05) 10vw;
     height: calc(90vh - 63px);
     height: calc(calc(var(--wh) * 0.9) - 63px);
     overflow-y: auto;
-}
-
-#panel-mensa {
-    color: var(--color-primary);
-    height: calc(100vh - 63px);
-    height: calc(var(--wh) - 63px);
-}
-
-#panel-grades {
-    color: var(--color-primary);
-    height: calc(100vh - 63px);
-    height: calc(var(--wh) - 63px);
 }
 
 #mensa-table {
@@ -653,15 +607,7 @@ button, #logout, #persplan {
 .mensa-desc {
     display: block;
     padding: 5px;
-}
-
-#mensa-select {
-    height: 30px;
-    font-size: 20px;
-    margin-left: 10px;
-    background-color: white;
-    border-radius: 0;
-    text-align: center;
+    max-width: 250px;
 }
 
 #toggle-mensa {
@@ -720,7 +666,6 @@ svg polygon {
 }
 
 .settings-section {
-    color: var(--color-primary);
     padding: 30px 0;
 }
 
@@ -823,6 +768,15 @@ div#hint-new-timetable:after {
     to {transform: translateY(-50%)}
 }
 
+@media only screen and (max-width: 600px) {
+    form button {
+        font-size: 20px;
+    }
+    form input {
+        font-size: 20px;
+    }
+}
+
 @media (max-width: 30em) {
     .timetable-entry span {
         font-size: 12px;
@@ -853,21 +807,20 @@ div#hint-new-timetable:after {
 }
 
 @media print {
-
-    html, body {
-        margin: 0 !important;
-        padding: 0 !important;
+    * {
+        color: black !important;
     }
-
+    
     body {
         background-color: white;
-        --wh: 95vh !important;
+        --wh: 90vh !important;
     }
 
     #panels, #panel-timetable {
         height: 100vh;
-        max-height: 100vh;
         width: 100vw;
+        margin-top: 0 !important;
+        background-color: white;
     }
 
     #sidebar, #panel-settings, #panel-mensa, #panel-grades {

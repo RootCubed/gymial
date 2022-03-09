@@ -123,6 +123,9 @@ function initGymial() {
     // get mensa data
     loadMensa("KZO", false);
 
+    try {
+        loadStyles();
+    } catch (e) {}
     $i("styleprevsvg").addEventListener("load", loadStyles);
 
     // timetable entries
@@ -140,7 +143,7 @@ function initGymial() {
             tg = tg.parentNode;
         }
         
-        if (el.target.id != "classSelect") {
+        if (el.target.id != "class-select") {
             hideSearchResults();
         }
     }, false);
@@ -565,7 +568,7 @@ function clickSearchResult(el) {
     searches = searches.slice(0, 7); // max 7 search results
     window.localStorage.setItem(searchHistoryName, JSON.stringify(searches));
     classID = parseInt(classID.substr(1));
-    $i("classSelect").value = "";
+    $i("class-select").value = "";
     gtag("event", "searchResClick");
     loadClass(true);
 }
@@ -1010,7 +1013,7 @@ function progress(number) {
 }
 
 function filterObjects() {
-    let input = $i("classSelect").value.toLowerCase().replace(' ', '');
+    let input = $i("class-select").value.toLowerCase().replace(' ', '');
     $i("search-results").innerHTML = "";
     if (input.length < 1) {
         for (let search of searches) {

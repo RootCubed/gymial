@@ -83,8 +83,8 @@
         </div>
         <div id="sidebar">
             <div id="search-dropdown" class="dropdown-content">
-                <label for="classSelect" class="visuallyhidden">Suche nach Klasse, Raum oder Person</label>
-                <input id="classSelect" placeholder="Suche" onfocus="filterObjects()" onkeyup="filterObjects()"/>
+                <label for="class-select" class="visuallyhidden">Suche nach Klasse, Raum oder Person</label>
+                <input id="class-select" placeholder="Suche" onfocus="filterObjects()" onkeyup="filterObjects()"/>
                 <div id="search-results"></div>
             </div>
             <span id="link-timetable" class="sidebar-link active">Stundenplan</span>
@@ -128,7 +128,7 @@
                 </div>
                 <div class="settings-section">
                     <h2 class="settings-section-header">Styles</h2>
-                    <object onload="if (loadStyles) loadStyles();" class="stylepreview" data="stylepreview.svg" id="styleprevsvg"></object>
+                    <object class="stylepreview" data="stylepreview.svg" id="styleprevsvg"></object>
                     <div id="stylepicker_cont">
                         <div id="stylepicker">
                         </div>
@@ -178,8 +178,8 @@
     </div>
     <div id="margin-details" class="no-transition">
         <div id="details-overlay">
+            <span class="icon-x"></span>
             <div id="details_cont">
-                <span class="icon-x"></span>
                 <div id="overlay-lesson-tabs"></div>
                 <div id="lesson-detail">
                     <p id="room-detail"></p>
