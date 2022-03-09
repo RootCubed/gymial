@@ -466,13 +466,11 @@ function initSettings() {
         for (let prop in styles[style]) {
             el.style.setProperty("--sp_" + prop, styles[style][prop]);
         }
-        console.log(el);
         el.addEventListener("click", () => {
             for (let pv of previewers) {
                 pv.classList.remove("selected");
             }
             el.classList.add("selected");
-            console.log("less go", styles[style]);
             for (let prop in styles[style]) {
                 document.documentElement.style.setProperty("--" + prop, styles[style][prop]);
             }
