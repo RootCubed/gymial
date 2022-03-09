@@ -114,34 +114,24 @@
                 </div>
             </div>
             <div id="panel-settings">
-                <form id="login-form" method="post" onsubmit="return false">
-                    <h3 style="text-align: center; margin-bottom: 20px;">Melde dich an, um Klassenlisten, Instrumentalstunden und Lehrerstundenpläne zu sehen.</h3>
-                    <label id="label-user">Name (vorname.nachname)</label>
-                    <input id="login-user" autocomplete="username" name="user" type="text" placeholder="Name" aria-labelledby="label-user" required>
-
-                    <label id="label-pw">Passwort für das Intranet</label>
-                    <input id="login-pw" autocomplete="current-password" name="pass" type="password" placeholder="Passwort" aria-labelledby="label-pw" autocomplete="current-password" required>
-
-                    <div id="button-spinner">
-                        <span id="invalid-login" style="display: none;">Ungültiges Login!</span>
-                        <img width="40" src="spinner.svg" alt="Loading spinner" style="display: none;">
-                        <button id="login-submit">Einloggen</button>
+                <div class="settings-section">
+                    <h2 class="settings-section-header">Account (nicht angemeldet)</h2>
+                    <button id="login">Melde dich an, um Klassenlisten, Instrumentalstunden und Lehrerstundenpläne zu sehen.</button>
+                    <div id="accountinfo">
+                        <span id="ownName"></span>
+                        <div id="persDetails" style="display: none;">
+                            <div id="otherDetails"></div>
+                            <button id="persplan">Persönlicher Stundenplan</button>
+                            <button id="logout">Abmelden</button>
+                        </div>
                     </div>
-                </form>
-                <div id="accountinfo" style="display: none;">
-                    <h1>Angemeldet als:</h1>
-                    <span id="ownName"></span>
-                    <div id="otherDetails"></div>
-                    <button id="persplan">Persönlicher Stundenplan</button>
-                    <button id="logout">Abmelden</button>
                 </div>
-                <div id="stylepicker_cont">
-                    <div id="stylepicker">
-                        <span>Style ändern</span>
-                        <br>
-                        <svg class="stylepreview" viewBox="0 0 400 500">
-                            <use xlink:href="stylepreview.svg#stylepreview"></use>
-                        </svg>
+                <div class="settings-section">
+                    <h2 class="settings-section-header">Style</h2>
+                    <div id="stylepicker_cont">
+                        <div id="stylepicker">
+                            
+                        </div>
                     </div>
                 </div>
             </div>
@@ -188,14 +178,32 @@
     </div>
     <div id="margin-details" class="no-transition">
         <div id="details-overlay">
-            <span class="icon-x"></span>
-            <div id="overlay-lesson-tabs"></div>
-            <div id="lesson-detail">
-                <p id="room-detail"></p>
-                <p id="teacher-detail"></p>
-                <div id="detail-view">
-                    <img width="40" height="40" src="spinner.svg" alt="Loading spinner">
+            <div id="details_cont">
+                <span class="icon-x"></span>
+                <div id="overlay-lesson-tabs"></div>
+                <div id="lesson-detail">
+                    <p id="room-detail"></p>
+                    <p id="teacher-detail"></p>
+                    <div id="detail-view">
+                        <img width="40" height="40" src="spinner.svg" alt="Loading spinner">
+                    </div>
                 </div>
+            </div>
+            <div id="login-window" style="display: none">
+                <form id="login-form" method="post" onsubmit="return false">
+                    <h3 style="text-align: center; margin-bottom: 20px;">Melde dich an, um Klassenlisten, Instrumentalstunden und Lehrerstundenpläne zu sehen.</h3>
+                    <label id="label-user">Name (vorname.nachname)</label>
+                    <input id="login-user" autocomplete="username" name="user" type="text" placeholder="Name" aria-labelledby="label-user" required>
+        
+                    <label id="label-pw">Passwort für das Intranet</label>
+                    <input id="login-pw" autocomplete="current-password" name="pass" type="password" placeholder="Passwort" aria-labelledby="label-pw" autocomplete="current-password" required>
+        
+                    <div id="button-spinner">
+                        <span id="invalid-login" style="display: none;">Ungültiges Login!</span>
+                        <img width="40" src="spinner.svg" alt="Loading spinner" style="display: none;">
+                        <button id="login-submit">Einloggen</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

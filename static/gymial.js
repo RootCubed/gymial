@@ -52,6 +52,61 @@ let $s = selector => document.querySelector(selector);
 let $i = id => document.getElementById(id);
 let $c = className => Array(...document.getElementsByClassName(className));
 
+const styles = {
+    "Classic": {
+        "bg-primary": "#333",
+        "bg-secondary": "#444",
+        "color-primary": "#fff",
+        "color-secondary": "#000",
+        "color-progress-bar": "#329f5b",
+        "class-lesson-bg": "#ddd",
+        "class-no-lesson-bg": "#888",
+        "class-hover": "#aaa",
+        "class-cancelled": "#ff5e48",
+        "class-special": "#e2f7a4",
+        "link-color": "#a8cdff"
+    },
+    "Dark": {
+        "bg-primary": "#0c0d11",
+        "bg-secondary": "#1b1b1b",
+        "color-primary": "#fff",
+        "color-secondary": "#fff",
+        "color-progress-bar": "#329f5b",
+        "class-lesson-bg": "#243240",
+        "class-no-lesson-bg": "#2f2f2f",
+        "class-hover": "#273e54",
+        "class-cancelled": "#a73b3b",
+        "class-special": "#2b201b",
+        "link-color": "#a8cdff"
+    },
+    "Vibrant": {
+        "bg-primary": "#e6e362",
+        "bg-secondary": "#f4f4f4",
+        "color-primary": "#000",
+        "color-secondary": "#000",
+        "color-progress-bar": "#3bb7d2",
+        "class-lesson-bg": "#c7dbb2",
+        "class-no-lesson-bg": "#939393",
+        "class-hover": "#273e54",
+        "class-cancelled": "#ff9525",
+        "class-special": "#f74fa6",
+        "link-color": "#4985d7"
+    },
+    "B&W": {
+        "bg-primary": "#c5c5c5",
+        "bg-secondary": "#fff",
+        "color-primary": "#000",
+        "color-secondary": "#fff",
+        "color-progress-bar": "#9d9d9d",
+        "class-lesson-bg": "#414141",
+        "class-no-lesson-bg": "#bcbcbc",
+        "class-hover": "#273e54",
+        "class-cancelled": "#7f7f7f",
+        "class-special": "#1e1959",
+        "link-color": "#a8cdff"
+    }
+};
+
 if (window.localStorage.getItem("api")) {
     try {
         let json = JSON.parse(window.localStorage.getItem("api"));
@@ -107,7 +162,7 @@ function initGymial() {
     }, 500);
 
     // try to see if we are already logged in
-    getPersData();
+    postLogin();
 
     // get mensa data
     loadMensa("KZO", false);
@@ -225,18 +280,16 @@ function initGymial() {
                 return response.json();
             }).then(res => {
                 if (res == 401) {
-                    $i("link-settings").click();
+                    showPwForm();
                     return;
                 };
-                $i("margin-details").classList.add("visible");
                 let htmlToAdd = `<h1 style="margin-bottom: 20px">Klassenliste ${$i("current-class").innerText}</h1>`;
                 for (let student of res) {
                     htmlToAdd += `<span class="student studentName person-link" data="${student.studentId}">${student.studentName}</span>`;
                 }
-                $i("detail-view").innerHTML += htmlToAdd;
+                showDetails(htmlToAdd);
             });
         } else {
-            $i("margin-details").classList.add("visible");
             if (IDType == "student") {
                 fetch("/getName/" + parseInt(classID)).then(res => res.json()).then(personName => {
                     fetch(`/search-internal-kzoCH/${personName.firstname}/${personName.lastname}/_`).then(response => {
@@ -246,31 +299,20 @@ function initGymial() {
                         return response.json();
                     }).then(res => {
                         if (res == 401) {
-                            $i("link-settings").click();
+                            showPwForm();
                             return;
                         };
                         let personalStuff = "";
                         for (let i = 3; i < 6; i++) {
                             personalStuff += "<p>" + res[0][i] + "</p>";
                         }
-                        $i("detail-view").innerHTML =
-                            `<div class="student"><h1>${personName.firstname + " " + personName.lastname}</h1><br><div class="personalDetails">${personalStuff}</div></div>`;
+                        showDetails(`<div class="student"><h1>${personName.firstname + " " + personName.lastname}</h1><br><div class="personalDetails">${personalStuff}</div></div>`);
                     });
                 });
             } else {
-                $i("detail-view").innerHTML =
-                    `<div class="student"><h1>${$i("current-class").innerText}</h1><br><p>Lehrerinformationen werden bald hinzugefügt.</p></div>`;
+                showDetails(`<div class="student"><h1>${$i("current-class").innerText}</h1><br><p>Lehrerinformationen werden bald hinzugefügt.</p></div>`);
             }
         }
-    });
-
-    $i("logout").addEventListener("click", ev => {
-        $i("invalid-login").style.display = "none";
-        $i("login-form").style.display = "inline";
-        $i("accountinfo").style.display = "none";
-        Cookies.remove("username");
-        Cookies.remove("apiToken");
-        window.localStorage.removeItem("api");
     });
 
     $i("persplan").addEventListener("click", ev => {
@@ -279,37 +321,6 @@ function initGymial() {
         currClassName = persData.Nachname + ", " + persData.Vorname;
         loadClass(true);
         $i("link-timetable").click();
-    });
-
-    // logging in
-    $i("login-form").addEventListener("submit", ev => {
-        $i("invalid-login").style.display = "none";
-        $i("login-submit").style.display = "none";
-        let spinner = $s("#button-spinner img");
-        spinner.style.display = "inline";
-        ev.preventDefault();
-        fetch("/auth", {
-            method: "post",
-            body: `user=${$i("login-user").value}&pass=${$i("login-pw").value}`
-        }).then(res => {
-            if (res.status == 401) {
-                // Unsuccessful authentication
-                $i("invalid-login").style.display = "block";
-                $i("login-submit").style.display = "inline";
-                spinner.style.display = "none";
-                return;
-            }
-            return res.text();
-        }).then(token => {
-            if (!token) return;
-            window.localStorage.setItem("api", JSON.stringify({username: $i("login-user").value, token: token}));
-            Cookies.set("username", $i("login-user").value, {expires: 30, path: ""});
-            Cookies.set("apiToken", token, {expires: 30, path: ""});
-            getPersData();
-            init(); // resources will be different when logged in
-            $i("link-timetable").click();
-        });
-        return false;
     });
 
     // sidebar link
@@ -367,6 +378,8 @@ function initGymial() {
     window.addEventListener("resize", resizeScreen);
     window.addEventListener("orientationchange", resizeScreen);
 
+    initSettings();
+
     // web worker
     if (navigator.serviceWorker) {
         navigator.serviceWorker.register("service-worker.js").then(sw => {
@@ -385,6 +398,83 @@ function initGymial() {
     }
 
     init();
+}
+
+function initSettings() {
+    // open popup
+    $i("login").addEventListener("click", () => {
+        showPwForm();
+    });
+
+    // logging out
+    $i("logout").addEventListener("click", () => {
+        Cookies.remove("username");
+        Cookies.remove("apiToken");
+        window.localStorage.removeItem("api");
+        postLogout();
+    });
+
+    // logging in
+    $i("login-form").addEventListener("submit", ev => {
+        $i("invalid-login").style.display = "none";
+        $i("login-submit").style.display = "none";
+        let spinner = $s("#button-spinner img");
+        spinner.style.display = "inline";
+        ev.preventDefault();
+        fetch("/auth", {
+            method: "post",
+            body: `user=${$i("login-user").value}&pass=${$i("login-pw").value}`
+        }).then(res => {
+            if (res.status == 401) {
+                // Unsuccessful authentication
+                $i("invalid-login").style.display = "block";
+                $i("login-submit").style.display = "inline";
+                spinner.style.display = "none";
+                return;
+            }
+            return res.text();
+        }).then(token => {
+            if (!token) return;
+            window.localStorage.setItem("api", JSON.stringify({username: $i("login-user").value, token: token}));
+            Cookies.set("username", $i("login-user").value, {expires: 30, path: ""});
+            Cookies.set("apiToken", token, {expires: 30, path: ""});
+            postLogin();
+            init(); // resources will be different when logged in
+            $i("link-timetable").click();
+        });
+        return false;
+    });
+
+    // initialize styles
+    for (let style in styles) {
+        $i("stylepicker").innerHTML += `
+        <div class="stylepreview_cont">
+            <span class="style_name">${style}</span>
+            <svg class="stylepreview" viewBox="0 0 400 500">
+                <use xlink:href="stylepreview.svg#stylepreview"></use>
+            </svg>
+        </div>`;
+    }
+    let previewers = [];
+    for (let i = 0; i < Object.keys(styles).length; i++) {
+        let el = $c("stylepreview_cont")[i];
+        previewers.push(el);
+        let style = Object.keys(styles)[i];
+        for (let prop in styles[style]) {
+            el.style.setProperty("--sp_" + prop, styles[style][prop]);
+        }
+        console.log(el);
+        el.addEventListener("click", () => {
+            for (let pv of previewers) {
+                pv.classList.remove("selected");
+            }
+            el.classList.add("selected");
+            console.log("less go", styles[style]);
+            for (let prop in styles[style]) {
+                document.documentElement.style.setProperty("--" + prop, styles[style][prop]);
+            }
+        });
+    }
 }
 
 function init() {
@@ -457,7 +547,7 @@ function clickTimetableEntry(el) {
     $i("overlay-lesson-tabs").innerHTML = htmlString;
     $i("overlay-lesson-tabs").children[0].classList.add("active");
     setLessonData(lessons[0]);
-    $i("margin-details").classList.add("visible");
+    showDetails();
     $c("overlay-tab").forEach(el => el.addEventListener("click", el => {
         let tg = el.target;
         let currActive = document.querySelector("#overlay-lesson-tabs .active");
@@ -654,18 +744,6 @@ function loadClass(startAtZero) {
     });
 }
 
-function getPersData() {
-    fetch("/myData").then(res => res.json()).then(res => {
-        if (res.total > 0) {
-            persData = res.data[0];
-            $i("ownName").innerText = persData.Vorname + " " + persData.Nachname;
-            $i("otherDetails").innerText = persData.Adresse + ", " + persData.PLZ + " " + persData.Ort;
-            $i("login-form").style.display = "none";
-            $i("accountinfo").style.display = "inline";
-        }
-    });
-}
-
 function loadMensa(name, showProgress) {
     if (showProgress) progress(50);
     fetch("/mensa/" + name).then(res => res.json()).then(res => {
@@ -778,7 +856,11 @@ function idToName(id) {
 }
 
 function setLessonData(lesson) {
-    $i("teacher-detail").innerText = lesson.tFull;
+    if (!!lesson.tFull) {
+        $i("teacher-detail").innerText = lesson.tFull;
+    } else {
+        $i("teacher-detail").innerText = "";
+    }
     $i("detail-view").innerHTML = "<div id='names'></div>";
     if (lesson.cId) {
         fetch("/course-participants/" + lesson.cId).then(r => {
@@ -786,7 +868,7 @@ function setLessonData(lesson) {
             return r.json();
         }).then(res => {
             if (res == 401) {
-                $i("link-settings").click();
+                showPwForm();
                 return;
             }
             let html = "";
@@ -987,4 +1069,42 @@ function displayError(title, message) {
     $i("error-title").innerText = title;
     $i("error-desc").innerHTML = message;
     $i("error-timetable").classList.add("visible");
+}
+
+function postLogin() {
+    $i("invalid-login").style.display = "none";
+    fetch("/myData").then(res => res.json()).then(res => {
+        if (res.total > 0) {
+            persData = res.data[0];
+            $i("ownName").innerText = persData.Vorname + " " + persData.Nachname;
+            $i("otherDetails").innerText = persData.Adresse + ", " + persData.PLZ + " " + persData.Ort;
+            $i("login-form").style.display = "none";
+            $i("accountinfo").style.display = "inline";
+            $s("#panel-settings h2").innerText = "Account";
+            $i("login").style.display = "none";
+            $i("persDetails").style.display = "";
+        }
+    });
+}
+
+function postLogout() {
+    $i("invalid-login").style.display = "none";
+    $s("#panel-settings h2").innerText = "Account (nicht angemeldet)";
+    $i("login").style.display = "inline";
+    $i("accountinfo").style.display = "none";
+}
+
+function showPwForm() {
+    $i("details_cont").style.display = "none";
+    $i("login-window").style.display = "inline";
+    $i("margin-details").classList.add("visible");
+}
+
+function showDetails(html) {
+    if (html) {
+        $i("detail-view").innerHTML = html;
+    }
+    $i("details_cont").style.display = "";
+    $i("login-window").style.display = "none";
+    $i("margin-details").classList.add("visible");
 }

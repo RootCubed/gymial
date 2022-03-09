@@ -6,8 +6,8 @@
 }
 
 :root {
-    --background-primary: #333;
-    --background-secondary: #37373b;
+    --bg-primary: #333;
+    --bg-secondary: #37373b;
     --color-primary: #fff;
     --color-secondary: #000;
     --color-progress-bar: #329f5b;
@@ -19,21 +19,8 @@
     --link-color: #a8cdff;
 }
 
-body.dark {
-    --background-primary: #020202;
-    --background-secondary: #1b1b1b;
-    --color-primary: #fff;
-    --color-secondary: #fff;
-    --color-progress-bar: #329f5b;
-    --class-lesson-bg: #243240;
-    --class-no-lesson-bg: #2f2f2f;
-    --class-hover: #273e54;
-    --class-cancelled: #a73b3b;
-    --class-special: #2b201b;
-}
-
 body {
-    background-color: var(--background-primary);
+    background-color: var(--bg-primary);
     overflow: hidden;
     --wh: 100vh;
 }
@@ -60,7 +47,7 @@ a:not(.overlay-tab) {
 
 #scrollLimiter {
     overflow: hidden;
-    background-color: var(--background-primary);
+    background-color: var(--bg-primary);
 }
 
 #selection {
@@ -133,7 +120,7 @@ a:not(.overlay-tab) {
     width: 200px;
     height: calc(100vh - 64px);
     height: calc(var(--wh) - 64px);
-    background-color: var(--background-secondary);
+    background-color: var(--bg-secondary);
     z-index: 1;
 }
 
@@ -377,6 +364,12 @@ span.entry-title {
     height: 100%;
     background-color: #222222f8;
     border-radius: 5px;
+}
+
+#details_cont {
+    position: relative;
+    width: 100%;
+    height: 100%;
     overflow: auto;
     display: flex;
     flex-direction: column;
@@ -503,12 +496,13 @@ img.teacher {
 }
 
 form {
-    margin: 20px;
     display: block;
     color: var(--color-primary);
-    position: relative;
-    max-width: 50vw;
-    margin: 20px auto;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 80%;
+    margin: 0 10%;
 }
 
 @media only screen and (max-width: 600px) {
@@ -543,7 +537,7 @@ input[type=text], input[type=password] {
     width: 60px;
 }
 
-form button, #logout, #persplan {
+button, #logout, #persplan {
     margin: 20px auto;
     -webkit-appearance: none;
     background-color: #dddddd;
@@ -591,6 +585,7 @@ form button, #logout, #persplan {
     height: 100vh;
     height: var(--wh);
     width: 100vw;
+    background-color: var(--bg-secondary);
 }
 
 #panel-timetable.scrollTimetable {
@@ -631,11 +626,10 @@ form button, #logout, #persplan {
 }
 
 #panel-settings {
-    padding: 10vh 10vw;
-    padding: calc(var(--wh) * .1) 10vw;
-    background-color: var(--background-secondary);
-    height: calc(60vh - 63px);
-    height: calc(calc(var(--wh) * .8) - 63px);
+    padding: 5vh 10vw;
+    padding: calc(var(--wh) * 0.05) 10vw;
+    height: calc(90vh - 63px);
+    height: calc(calc(var(--wh) * 0.9) - 63px);
     overflow-y: auto;
 }
 
@@ -693,11 +687,6 @@ form button, #logout, #persplan {
     cursor: pointer;
 }
 
-#accountinfo {
-    color: var(--color-primary);
-    text-align: center;
-}
-
 #ownName {
     display: block;
     margin-top: 20px;
@@ -748,41 +737,67 @@ svg polygon {
     fill: var(--color-primary);
 }
 
+.settings-section {
+    color: var(--color-primary);
+    padding: 30px 0;
+}
+
+.settings-section-header {
+    margin: 20px;
+}
+
+#accountinfo {
+    text-align: center;
+}
+
+#accountinfo button {
+    display: inline;
+}
+
 #stylepicker_cont {
-    position: relative;
+    background-color: var(--bg-primary);
+    padding: 15px;
+    border-radius: 5px;
+    text-align: center;
+    overflow-x: auto;
+}
+
+#stylepicker_cont.selecting {
+    cursor: default;
+}
+
+#stylepicker_cont span {
+    display: block;
 }
 
 #stylepicker {
-    position: absolute;
-    top: 0;
-    left: 0;
-    background: #eee;
-    padding: 15px;
-    text-align: center;
     width: auto;
     display: inline-block;
-    cursor: pointer;
-    box-shadow: 10px 10px 15px 1px #000000;
-    border-radius: 25px;
     transition: box-shadow .2s, top .2s, left .2s;
-}
-
-#stylepicker:hover {
-    top: -3px;
-    left: -3px;
-    box-shadow: 12px 12px 20px 1px #000000;
-}
-
-#stylepicker:active {
-    top: 3px;
-    left: 3px;
-    box-shadow: 7px 7px 10px 1px #000000;
-    transition: box-shadow 0s, top 0s, left 0s;
+    white-space: nowrap;
 }
 
 #stylepicker span {
     padding: 10px;
     font-weight: bold;
+}
+
+.stylepreview_cont {
+    display: inline-block;
+    cursor: pointer;
+    border-color: #0000;
+    border-width: 2px;
+    border-radius: 10px;
+    border-style: dotted;
+}
+
+.stylepreview_cont:hover {
+    background-color: #0003;
+}
+
+.stylepreview_cont.selected {
+    border-color: black;
+    background-color: #0005;
 }
 
 .stylepreview {
@@ -795,17 +810,6 @@ svg polygon {
     dominant-baseline: central;
     white-space: pre;
     text-anchor: middle;
-
-    --sp_bg1: #333;
-    --sp_bg2: #37373b;
-    --sp_line: black;
-    --sp_col1: #fff;
-    --sp_col2: #a8cdff;
-    --sp_c_bg: #ddd;
-    --sp_nc_bg: #888;
-    --sp_cancel: #ff5e48;
-    --sp_special: #e2f7a4;
-    --sp_progress: #329f5b;
 }
 
 #hint-new-timetable {
