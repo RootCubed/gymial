@@ -43,6 +43,8 @@ let classID = 2659;
 let currPeriod = 76;
 let persData;
 
+let avStyles, currStyleName;
+
 let currMensa = "KZO";
 
 let wh = window.innerHeight;
@@ -51,61 +53,6 @@ document.body.style.setProperty('--wh', `${wh}px`);
 let $s = selector => document.querySelector(selector);
 let $i = id => document.getElementById(id);
 let $c = className => Array(...document.getElementsByClassName(className));
-
-const styles = {
-    "Classic": {
-        "bg-primary": "#333",
-        "bg-secondary": "#444",
-        "color-primary": "#fff",
-        "color-secondary": "#000",
-        "color-progress-bar": "#329f5b",
-        "class-lesson-bg": "#ddd",
-        "class-no-lesson-bg": "#888",
-        "class-hover": "#aaa",
-        "class-cancelled": "#ff5e48",
-        "class-special": "#e2f7a4",
-        "link-color": "#a8cdff"
-    },
-    "Dark": {
-        "bg-primary": "#0c0d11",
-        "bg-secondary": "#1b1b1b",
-        "color-primary": "#fff",
-        "color-secondary": "#fff",
-        "color-progress-bar": "#329f5b",
-        "class-lesson-bg": "#243240",
-        "class-no-lesson-bg": "#2f2f2f",
-        "class-hover": "#273e54",
-        "class-cancelled": "#a73b3b",
-        "class-special": "#2b201b",
-        "link-color": "#a8cdff"
-    },
-    "Vibrant": {
-        "bg-primary": "#e6e362",
-        "bg-secondary": "#f4f4f4",
-        "color-primary": "#000",
-        "color-secondary": "#000",
-        "color-progress-bar": "#3bb7d2",
-        "class-lesson-bg": "#c7dbb2",
-        "class-no-lesson-bg": "#939393",
-        "class-hover": "#273e54",
-        "class-cancelled": "#ff9525",
-        "class-special": "#f74fa6",
-        "link-color": "#4985d7"
-    },
-    "B&W": {
-        "bg-primary": "#c5c5c5",
-        "bg-secondary": "#fff",
-        "color-primary": "#000",
-        "color-secondary": "#fff",
-        "color-progress-bar": "#9d9d9d",
-        "class-lesson-bg": "#414141",
-        "class-no-lesson-bg": "#bcbcbc",
-        "class-hover": "#273e54",
-        "class-cancelled": "#7f7f7f",
-        "class-special": "#1e1959",
-        "link-color": "#a8cdff"
-    }
-};
 
 if (window.localStorage.getItem("api")) {
     try {
@@ -120,6 +67,14 @@ if (window.localStorage.getItem("class")) {
         let json = JSON.parse(window.localStorage.getItem("class"));
         classID = json.id;
         $i("current-class").innerText = json.name;
+    } catch (e) {}
+}
+
+if (window.localStorage.getItem("style")) {
+    try {
+        let currentStyle = JSON.parse(window.localStorage.getItem("style"));
+        applyStyle(currentStyle);
+        currStyleName = currentStyle.name;
     } catch (e) {}
 }
 
@@ -166,6 +121,9 @@ function initGymial() {
 
     // get mensa data
     loadMensa("KZO", false);
+
+    // load style data
+    loadStyles();
 
     // timetable entries
     document.addEventListener("click", el => {
@@ -447,9 +405,11 @@ function initSettings() {
         });
         return false;
     });
+}
 
+function initStyles() {
     // initialize styles
-    for (let style in styles) {
+    for (let style in avStyles) {
         $i("stylepicker").innerHTML += `
         <div class="stylepreview_cont">
             <span class="style_name">${style}</span>
@@ -459,21 +419,26 @@ function initSettings() {
         </div>`;
     }
     let previewers = [];
-    for (let i = 0; i < Object.keys(styles).length; i++) {
+    for (let i = 0; i < Object.keys(avStyles).length; i++) {
         let el = $c("stylepreview_cont")[i];
         previewers.push(el);
-        let style = Object.keys(styles)[i];
-        for (let prop in styles[style]) {
-            el.style.setProperty("--sp_" + prop, styles[style][prop]);
+        let style = Object.keys(avStyles)[i];
+        for (let prop in avStyles[style]) {
+            el.style.setProperty("--sp_" + prop, avStyles[style][prop]);
+        }
+        if (style == currStyleName) {
+            el.classList.add("selected");
         }
         el.addEventListener("click", () => {
             for (let pv of previewers) {
                 pv.classList.remove("selected");
             }
+            let currentStyle = {
+                name: style,
+                data: avStyles[style]
+            };
             el.classList.add("selected");
-            for (let prop in styles[style]) {
-                document.documentElement.style.setProperty("--" + prop, styles[style][prop]);
-            }
+            applyStyle(currentStyle);
         });
     }
 }
@@ -758,6 +723,13 @@ function loadMensa(name, showProgress) {
         }
         $s("#mensa-table tbody").innerHTML = tableHtml;
         if (showProgress) progress(100);
+    });
+}
+
+function loadStyles() {
+    fetch("/styles/").then(res => res.json()).then(r => {
+        avStyles = r;
+        initStyles();
     });
 }
 
@@ -1108,4 +1080,11 @@ function showDetails(html) {
     $i("details_cont").style.display = "";
     $i("login-window").style.display = "none";
     $i("margin-details").classList.add("visible");
+}
+
+function applyStyle(style) {
+    window.localStorage.setItem("style", JSON.stringify(style));
+    for (let prop in style.data) {
+        document.documentElement.style.setProperty("--" + prop, style.data[prop]);
+    }
 }

@@ -9,6 +9,7 @@ import compression from"compression";
 import minify from "express-minify";
 import iconv from "iconv-lite";
 import { JSDOM } from "jsdom";
+import fs from "fs";
 
 const rtg = new URL(process.env.REDISTOGO_URL);
 import redisModule from "redis";
@@ -325,7 +326,7 @@ function toStandardFormat (token) {
     return token.toLowerCase().replace(/\@studmail.kzo.ch/g, "").trim();
 }
 
-app.post("/auth", function (req, res) {
+app.post("/auth", (req, res) => {
     var body = "";
     req.on("data", chunk => {
         body += chunk.toString();
@@ -354,7 +355,7 @@ app.post("/auth", function (req, res) {
     });
 });
 
-app.get("/myData", function (req, res) {
+app.get("/myData", (req, res) => {
     let user = cookieToUser(req.headers.cookie);
     isAuthorized(user).then(isAuth => {
         if (!isAuth) {
@@ -377,7 +378,7 @@ app.get("/myData", function (req, res) {
     });
 });
 
-app.get("/timetable/:type/:id/:time", function (req, res) {
+app.get("/timetable/:type/:id/:time", (req, res) => {
     let body = {
         "startDate": req.params.time,
         "endDate": parseInt(req.params.time) + 4 * 24 * 60 * 60 * 1000,
@@ -424,7 +425,7 @@ app.get("/timetable/:type/:id/:time", function (req, res) {
     });
 });
 
-app.get("/course-participants/:id", function (req, res) {
+app.get("/course-participants/:id", (req, res) => {
     isAuthorized(cookieToUser(req.headers.cookie)).then(isAuth => {
         if (!isAuth) {
             res.status(401).end();
@@ -444,7 +445,7 @@ app.get("/course-participants/:id", function (req, res) {
     });
 });
 
-app.get("/resources/:time", function (req, res) {
+app.get("/resources/:time", (req, res) => {
     let body = {
         "periodId": getPeriod(req.params.time),
         "method": "POST"
@@ -466,7 +467,7 @@ app.get("/resources/:time", function (req, res) {
     });
 });
 
-app.get("/getName/:id", function (req, res) {
+app.get("/getName/:id", (req, res) => {
     isAuthorized(cookieToUser(req.headers.cookie)).then(isAuth => {
         if (!isAuth) {
             res.status(401).end();
@@ -482,7 +483,7 @@ app.get("/getName/:id", function (req, res) {
     });
 });
 
-app.get("/search-internal-kzoCH/:firstName/:lastName/:class", function(req, res) {
+app.get("/search-internal-kzoCH/:firstName/:lastName/:class", (req, res) => {
     isAuthorized(cookieToUser(req.headers.cookie)).then(isAuth => {
         if (!isAuth) {
             res.status(401).end();
@@ -498,7 +499,7 @@ app.get("/search-internal-kzoCH/:firstName/:lastName/:class", function(req, res)
     });
 });
 
-app.get("/class-personal-details/:classID", function (req, res) {
+app.get("/class-personal-details/:classID", (req, res) => {
     isAuthorized(cookieToUser(req.headers.cookie)).then(isAuth => {
         if (!isAuth) {
             res.status(401).end();
@@ -540,14 +541,19 @@ app.get("/class-personal-details/:classID", function (req, res) {
     });
 });
 
-app.get("/period-from-time/:time", function (req, res) {
+app.get("/period-from-time/:time", (req, res) => {
     res.end(getPeriod(req.params.time).toString());
+});
+
+const styles = JSON.parse(fs.readFileSync("style_presets.json"));
+app.get("/styles", (req, res) => {
+    res.end(JSON.stringify(styles));
 });
 
 let mensaPlanKZO;
 let mensaPlanScheller;
 
-app.get("/mensa/KZO", function (req, res) {
+app.get("/mensa/KZO", (req, res) => {
     if (mensaPlanKZO) {
         res.send(mensaPlanKZO).end();
         return;
@@ -555,7 +561,7 @@ app.get("/mensa/KZO", function (req, res) {
     res.status(404).end();
 });
 
-app.get("/mensa/Schellerstrasse", function (req, res) {
+app.get("/mensa/Schellerstrasse", (req, res) => {
     if (mensaPlanScheller) {
         res.send(mensaPlanScheller).end();
         return;
