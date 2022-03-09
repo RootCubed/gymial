@@ -1,7 +1,7 @@
 * {
     margin: 0;
     padding: 0;
-    font-family: Tahoma, sans-serif;
+    font-family: var(--font);
     line-height: 1.05;
 }
 
@@ -17,10 +17,12 @@
     --class-cancelled: #ff5e48;
     --class-special: #e2f7a4;
     --link-color: #a8cdff;
+    --font: inherit;
 }
 
 body {
     background-color: var(--bg-primary);
+    font-family: Tahoma, sans-serif;
     overflow: hidden;
     --wh: 100vh;
 }
@@ -363,6 +365,7 @@ span.entry-title {
     width: 100%;
     height: 100%;
     background-color: #222222f8;
+    color: white;
     border-radius: 5px;
 }
 
@@ -497,7 +500,6 @@ img.teacher {
 
 form {
     display: block;
-    color: var(--color-primary);
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
@@ -526,6 +528,10 @@ input[type=text], input[type=password] {
     box-sizing: border-box;
 }
 
+button {
+    color: black;
+}
+
 #button-spinner {
     text-align: center;
 }
@@ -549,30 +555,6 @@ button, #logout, #persplan {
 
 #persplan {
     margin-bottom: 5px;
-}
-
-#style_light, #style_dark {
-    cursor: pointer;
-    width: 40%;
-}
-
-#style_light {
-    --sp_bg: #333;
-    --sp_line: black;
-    --sp_line2: white;
-    --sp_c_bg: #ddd;
-    --sp_nc_bg: #888;
-    --sp_cancel: #ff5e48;
-}
-
-#style_dark {
-    float: right;
-    --sp_bg: #333;
-    --sp_line: black;
-    --sp_line2: white;
-    --sp_c_bg: #ddd;
-    --sp_nc_bg: #888;
-    --sp_cancel: #ff5e48;
 }
 
 #panels {
@@ -776,6 +758,7 @@ svg polygon {
 #stylepicker span {
     padding: 10px;
     font-weight: bold;
+    font-size: 1.2em;
 }
 
 .stylepreview_cont {
@@ -798,14 +781,12 @@ svg polygon {
 }
 
 .stylepreview {
+    width: auto;
     height: 25vh;
 }
 
 .stylepreview * {
-    font-family: Tahoma, sans-serif;
     font-size: 30px;
-    dominant-baseline: central;
-    white-space: pre;
     text-anchor: middle;
 }
 

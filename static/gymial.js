@@ -43,7 +43,8 @@ let classID = 2659;
 let currPeriod = 76;
 let persData;
 
-let avStyles, currStyleName;
+let avStyles;
+let currStyleName = "Classic Dark";
 
 let currMensa = "KZO";
 
@@ -104,7 +105,7 @@ let currentView = 0;
 const VIEW_NAMES = ["Stundenplan", "Einstellungen", "Mensaplan", "Noten"];
 let currClassName = "C6c";
 
-if (document.readyState != "loading"){
+if (document.readyState == "complete"){
     initGymial();
 } else {
     document.addEventListener("DOMContentLoaded", initGymial);
@@ -122,8 +123,7 @@ function initGymial() {
     // get mensa data
     loadMensa("KZO", false);
 
-    // load style data
-    loadStyles();
+    $i("styleprevsvg").addEventListener("load", loadStyles);
 
     // timetable entries
     document.addEventListener("click", el => {
@@ -409,13 +409,20 @@ function initSettings() {
 
 function initStyles() {
     // initialize styles
+    $i("stylepicker").innerHTML = "";
+    let svgContent = new XMLSerializer().serializeToString($i("styleprevsvg").getSVGDocument());
+    const cancelledLessons = [["AM", "04 Hu"], ["P", "51 Cp"], ["SP", "35 Mo"], ["M", "14 Hu"], ["G", "1C Gn"], ["L", "1G Sc"]];
+    const nonCancelledLessons = [["E", "1C Cj"], ["M", "68 Mz"], ["MU", "64 Sn"], ["INS", "I1 Rt"], ["B", "B3 Ha"]];
     for (let style in avStyles) {
+        let randomCancelled = Math.floor(Math.random() * cancelledLessons.length);
+        let randomNonCancelled = Math.floor(Math.random() * nonCancelledLessons.length);
         $i("stylepicker").innerHTML += `
         <div class="stylepreview_cont">
             <span class="style_name">${style}</span>
-            <svg class="stylepreview" viewBox="0 0 400 500">
-                <use xlink:href="stylepreview.svg#stylepreview"></use>
-            </svg>
+            ${svgContent
+                .replace("$LES1S$", cancelledLessons[randomCancelled][0]).replace("$LES1T$", cancelledLessons[randomCancelled][1])
+                .replace("$LES2S$", nonCancelledLessons[randomNonCancelled][0]).replace("$LES2T$", nonCancelledLessons[randomNonCancelled][1])
+            }
         </div>`;
     }
     let previewers = [];
@@ -727,6 +734,7 @@ function loadMensa(name, showProgress) {
 }
 
 function loadStyles() {
+    $i("styleprevsvg").style.display = "none";
     fetch("/styles/").then(res => res.json()).then(r => {
         avStyles = r;
         initStyles();

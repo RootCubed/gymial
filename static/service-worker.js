@@ -37,7 +37,7 @@ self.addEventListener("fetch", ev => {
     }
     ev.respondWith(caches.match(ev.request).then(res => {
         // Cache hit - return response
-        if (res) {
+        if (res && self.location.hostname == "gymial.ch") {
             return res;
         }
 

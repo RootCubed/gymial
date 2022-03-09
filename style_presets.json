@@ -10,7 +10,8 @@
         "class-hover": "#aaa",
         "class-cancelled": "#ff5e48",
         "class-special": "#e2f7a4",
-        "link-color": "#a8cdff"
+        "link-color": "#a8cdff",
+        "font": "inherit"
     },
     "Classic Light": {
         "bg-primary": "#efefef",
@@ -23,7 +24,8 @@
         "class-hover": "#aaa",
         "class-cancelled": "#ff5e48",
         "class-special": "#efee8c",
-        "link-color": "#27719e"
+        "link-color": "#27719e",
+        "font": "inherit"
     },
     "Ultra Dark": {
         "bg-primary": "#0c0d11",
@@ -36,7 +38,8 @@
         "class-hover": "#273e54",
         "class-cancelled": "#a73b3b",
         "class-special": "#2b201b",
-        "link-color": "#a8cdff"
+        "link-color": "#a8cdff",
+        "font": "inherit"
     },
     "B&W": {
         "bg-primary": "#c5c5c5",
@@ -46,22 +49,24 @@
         "color-progress-bar": "#9d9d9d",
         "class-lesson-bg": "#414141",
         "class-no-lesson-bg": "#bcbcbc",
-        "class-hover": "#273e54",
-        "class-cancelled": "#7f7f7f",
-        "class-special": "#1e1959",
-        "link-color": "#27719e"
+        "class-hover": "#666",
+        "class-cancelled": "#a83a3a",
+        "class-special": "#534434",
+        "link-color": "#27719e",
+        "font": "inherit"
     },
-    "bruh": {
-        "bg-primary": "#fff",
-        "bg-secondary": "#ffe600",
-        "color-primary": "#000",
-        "color-secondary": "#000",
-        "color-progress-bar": "#3bb7d2",
-        "class-lesson-bg": "#90d547",
-        "class-no-lesson-bg": "#a27c5a",
-        "class-hover": "#273e54",
-        "class-cancelled": "#ff9525",
-        "class-special": "#e08dcf",
-        "link-color": "#4985d7"
+    "HAXX0R MODE": {
+        "bg-primary": "#000",
+        "bg-secondary": "#000",
+        "color-primary": "#0f0",
+        "color-secondary": "#0f0",
+        "color-progress-bar": "#0f0",
+        "class-lesson-bg": "#114f00",
+        "class-no-lesson-bg": "#000",
+        "class-hover": "#23a400",
+        "class-cancelled": "#9d1711",
+        "class-special": "#0d130c",
+        "link-color": "#0f0",
+        "font": "monospace"
     }
 }
