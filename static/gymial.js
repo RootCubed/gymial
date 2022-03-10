@@ -1,31 +1,7 @@
-const timesPre73 = [
-    "07:30-08:15",
-    "08:25-09:10",
-    "09:20-10:05",
-    "10:25-11:10",
-    "11:20-12:05",
-    "12:25-13:10",
-    "13:20-14:05",
-    "14:15-15:00",
-    "15:10-15:55",
-    "16:05-16:50",
-    "16:55-17:40"
-];
+const timesPre73 = ["07:30-08:15", "08:25-09:10", "09:20-10:05", "10:25-11:10", "11:20-12:05", "12:25-13:10", "13:20-14:05", "14:15-15:00", "15:10-15:55", "16:05-16:50", "16:55-17:40"];
 const shortTimesPre73 = [730, 825, 920, 1025, 1120, 1225, 1320, 1415, 1510, 1605, 1655];
 
-const timesPost73 = [
-    "07:30-08:15",
-    "08:25-09:10",
-    "09:30-10:15",
-    "10:35-11:20",
-    "11:40-12:25",
-    "12:35-13:20",
-    "13:40-14:25",
-    "14:45-15:30",
-    "15:40-16:25",
-    "16:35-17:20",
-    "17:20-18:05"
-];
+const timesPost73 = ["07:30-08:15", "08:25-09:10", "09:30-10:15", "10:35-11:20", "11:40-12:25", "12:35-13:20", "13:40-14:25", "14:45-15:30", "15:40-16:25", "16:35-17:20", "17:20-18:05"];
 const shortTimesPost73 = [730, 825, 920, 1035, 1140, 1235, 1340, 1445, 1540, 1635, 1720];
 
 const NEXT_SEM_START = 1646002800000;
@@ -36,7 +12,7 @@ let shortTimes = shortTimesPre73;
 
 const DAY = 24 * 60 * 60 * 1000;
 
-let rawData, timetableData;
+let timetableData;
 
 let IDType = "class";
 let classID = 2659;
@@ -51,6 +27,7 @@ let currMensa = "KZO";
 let wh = window.innerHeight;
 document.body.style.setProperty('--wh', `${wh}px`);
 
+// helper functions
 let $s = selector => document.querySelector(selector);
 let $i = id => document.getElementById(id);
 let $c = className => Array(...document.getElementsByClassName(className));
@@ -217,19 +194,8 @@ function initGymial() {
         $i("margin-details").classList.remove("visible");
     });
 
-    let myAccountClickCount = 0;
-
     // clicking on class name
     $i("current-class").addEventListener("click", () => {
-        if (currentView == 1) {
-            myAccountClickCount++;
-        } else {
-            myAccountClickCount = 0;
-        }
-        if (myAccountClickCount == 10) {
-            myAccountClickCount = 0;
-            document.body.classList.toggle("dark");
-        }
         if (currentView != 0) return; // timetable
         if ($i("margin-details").classList.contains("visible")) return;
         $i("overlay-lesson-tabs").innerHTML = "";
@@ -297,7 +263,6 @@ function initGymial() {
             case VIEW_NAMES[0]:
                 $i("current-class").innerText = currClassName;
                 $i("panel-timetable").classList.add("scrollTimetable");
-                $c("sidebar-link").forEach(el => el.classList.remove("active"));
                 $i("link-timetable").classList.add("active");
                 $i("week-btns").classList.remove("hide");
                 $i("current-class").classList.remove("noclick");
@@ -331,12 +296,11 @@ function initGymial() {
                 $i("panel-timetable").classList.add("scrollGrades");
                 $i("link-grades").classList.add("active");
                 $i("week-btns").classList.add("hide");
-                currentView = 1;
+                currentView = 3;
                 break;
         }
         $i("sidebar").classList.remove("visible");
         setTimeout(() => $i("panel-timetable").classList.remove("canScroll"), 500);
-        return;
     }));
 
     window.addEventListener("resize", resizeScreen);
@@ -379,34 +343,32 @@ function initSettings() {
     });
 
     // logging in
-    $i("login-form").addEventListener("submit", ev => {
+    $i("login-form").addEventListener("submit", async ev => {
         $i("invalid-login").style.display = "none";
         $i("login-submit").style.display = "none";
         let spinner = $s("#button-spinner img");
         spinner.style.display = "inline";
         ev.preventDefault();
-        fetch("/auth", {
+        let authReq = await fetch("/auth", {
             method: "post",
             body: `user=${$i("login-user").value}&pass=${$i("login-pw").value}`
-        }).then(res => {
-            if (res.status == 401) {
-                // Unsuccessful authentication
-                $i("invalid-login").style.display = "block";
-                $i("login-submit").style.display = "inline";
-                spinner.style.display = "none";
-                return;
-            }
-            return res.text();
-        }).then(token => {
-            if (!token) return;
-            window.localStorage.setItem("api", JSON.stringify({username: $i("login-user").value, token: token}));
-            Cookies.set("username", $i("login-user").value, {expires: 30, path: ""});
-            Cookies.set("apiToken", token, {expires: 30, path: ""});
-            postLogin();
-            init(); // resources will be different when logged in
-            $i("link-timetable").click();
         });
-        return false;
+        if (authReq.status == 401) {
+            // Unsuccessful authentication
+            $i("invalid-login").style.display = "block";
+            $i("login-submit").style.display = "inline";
+            spinner.style.display = "none";
+            return;
+        }
+        let token = await authReq.text();
+        if (!token) return;
+        window.localStorage.setItem("api", JSON.stringify({username: $i("login-user").value, token: token}));
+        Cookies.set("username", $i("login-user").value, {expires: 60, path: ""});
+        Cookies.set("apiToken", token, {expires: 60, path: ""});
+        postLogin();
+        init(); // resources will be different when logged in
+        $i("link-timetable").click();
+        $i("margin-details").classList.remove("visible");
     });
 }
 
@@ -414,8 +376,8 @@ function initStyles() {
     // initialize styles
     $i("stylepicker").innerHTML = "";
     let svgContent = new XMLSerializer().serializeToString($i("styleprevsvg").getSVGDocument());
-    const cancelledLessons = [["AM", "04 Hu"], ["P", "51 Cp"], ["SP", "35 Mo"], ["M", "14 Hu"], ["G", "1C Gn"], ["L", "1G Sc"]];
-    const nonCancelledLessons = [["E", "1C Cj"], ["M", "68 Mz"], ["MU", "64 Sn"], ["INS", "I1 Rt"], ["B", "B3 Ha"]];
+    const cancelledLessons = [["AM", "04 Hu"], ["P", "51 Cp"], ["SP", "35 Mo"], ["M", "14 Hu"], ["G", "1C Gn"], ["L", "1G Sc"], ["AM", "18 Ke"]];
+    const nonCancelledLessons = [["E", "1C Cj"], ["M", "68 Mz"], ["MU", "64 Sn"], ["INS", "I1 Rt"], ["B", "B3 Ha"], ["L", "24 Sk"], ["EWR", "52 Bd"]];
     for (let style in avStyles) {
         let randomCancelled = Math.floor(Math.random() * cancelledLessons.length);
         let randomNonCancelled = Math.floor(Math.random() * nonCancelledLessons.length);
@@ -453,62 +415,62 @@ function initStyles() {
     }
 }
 
-function init() {
+async function init() {
     $i("error-timetable").classList.remove("visible");
     progress(10);
     enableDisableSemButton();
     $s("#timetable tbody").innerHTML = "";
-    fetch(`/resources/${currTime}`).then(response => {
-        return response.json();
-    }).then(classes => {
-        progress(20);
-        if (classes.offline) {
-            $i("current-class").innerText = "Offline";
-            progress(0);
-            return;
-        }
-        classes = classes.data;
-        let oldClassList = classList;
-        classList = classes;
-        if (IDType == "class") {
-            let cInClassList = false;
-            for (let c of classes) {
-                if (c.classId == classID) {
-                    cInClassList = true;
-                    break;
-                }
-            }
-            if (!cInClassList || (oldClassList[0] && classes[0].classId != oldClassList[0].classId)) {
-                if (window.localStorage.getItem("class")) {
-                    try {
-                        let json = JSON.parse(window.localStorage.getItem("class"));
-                        if (classID == json.id) throw "localStorage is from this semester";
-                        classID = json.id;
-                        $i("current-class").innerText = json.name;
-                    } catch (e) {
-                        classID = classes[0].classId;
-                        IDType = "class";
-                        currClassName = classes[0].className.replace(' ', '');
-                        $i("current-class").innerText = currClassName;
-                    }
-                } else {
-                    classID = classes[0].classId;
-                    IDType = "class";
-                    currClassName = classes[0].className.replace(' ', '');
-                    $i("current-class").innerText = currClassName;
-                }
-            }
-        }
-        loadClass(false);
-    })
-    .catch(e => {
-        if (e.name !== "AbortError") {
+    let classes;
+    try {
+        let timeReq = await fetch(`/resources/${currTime}`);
+        classes = await timeReq.json();
+    } catch (e) {
+        if (e.name != "AbortError") {
             console.error(`Error loading /resources/${currTime}`);
             displayError("Netzwerkfehler", "Beim Laden des Studenplans ist etwas schiefgelaufen. Stelle sicher, dass du eine Internetverbindung hast. " +
             "Andernfalls ist vermutlich das <a href='https://intranet.tam.ch/kzo/'>TAM-Intranet</a> momentan nicht erreichbar.");
         }
         progress(100);
-    });
+    };
+    if (classes.offline) {
+        $i("current-class").innerText = "Offline";
+        progress(100);
+        return;
+    }
+    progress(20);
+    classes = classes.data;
+    let oldClassList = classList;
+    classList = classes;
+    if (IDType == "class") {
+        let cInClassList = false;
+        for (let c of classes) {
+            if (c.classId == classID) {
+                cInClassList = true;
+                break;
+            }
+        }
+        if (!cInClassList || (oldClassList[0] && classes[0].classId != oldClassList[0].classId)) {
+            if (window.localStorage.getItem("class")) {
+                try {
+                    let json = JSON.parse(window.localStorage.getItem("class"));
+                    if (classID == json.id) throw "localStorage is from this semester";
+                    classID = json.id;
+                    $i("current-class").innerText = json.name;
+                } catch (e) {
+                    classID = classes[0].classId;
+                    IDType = "class";
+                    currClassName = classes[0].className.replace(' ', '');
+                    $i("current-class").innerText = currClassName;
+                }
+            } else {
+                classID = classes[0].classId;
+                IDType = "class";
+                currClassName = classes[0].className.replace(' ', '');
+                $i("current-class").innerText = currClassName;
+            }
+        }
+    }
+    loadClass(false);
 }
 
 function clickTimetableEntry(el) {
@@ -588,7 +550,7 @@ if (canUseAbortController) {
     classLoadingSignal = classLoadingController.signal;
 }
 
-function loadClass(startAtZero) {
+async function loadClass(startAtZero) {
     gtag("event", "loadClass");
     $i("error-timetable").classList.remove("visible");
     if (startAtZero) progress(10);
@@ -598,126 +560,74 @@ function loadClass(startAtZero) {
         classLoadingSignal = classLoadingController.signal;
     }
     $s("#timetable tbody").innerHTML = "";
-    fetch(`/period-from-time/${currTime}`, {
-        signal: classLoadingSignal
-    })
-    .then(r => r.json())
-    .then(perID => {
-        progress(30);
-        if (parseInt(perID) >= 73) {
-            times = timesPost73;
-            shortTimes = shortTimesPost73;
-        } else {
-            times = timesPre73;
-            shortTimes = shortTimesPre73;
-        }
-        if (parseInt(perID) != currPeriod) {
-            currPeriod = parseInt(perID);
-            loadSearchHistory();
-            init();
-            return;
-        }
-        fetch(`/timetable/${IDType}/${classID}/${currTime}`, {
+    let perID;
+    try {
+        let periodReq = await fetch(`/period-from-time/${currTime}`, {
             signal: classLoadingSignal
-        }).then(response => {
-            progress(50);
-            return response.json();
-        }).then(json => {
-            if (json.error) {
-                displayError("TAM-Fehler", json.error);
-                progress(100);
-                return;
-            }
-            if (IDType == "class") {
-                for (let i = 0; i < classList.length; i++) {
-                    if (!classList[i].classId) break;
-                    if (classList[i].classId == classID) {
-                        currClassName = classList[i].className.replace(' ', '');
-                    }
-                }
-            } else if (IDType == "student") {
-                currClassName = idToName(classID) + " (" + classFromTTData(json).replace(/ /g, '') + ")";
-            }
-            // if the user hasn't clicked away yet
-            if (currentView == 0) {
-                $i("current-class").innerText = currClassName;
-            }
-            mainDivHTML = "";
-            progress(60);
-            rawData = json;
-            timetableData = convertToUsable(json);
-            let dates = "";
-            for (let day in timetableData) {
-                dates += `<th class="timetable-date">${day}</th>`;
-            }
-            mainDivHTML += `<tr><td class="timetable-time"></td>${dates}</tr>`;
-            for (let i = 0; i < times.length; i++) {
-                let timeRows = times[i].replace(/-/g, "-<wbr>");
-                mainDivHTML += `<tr class="time-row"><td class="timetable-entry timetable-time timetable-lesson-times">${timeRows}</td>`;
-                for (let day in timetableData) {
-                    if (timetableData[day][i].type == "ignore") {
-                        continue;
-                    }
-                    let lessons = "";
-                    let isSpecial = "";
-                    if (timetableData[day][i].type == "lesson") {
-                        for (let lesson of timetableData[day][i].data) {
-                            let modText = "";
-                            if (lesson.special) isSpecial = "special";
-                            if (lesson.cancelled) modText = "cancelled";
-                            lessons += `<div class="${modText}"><span class="entry-title">${lesson.cName}</span>`;
-                            if (lesson.room != "") {
-                                lessons += `<span class="entry-room">${lesson.room}</span>`;
-                            }
-                            if (lesson.tAcronym != "") {
-                                lessons += `<span class="entry-teacher">${lesson.tAcronym}</span>`;
-                            }
-                            if (lesson.sNames != undefined && lesson.sNames.length > 0) {
-                                lessons += (lesson.cName == "IU") ? `<br><span class="entry-instrName">${lesson.sNames[0].studentName}</span>` : "";
-                            }
-                            lessons += "</div>";
-                        }
-                    }
-                    if (timetableData[day][i].type == "empty") {
-                        mainDivHTML += `<td rowspan=${timetableData[day][i].length} class="timetable-entry empty"><div class="sc_cont"></div></td>`;
-                    } else {
-                        let lLength = timetableData[day][i].length;
-                        let lengthName = "";
-                        if (lLength == 2) {
-                            lengthName = "double";
-                        }
-                        if (lLength == 3) {
-                            lengthName = "triple";
-                        }
-                        if (lLength == 11) {
-                            lengthName = "fullday"
-                        }
-                        mainDivHTML += `<td rowspan=${lLength} class="timetable-entry ${isSpecial}" data="${day + ";" + i}"><div class="sc_cont"><div class="scroller-container ${lengthName}"><div class="scroller">${lessons}<div class="addScroller"></div></div></div></div></td>`;
-                    }
-                }
-                mainDivHTML += `</tr>`;
-            }
-            $s("#timetable tbody").innerHTML = mainDivHTML;
-            applyScrolling();
-            progress(100);
-        })
-        .catch(e => {
-            if (e.name !== "AbortError") {
-                console.error(`Error loading /timetable/${IDType}/${classID}/${currTime}`);
-                displayError("Netzwerkfehler", "Beim Laden des Studenplans ist etwas schiefgelaufen. Stelle sicher, dass du eine Internetverbindung hast. " +
-                "Andernfalls ist vermutlich das <a href='https://intranet.tam.ch/kzo/'>TAM-Intranet</a> momentan nicht erreichbar.");
-            }
-            progress(100);
         });
-    })
-    .catch(e => {
+        perID = await periodReq.json();
+    } catch (e) {
         if (e.name !== "AbortError") {
             console.error(`Error loading /period-from-time/${currTime}`);
             displayError("Netzwerkfehler", "Beim Laden des Studenplans ist etwas schiefgelaufen. Stelle sicher, dass du eine Internetverbindung hast. " +
             "Andernfalls ist vermutlich das <a href='https://intranet.tam.ch/kzo/'>TAM-Intranet</a> momentan nicht erreichbar.");
+            progress(100);
         }
+    }
+    progress(30);
+    if (parseInt(perID) >= 73) {
+        times = timesPost73;
+        shortTimes = shortTimesPost73;
+    } else {
+        times = timesPre73;
+        shortTimes = shortTimesPre73;
+    }
+    if (parseInt(perID) != currPeriod) {
+        currPeriod = parseInt(perID);
+        loadSearchHistory();
+        init();
+        return;
+    }
+    let ttData;
+    try {
+        let ttReq = await fetch(`/timetable/${IDType}/${classID}/${currTime}`, {
+            signal: classLoadingSignal
+        });
+        progress(50);
+        ttData = await ttReq.json();
+    } catch (e) {
+        if (e.name !== "AbortError") {
+            console.error(`Error loading /timetable/${IDType}/${classID}/${currTime}`);
+            displayError("Netzwerkfehler", "Beim Laden des Studenplans ist etwas schiefgelaufen. Stelle sicher, dass du eine Internetverbindung hast. " +
+            "Andernfalls ist vermutlich das <a href='https://intranet.tam.ch/kzo/'>TAM-Intranet</a> momentan nicht erreichbar.");
+            progress(100);
+        }
+    }
+    if (ttData.error) {
+        displayError("TAM-Fehler", ttData.error);
         progress(100);
-    });
+        return;
+    }
+    if (IDType == "class") {
+        for (let i = 0; i < classList.length; i++) {
+            if (!classList[i].classId) break;
+            if (classList[i].classId == classID) {
+                currClassName = classList[i].className.replace(' ', '');
+            }
+        }
+    } else if (IDType == "student") {
+        currClassName = idToName(classID) + " (" + classFromTTData(ttData).replace(/ /g, '') + ")";
+    }
+    // if the user hasn't clicked away yet
+    if (currentView == 0) {
+        $i("current-class").innerText = currClassName;
+    }
+    progress(60);
+    timetableData = convertToUsable(ttData);
+    
+    $s("#timetable tbody").innerHTML = timetableHTML(timetableData);
+    applyScrolling();
+    progress(100);
 }
 
 function loadMensa(name, showProgress) {
@@ -756,7 +666,7 @@ function resizeScreen() {
 
     lastEvTime = Date.now();
     if (timeout == false) {
-        timout = true;
+        timeout = true;
         setTimeout(resizeEnd, debounceDelay);
     }
 }
@@ -995,6 +905,62 @@ function getFirstDayOfWeek(d) {
     let day = d.getDay();
     let diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
     return new Date(d.setDate(diff));
+}
+
+function timetableHTML(timetableData) {
+    let mainDivHTML = "";
+    let dates = "";
+    for (let day in timetableData) {
+        dates += `<th class="timetable-date">${day}</th>`;
+    }
+    mainDivHTML += `<tr><td class="timetable-time"></td>${dates}</tr>`;
+    for (let i = 0; i < times.length; i++) {
+        let timeRows = times[i].replace(/-/g, "-<wbr>");
+        mainDivHTML += `<tr class="time-row"><td class="timetable-entry timetable-time timetable-lesson-times">${timeRows}</td>`;
+        for (let day in timetableData) {
+            if (timetableData[day][i].type == "ignore") {
+                continue;
+            }
+            let lessons = "";
+            let isSpecial = "";
+            if (timetableData[day][i].type == "lesson") {
+                for (let lesson of timetableData[day][i].data) {
+                    let modText = "";
+                    if (lesson.special) isSpecial = "special";
+                    if (lesson.cancelled) modText = "cancelled";
+                    lessons += `<div class="${modText}"><span class="entry-title">${lesson.cName}</span>`;
+                    if (lesson.room != "") {
+                        lessons += `<span class="entry-room">${lesson.room}</span>`;
+                    }
+                    if (lesson.tAcronym != "") {
+                        lessons += `<span class="entry-teacher">${lesson.tAcronym}</span>`;
+                    }
+                    if (lesson.sNames != undefined && lesson.sNames.length > 0) {
+                        lessons += (lesson.cName == "IU") ? `<br><span class="entry-instrName">${lesson.sNames[0].studentName}</span>` : "";
+                    }
+                    lessons += "</div>";
+                }
+            }
+            if (timetableData[day][i].type == "empty") {
+                mainDivHTML += `<td rowspan=${timetableData[day][i].length} class="timetable-entry empty"><div class="sc_cont"></div></td>`;
+            } else {
+                let lLength = timetableData[day][i].length;
+                let lengthName = "";
+                if (lLength == 2) {
+                    lengthName = "double";
+                }
+                if (lLength == 3) {
+                    lengthName = "triple";
+                }
+                if (lLength == 11) {
+                    lengthName = "fullday"
+                }
+                mainDivHTML += `<td rowspan=${lLength} class="timetable-entry ${isSpecial}" data="${day + ";" + i}"><div class="sc_cont"><div class="scroller-container ${lengthName}"><div class="scroller">${lessons}<div class="addScroller"></div></div></div></div></td>`;
+            }
+        }
+        mainDivHTML += `</tr>`;
+    }
+    return mainDivHTML;
 }
 
 function progress(number) {
