@@ -376,8 +376,8 @@ function initStyles() {
     // initialize styles
     $i("stylepicker").innerHTML = "";
     let svgContent = new XMLSerializer().serializeToString($i("styleprevsvg").getSVGDocument());
-    const cancelledLessons = [["AM", "04 Hu"], ["P", "51 Cp"], ["SP", "35 Mo"], ["M", "14 Hu"], ["G", "1C Gn"], ["L", "1G Sc"], ["AM", "18 Ke"]];
-    const nonCancelledLessons = [["E", "1C Cj"], ["M", "68 Mz"], ["MU", "64 Sn"], ["INS", "I1 Rt"], ["B", "B3 Ha"], ["L", "24 Sk"], ["EWR", "52 Bd"]];
+    const cancelledLessons = [["AM", "04 Hu"], ["P", "51 Cp"], ["SP", "35 Mo"], ["M", "14 Hu"], ["G", "1C Gn"], ["L", "1G Sc"], ["AM", "18 Ke"], ["GG", "67 Hf"], ["C", "C2 Vz"]];
+    const nonCancelledLessons = [["E", "1C Cj"], ["M", "68 Mz"], ["MU", "64 Sn"], ["INS", "I1 Rt"], ["B", "B3 Ha"], ["L", "24 Sk"], ["EWR", "52 Bd"], ["M", "28 Dr"], ["G", "32 Wr"]];
     for (let style in avStyles) {
         let randomCancelled = Math.floor(Math.random() * cancelledLessons.length);
         let randomNonCancelled = Math.floor(Math.random() * nonCancelledLessons.length);
