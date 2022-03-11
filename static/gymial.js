@@ -1053,7 +1053,7 @@ function displayError(title, message) {
 
 function hideError() {
     $i("error-timetable").classList.remove("visible");
-    $i("timetable").style.display = "inline";
+    $i("timetable").style.display = "table";
 }
 
 function postLogin() {
