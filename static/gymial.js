@@ -406,6 +406,7 @@ function initStyles() {
             };
             el.classList.add("selected");
             applyStyle(currentStyle);
+            gtag("event", "applyNewStyle");
         });
     }
 }
