@@ -94,8 +94,8 @@ const periods = [
 
 let ttCache = {};
 let resCache = {};
-const ttCacheTimeout = 1000 * 60 * 5; // 5 minutes
-const resCacheTimeout = 1000 * 60 * 60 * 2; // 2 hours
+const ttCacheTimeout = 1000 * 60 * 10; // 10 minutes
+const resCacheTimeout = 1000 * 60 * 60 * 5; // 5 hours
 
 const goodTTCache = c => (!!c && !!c.time) && (new Date() - c.time) < ttCacheTimeout;
 const goodResCache = c => (!!c && !!c.time) && (new Date() - c.time) < resCacheTimeout;
