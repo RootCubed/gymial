@@ -416,7 +416,7 @@ function initStyles() {
 }
 
 async function init() {
-    $i("error-timetable").classList.remove("visible");
+    hideError();
     progress(10);
     enableDisableSemButton();
     $s("#timetable tbody").innerHTML = "";
@@ -424,6 +424,11 @@ async function init() {
     try {
         let timeReq = await fetch(`/resources/${currTime}`);
         classes = await timeReq.json();
+        if (classes.status != "ok") {
+            console.warn("Resources returned " + classes.status);
+            if (classes.status == "intranet_offline_nocache") throw classes.status;
+        }
+        classes = classes.data;
     } catch (e) {
         if (e.name != "AbortError") {
             console.error(`Error loading /resources/${currTime}`);
@@ -552,7 +557,7 @@ if (canUseAbortController) {
 
 async function loadClass(startAtZero) {
     gtag("event", "loadClass");
-    $i("error-timetable").classList.remove("visible");
+    hideError();
     if (startAtZero) progress(10);
     if (canUseAbortController) {
         classLoadingController.abort();
@@ -569,8 +574,7 @@ async function loadClass(startAtZero) {
     } catch (e) {
         if (e.name !== "AbortError") {
             console.error(`Error loading /period-from-time/${currTime}`);
-            displayError("Netzwerkfehler", "Beim Laden des Studenplans ist etwas schiefgelaufen. Stelle sicher, dass du eine Internetverbindung hast. " +
-            "Andernfalls ist vermutlich das <a href='https://intranet.tam.ch/kzo/'>TAM-Intranet</a> momentan nicht erreichbar.");
+            displayError("Netzwerkfehler", "Beim Laden des Studenplans ist etwas schiefgelaufen. Stelle sicher, dass du eine Internetverbindung hast.");
             progress(100);
         }
     }
@@ -589,12 +593,32 @@ async function loadClass(startAtZero) {
         return;
     }
     let ttData;
+    let shouldShow = true;
     try {
         let ttReq = await fetch(`/timetable/${IDType}/${classID}/${currTime}`, {
             signal: classLoadingSignal
         });
         progress(50);
         ttData = await ttReq.json();
+        console.log(ttData);
+        if (ttData.status == "intranet_offline_nocache") {
+            displayError("TAM-Intranet offline", "Das TAM-Intranet ist momentan leider offline, und dieser Stundenplan wurde nie gecacht. " +
+            "Versuche es später wieder.");
+            progress(100);
+            return;
+        } else if (ttData.status == "intranet_offline") {
+            shouldShow = false;
+            let time = new Date(ttData.time);
+            displayError("TAM-Intranet offline", "Das TAM-Intranet ist momentan leider offline. Klicke <a href='#' id='view-cached'>hier</a>," +
+            ` um eine gecachte Version dieses Studenplans anschauen (Stand: ${time.toLocaleDateString()} ${time.toLocaleTimeString()})`);
+            progress(100);
+            $i("view-cached").addEventListener("click", () => {
+                hideError();
+                $s("#timetable tbody").innerHTML = timetableHTML(timetableData);
+                applyScrolling();
+            });
+        }
+        ttData = ttData.data;
     } catch (e) {
         if (e.name !== "AbortError") {
             console.error(`Error loading /timetable/${IDType}/${classID}/${currTime}`);
@@ -604,7 +628,7 @@ async function loadClass(startAtZero) {
         }
     }
     if (ttData.error) {
-        displayError("TAM-Fehler", ttData.error);
+        displayError("TAM-Fehler", ttData.data);
         progress(100);
         return;
     }
@@ -625,8 +649,11 @@ async function loadClass(startAtZero) {
     progress(60);
     timetableData = convertToUsable(ttData);
     
-    $s("#timetable tbody").innerHTML = timetableHTML(timetableData);
-    applyScrolling();
+    if (shouldShow) {
+        $s("#timetable tbody").innerHTML = timetableHTML(timetableData);
+        applyScrolling();
+    }
+
     progress(100);
 }
 
@@ -1019,6 +1046,10 @@ function displayError(title, message) {
     $i("error-title").innerText = title;
     $i("error-desc").innerHTML = message;
     $i("error-timetable").classList.add("visible");
+}
+
+function hideError() {
+    $i("error-timetable").classList.remove("visible");
 }
 
 function postLogin() {

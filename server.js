@@ -92,12 +92,21 @@ const periods = [
         "startTime": 0
     }
 ];
+
+let ttCache = {};
+let resCache = {};
+const ttCacheTimeout = 1000 * 60 * 5; // 5 minutes
+const resCacheTimeout = 1000 * 60 * 60 * 2; // 2 hours
+
+const goodTTCache = c => (!!c && !!c.time) && (new Date() - c.time) < ttCacheTimeout;
+const goodResCache = c => (!!c && !!c.time) && (new Date() - c.time) < resCacheTimeout;
+
 function generateAPIKey() {
     return crypto.randomBytes(16).toString("hex");
 }
 
 function login(username, password) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         let body = {
             loginuser: username,
             loginpassword: password,
@@ -110,7 +119,8 @@ function login(username, password) {
             path: "/kzo/",
             method: "POST",
             headers: JSON.parse(JSON.stringify(headers)),
-            referrerPolicy: "strict-origin-when-cross-origin"
+            referrerPolicy: "strict-origin-when-cross-origin",
+            timeout: 5000
         };
 
         options.headers["Cookie"] = null;
@@ -126,7 +136,7 @@ function login(username, password) {
                     sturmsession = c.match(/sturmsession=[0-9a-z]+/);
                 }
             }
-            if (!sturmsession) resolve();
+            if (!sturmsession) reject();
             options.path = "/kzo/list/get-person-detail-list/list/30/id/0/noListData/1/selector/config-list-edit";
             options.headers["Cookie"] = newCookies;
             options.method = "GET";
@@ -143,6 +153,11 @@ function login(username, password) {
                 });
             });
             req2.end();
+        });
+
+        req.on("timeout", () => {
+            req.destroy();
+            reject();
         });
     
         req.write(querystring.stringify(body));
@@ -249,7 +264,7 @@ function intranetReq(endpoint, body) {
         options.headers.Referer = "https://intranet.tam.ch/kzo/calendar/index/period/" + body.periodId;
     }
     body.csrfToken = token;
-    return new Promise(function(resolve) {
+    return new Promise((resolve, reject) => {
         let str = "";
 
         let req = https.request(options, res => {
@@ -270,11 +285,17 @@ function intranetReq(endpoint, body) {
                                 resolve(r);
                             });
                         });
+                    }).catch(err => {
+                        reject(err);
                     });
                 } else {
                     resolve(str);
                 }
             });
+        });
+        
+        req.on("error", err => {
+            reject(err);
         });
     
         req.write(querystring.stringify(body));
@@ -283,7 +304,12 @@ function intranetReq(endpoint, body) {
 }
 
 async function verifyAuthentication(username, password) {
-    let token = await login(username, password);
+    let token;
+    try {
+        token = await login(username, password);
+    } catch (e) {
+        return false;
+    }
     if (!token) return false;
     redis.hset("user:" + username, "persData", JSON.stringify(token[1]));
     return true;
@@ -359,7 +385,7 @@ app.get("/myData", (req, res) => {
     let user = cookieToUser(req.headers.cookie);
     isAuthorized(user).then(isAuth => {
         if (!isAuth) {
-            res.send({
+            res.json({
                 data: [],
                 total: 0
             });
@@ -367,21 +393,54 @@ app.get("/myData", (req, res) => {
         }
         redis.hget("user:" + user.username, "persData", (err, r) => {
             if (r == null) {
-                res.send({
+                res.json({
                     data: [],
                     total: 0
                 });
                 return;
             }
-            res.send(JSON.parse(r));
+            res.json(JSON.parse(r));
         });
     });
 });
 
-app.get("/timetable/:type/:id/:time", (req, res) => {
+async function ttCallback(user, r) {
+    let isAuth = await isAuthorized(user);
+    let json = JSON.parse(r);
+    if (json.status != 1) {
+        throw json.message;
+    }
+    if (!isAuth) {
+        const propsToKeep = [
+            "id", "periodId", "start", "end", "lessonDate", "lessonStart", "lessonEnd", "lessonDuration",
+            "timetableEntryTypeId", "timetableEntryType", "timetableEntryTypeLong", "timetableEntryTypeShort",
+            "title", "courseId", "courseName", "course", "subjectName", "classId", "className", "teacherAcronym",
+            "roomId", "roomName", "teacherId", "isAllDay"
+        ]
+        let basicJSON = new Array(json.data.length);
+        for (let i = 0; i < json.data.length; i++) {
+            basicJSON[i] = {};
+            for (let p of propsToKeep) {
+                basicJSON[i][p] = json.data[i][p];
+            }
+        }
+        return basicJSON;
+    } else {
+        return json.data;
+    }
+}
+
+function getFirstDayOfWeek(d) {
+    let day = d.getDay();
+    let diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+    return new Date(d.setDate(diff));
+}
+
+app.get("/timetable/:type/:id/:time", async (req, res) => {
+    let timeNum = parseInt(req.params.time);
     let body = {
         "startDate": req.params.time,
-        "endDate": parseInt(req.params.time) + 4 * 24 * 60 * 60 * 1000,
+        "endDate": timeNum + 4 * 24 * 60 * 60 * 1000,
         "holidaysOnly": 0,
         "method": "POST"
     };
@@ -395,33 +454,36 @@ app.get("/timetable/:type/:id/:time", (req, res) => {
             res.status(400).end();
             return;
     }
+    let user = cookieToUser(req.headers.cookie);
+    let ttCacheStr = `${req.params.type}_${req.params.id}_${getFirstDayOfWeek(new Date(timeNum)).toDateString()}`;
+    let ttCacheObj = ttCache[ttCacheStr];
+    let ttCacheData;
+    try {
+        ttCacheData = await ttCallback(user, ttCache[ttCacheStr].data);
+    } catch (e) {}
+
+    if (goodTTCache(ttCacheObj) && ttCacheData) {
+        res.json({"status": "ok", "data": ttCacheData});
+        return;
+    }
     body[req.params.type + "Id[]"] = req.params.id;
-    intranetReq("/kzo/timetable/ajax-get-timetable", body).then(r => {
-        isAuthorized(cookieToUser(req.headers.cookie)).then(isAuth => {
-            let json = JSON.parse(r);
-            if (json.status != 1) {
-                res.send({"error": json.message});
-                return;
-            }
-            if (!isAuth) {
-                const propsToKeep = [
-                    "id", "periodId", "start", "end", "lessonDate", "lessonStart", "lessonEnd", "lessonDuration",
-                    "timetableEntryTypeId", "timetableEntryType", "timetableEntryTypeLong", "timetableEntryTypeShort",
-                    "title", "courseId", "courseName", "course", "subjectName", "classId", "className", "teacherAcronym",
-                    "roomId", "roomName", "teacherId", "isAllDay"
-                ]
-                let basicJSON = new Array(json.data.length);
-                for (let i = 0; i < json.data.length; i++) {
-                    basicJSON[i] = {};
-                    for (let p of propsToKeep) {
-                        basicJSON[i][p] = json.data[i][p];
-                    }
-                }
-                res.send(basicJSON);
-            } else {
-                res.send(json.data);
-            }
-        });
+    intranetReq("/kzo/timetable/ajax-get-timetable", body).then(async r => {
+        ttCache[ttCacheStr] = {
+            time: new Date(),
+            data: r
+        };
+        let ttData = await ttCallback(user, r);
+        try {
+            res.json({"status": "ok", "data": ttData});
+        } catch (e) {
+            res.json({"status": "error", "data": e.message})
+        }
+    }).catch(e => {
+        if (ttCacheData) {
+            res.json({"status": "intranet_offline", "data": ttCacheData, "time": ttCacheObj.time});
+        } else {
+            res.json({"status": "intranet_offline_nocache"});
+        }
     });
 });
 
@@ -435,35 +497,59 @@ app.get("/course-participants/:id", (req, res) => {
             "method": "GET"
         };
         intranetReq(`/kzo/list/getlist/list/40/id/${req.params.id}/period/73`, body).then(r => {
-            res.send(JSON.parse(r).data.map(el => {
-                return {
+            res.json(JSON.parse(r).data.map(el => ({
                     "name": el.Name + ", " + el.Vorname,
                     "id": el.PersonID
-                };
-            }));
+            })));
+        }).catch(e => {
+            res.json({"error": "intranet_offline_nocache"});
         });
     });
 });
 
-app.get("/resources/:time", (req, res) => {
+async function resourcesCallback(user, r) {
+    let isAuth = await isAuthorized(user);
+    if (!isAuth) {
+        return {
+            "offline": false,
+            "data": JSON.parse(r).data.classes
+        };
+    }
+    return {
+        "offline": false,
+        "data": [...JSON.parse(r).data.classes, ...JSON.parse(r).data.teachers, ...JSON.parse(r).data.students, ...JSON.parse(r).data.rooms]
+    };
+}
+
+app.get("/resources/:time", async (req, res) => {
     let body = {
         "periodId": getPeriod(req.params.time),
         "method": "POST"
     };
-    intranetReq("/kzo/timetable/ajax-get-resources/", body).then(r => {
-        isAuthorized(cookieToUser(req.headers.cookie)).then(isAuth => {
-            if (!isAuth) {
-                res.send({
-                    "offline": false,
-                    "data": JSON.parse(r).data.classes
-                });
-                return;
-            }
-            res.send({
-                "offline": false,
-                "data": [...JSON.parse(r).data.classes, ...JSON.parse(r).data.teachers, ...JSON.parse(r).data.students, ...JSON.parse(r).data.rooms]
-            });
-        });
+    let user = cookieToUser(req.headers.cookie);
+    
+    let resCacheData;
+    try {
+        resCacheData = (resCache != {}) ? await resourcesCallback(user, resCache.data) : {};
+    } catch (e) {}
+
+    if (goodResCache(resCache) && resCacheData != {}) {
+        res.json({"status": "ok", "data": resCacheData});
+        return;
+    }
+    intranetReq("/kzo/timetable/ajax-get-resources/", body).then(async r => {
+        resCache = {
+            time: new Date(),
+            data: r
+        }
+        let resData = await resourcesCallback(user, r);
+        res.json({"status": "ok", "data": resData});
+    }).catch(e => {
+        if (resCacheData) {
+            res.json({"status": "intranet_offline", "data": resCacheData, "time": resCache.time});
+        } else {
+            res.json({"status": "intranet_offline_nocache"});
+        }
     });
 });
 
@@ -536,7 +622,7 @@ app.get("/class-personal-details/:classID", (req, res) => {
                     best = potentialClassLists[d];
                 }
             }
-            res.send(best.studentArray);
+            res.json(best.studentArray);
         });
     });
 });
@@ -555,7 +641,7 @@ let mensaPlanScheller;
 
 app.get("/mensa/KZO", (req, res) => {
     if (mensaPlanKZO) {
-        res.send(mensaPlanKZO).end();
+        res.json(mensaPlanKZO).end();
         return;
     }
     res.status(404).end();
@@ -563,7 +649,7 @@ app.get("/mensa/KZO", (req, res) => {
 
 app.get("/mensa/Schellerstrasse", (req, res) => {
     if (mensaPlanScheller) {
-        res.send(mensaPlanScheller).end();
+        res.json(mensaPlanScheller).end();
         return;
     }
     res.status(404).end();
