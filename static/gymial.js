@@ -79,8 +79,8 @@ let classList = [];
 let weekOffset = 0;
 
 let currentView = 0;
-const VIEW_NAMES = ["Stundenplan", "Einstellungen", "Mensaplan"];
-let currClassName = "A4";
+const VIEW_NAMES = ["Stundenplan", "Einstellungen", "Mensaplan", "Noten"];
+let currClassName = "C6c";
 
 if (document.readyState == "complete"){
     initGymial();
@@ -290,6 +290,13 @@ function initGymial() {
                 $i("link-mensa").classList.add("active");
                 $i("week-btns").classList.add("hide");
                 currentView = 2;
+                break;
+            case VIEW_NAMES[3]:
+                $i("current-class").innerText = VIEW_NAMES[3];
+                $i("panel-timetable").classList.add("scrollGrades");
+                $i("link-grades").classList.add("active");
+                $i("week-btns").classList.add("hide");
+                currentView = 3;
                 break;
         }
         $i("sidebar").classList.remove("visible");

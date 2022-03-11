@@ -553,6 +553,11 @@ button, #logout, #persplan {
     margin-top: calc(var(--wh) * -2 + 63px + 63px);
 }
 
+#panel-timetable.scrollGrades {
+    margin-top: calc(-300vh + 63px + 63px + 63px);
+    margin-top: calc(var(--wh) * -3 + 63px + 63px + 63px);
+}
+
 #invalid-login {
     color: #ec6969;
 }
@@ -570,7 +575,7 @@ button, #logout, #persplan {
     transition: margin-top 0.5s;
 }
 
-#panel-settings {
+#panel-settings, #panel-grades {
     padding: 5vh 10vw;
     padding: calc(var(--wh) * 0.05) 10vw;
     height: calc(90vh - 63px);
@@ -820,7 +825,7 @@ div#hint-new-timetable:after {
         background-color: white;
     }
 
-    #sidebar, #panel-settings, #panel-mensa {
+    #sidebar, #panel-settings, #panel-mensa, #panel-grades {
         display: none;
     }
 
