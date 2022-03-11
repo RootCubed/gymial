@@ -98,6 +98,7 @@ a:not(.overlay-tab) {
     width: 100%;
     table-layout: fixed;
     border-spacing: 4px;
+    height: 100%;
 }
 
 #sidebar {
@@ -252,6 +253,7 @@ a:not(.overlay-tab) {
 .timetable-date {
     padding: 10px;
     font-size: 13px;
+    height: 0;
 }
 
 .timetable-time, .timetable-date {
