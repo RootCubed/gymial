@@ -610,7 +610,9 @@ async function loadClass(startAtZero) {
             shouldShow = false;
             let time = new Date(ttData.time);
             displayError("TAM-Intranet offline", "Das TAM-Intranet ist momentan leider offline. Klicke <a href='#' id='view-cached'>hier</a>," +
-            ` um eine gecachte Version dieses Studenplans anschauen (Stand: ${time.toLocaleDateString()} ${time.toLocaleTimeString()})`);
+            ` um eine gecachte Version dieses Studenplans anschauen (Stand: ${time.toLocaleTimeString([], {
+                year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit"
+            })})`);
             progress(100);
             $i("view-cached").addEventListener("click", () => {
                 hideError();
