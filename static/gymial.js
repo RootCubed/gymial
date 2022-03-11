@@ -1048,10 +1048,12 @@ function displayError(title, message) {
     $i("error-title").innerText = title;
     $i("error-desc").innerHTML = message;
     $i("error-timetable").classList.add("visible");
+    $i("timetable").style.display = "none";
 }
 
 function hideError() {
     $i("error-timetable").classList.remove("visible");
+    $i("timetable").style.display = "inline";
 }
 
 function postLogin() {
