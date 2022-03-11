@@ -429,6 +429,7 @@ async function init() {
             "Andernfalls ist vermutlich das <a href='https://intranet.tam.ch/kzo/'>TAM-Intranet</a> momentan nicht erreichbar.");
         }
         progress(100);
+        return;
     };
     if (classes.offline) {
         $i("current-class").innerText = "Offline";
@@ -549,6 +550,10 @@ if (canUseAbortController) {
 }
 
 async function loadClass(startAtZero) {
+    if (!classList || classList.length == 0) {
+        init();
+        return;
+    }
     gtag("event", "loadClass");
     hideError();
     if (startAtZero) progress(10);

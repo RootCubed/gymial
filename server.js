@@ -565,6 +565,8 @@ app.get("/getName/:id", (req, res) => {
         };
         intranetReq("/kzo/list/get-person-name", body).then((r) => {
             res.send(r);
+        }).catch(e => {
+            res.sendStatus(500);
         });
     });
 });
@@ -581,7 +583,9 @@ app.get("/search-internal-kzoCH/:firstName/:lastName/:class", (req, res) => {
         if (req.params.firstName != "_") fN = req.params.firstName;
         if (req.params.lastName != "_") lN = req.params.lastName;
         if (req.params.class != "_") cl = req.params.class;
-        searchPeopleKzoCH(fN, lN, cl).then(r => res.send(r));
+        searchPeopleKzoCH(fN, lN, cl).then(r => res.send(r)).catch(e => {
+            res.sendStatus(500);
+        });
     });
 });
 
@@ -623,6 +627,8 @@ app.get("/class-personal-details/:classID", (req, res) => {
                 }
             }
             res.json(best.studentArray);
+        }).catch(e => {
+            res.sendStatus(500);
         });
     });
 });
