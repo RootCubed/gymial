@@ -1,4 +1,3 @@
-import querystring from "querystring";
 import https from "https";
 import express from "express";
 const app = express();
@@ -160,7 +159,7 @@ function login(username, password) {
             reject();
         });
     
-        req.write(querystring.stringify(body));
+        req.write(new URLSearchParams(body).toString());
         req.end();
     });
 }
@@ -298,7 +297,7 @@ function intranetReq(endpoint, body) {
             reject(err);
         });
     
-        req.write(querystring.stringify(body));
+        req.write(new URLSearchParams(body).toString());
         req.end();
     });
 }
