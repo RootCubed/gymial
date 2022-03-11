@@ -6,6 +6,7 @@
 }
 
 :root {
+    --default-font: Tahoma, sans-serif;
     --bg-primary: #333;
     --bg-secondary: #37373b;
     --color-primary: #fff;
@@ -17,12 +18,11 @@
     --class-cancelled: #ff5e48;
     --class-special: #e2f7a4;
     --link-color: #a8cdff;
-    --font: inherit;
+    --font: var(--default-font);
 }
 
 body {
     background-color: var(--bg-primary);
-    font-family: Tahoma, sans-serif;
     overflow: hidden;
     --wh: 100vh;
 }

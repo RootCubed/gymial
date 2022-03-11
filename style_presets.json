@@ -11,7 +11,7 @@
         "class-cancelled": "#ff5e48",
         "class-special": "#e2f7a4",
         "link-color": "#a8cdff",
-        "font": "inherit"
+        "font": "var(--default-font)"
     },
     "Classic Light": {
         "bg-primary": "#efefef",
@@ -25,7 +25,7 @@
         "class-cancelled": "#ff5e48",
         "class-special": "#efee8c",
         "link-color": "#27719e",
-        "font": "inherit"
+        "font": "var(--default-font)"
     },
     "Ultra Dark": {
         "bg-primary": "#0c0d11",
@@ -39,7 +39,7 @@
         "class-cancelled": "#a73b3b",
         "class-special": "#2b201b",
         "link-color": "#a8cdff",
-        "font": "inherit"
+        "font": "var(--default-font)"
     },
     "B&W": {
         "bg-primary": "#c5c5c5",
@@ -53,7 +53,7 @@
         "class-cancelled": "#a83a3a",
         "class-special": "#534434",
         "link-color": "#27719e",
-        "font": "inherit"
+        "font": "var(--default-font)"
     },
     "HAXX0R MODE": {
         "bg-primary": "#000",

@@ -1,7 +1,7 @@
 <svg width="400" height="500" viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" id="sp_root" class="stylepreview">
     <defs>
     <style>
-        text {
+        text, tspan {
             font-family: var(--sp_font);
         }
     </style>
