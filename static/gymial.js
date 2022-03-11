@@ -602,7 +602,7 @@ async function loadClass(startAtZero) {
         ttData = await ttReq.json();
         console.log(ttData);
         if (ttData.status == "intranet_offline_nocache") {
-            displayError("TAM-Intranet offline", "Das TAM-Intranet ist momentan leider offline, und dieser Stundenplan wurde nie gecacht. " +
+            displayError("TAM-Intranet offline", "Das TAM-Intranet ist momentan leider offline, und dieser Stundenplan wurde nie auf dem Server abgespeichert. " +
             "Versuche es später wieder.");
             progress(100);
             return;
@@ -610,7 +610,7 @@ async function loadClass(startAtZero) {
             shouldShow = false;
             let time = new Date(ttData.time);
             displayError("TAM-Intranet offline", "Das TAM-Intranet ist momentan leider offline. Klicke <a href='#' id='view-cached'>hier</a>," +
-            ` um eine gecachte Version dieses Studenplans anschauen (Stand: ${time.toLocaleTimeString([], {
+            ` um die zuletzt geladene Version dieses Studenplans anschauen (Stand: ${time.toLocaleTimeString([], {
                 year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit"
             })})`);
             progress(100);
