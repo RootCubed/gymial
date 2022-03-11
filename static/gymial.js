@@ -383,6 +383,8 @@ function initStyles() {
             }
         </div>`;
     }
+    // temporary "in progress" message
+    $i("stylepicker").innerHTML += `<div style="display: inline-block;"><span class="style_name">Weitere in Entwicklung...</span><div style="display: inline-block; height: 12.5vh;"></div></div>`;
     let previewers = [];
     for (let i = 0; i < Object.keys(avStyles).length; i++) {
         let el = $c("stylepreview_cont")[i];
