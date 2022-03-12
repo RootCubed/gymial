@@ -390,6 +390,8 @@ function initStyles() {
             }
         </div>`;
     }
+    // temporary "in progress" message
+    $i("stylepicker").innerHTML += `<div style="display: inline-block;"><span class="style_name">Weitere in Entwicklung...</span><div style="display: inline-block; height: 12.5vh;"></div></div>`;
     let previewers = [];
     for (let i = 0; i < Object.keys(avStyles).length; i++) {
         let el = $c("stylepreview_cont")[i];
@@ -411,6 +413,7 @@ function initStyles() {
             };
             el.classList.add("selected");
             applyStyle(currentStyle);
+            gtag("event", "applyNewStyle");
         });
     }
 }
@@ -436,6 +439,7 @@ async function init() {
             "Andernfalls ist vermutlich das <a href='https://intranet.tam.ch/kzo/'>TAM-Intranet</a> momentan nicht erreichbar.");
         }
         progress(100);
+        return;
     };
     if (classes.offline) {
         $i("current-class").innerText = "Offline";
@@ -556,6 +560,10 @@ if (canUseAbortController) {
 }
 
 async function loadClass(startAtZero) {
+    if (!classList || classList.length == 0) {
+        init();
+        return;
+    }
     gtag("event", "loadClass");
     hideError();
     if (startAtZero) progress(10);
@@ -602,7 +610,7 @@ async function loadClass(startAtZero) {
         ttData = await ttReq.json();
         console.log(ttData);
         if (ttData.status == "intranet_offline_nocache") {
-            displayError("TAM-Intranet offline", "Das TAM-Intranet ist momentan leider offline, und dieser Stundenplan wurde nie gecacht. " +
+            displayError("TAM-Intranet offline", "Das TAM-Intranet ist momentan leider offline, und dieser Stundenplan wurde nie auf dem Server abgespeichert. " +
             "Versuche es später wieder.");
             progress(100);
             return;
@@ -610,7 +618,7 @@ async function loadClass(startAtZero) {
             shouldShow = false;
             let time = new Date(ttData.time);
             displayError("TAM-Intranet offline", "Das TAM-Intranet ist momentan leider offline. Klicke <a href='#' id='view-cached'>hier</a>," +
-            ` um eine gecachte Version dieses Studenplans anschauen (Stand: ${time.toLocaleTimeString([], {
+            ` um die zuletzt geladene Version dieses Studenplans anschauen (Stand: ${time.toLocaleTimeString([], {
                 year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit"
             })})`);
             progress(100);
@@ -1048,10 +1056,12 @@ function displayError(title, message) {
     $i("error-title").innerText = title;
     $i("error-desc").innerHTML = message;
     $i("error-timetable").classList.add("visible");
+    $i("timetable").style.display = "none";
 }
 
 function hideError() {
     $i("error-timetable").classList.remove("visible");
+    $i("timetable").style.display = "table";
 }
 
 function postLogin() {

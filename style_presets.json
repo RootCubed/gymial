@@ -41,21 +41,7 @@
         "link-color": "#a8cdff",
         "font": "var(--default-font)"
     },
-    "B&W": {
-        "bg-primary": "#c5c5c5",
-        "bg-secondary": "#fff",
-        "color-primary": "#000",
-        "color-secondary": "#fff",
-        "color-progress-bar": "#9d9d9d",
-        "class-lesson-bg": "#414141",
-        "class-no-lesson-bg": "#bcbcbc",
-        "class-hover": "#666",
-        "class-cancelled": "#a83a3a",
-        "class-special": "#534434",
-        "link-color": "#27719e",
-        "font": "var(--default-font)"
-    },
-    "HAXX0R MODE": {
+    "The Matrix": {
         "bg-primary": "#000",
         "bg-secondary": "#000",
         "color-primary": "#0f0",
