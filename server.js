@@ -135,7 +135,7 @@ function login(username, password) {
                     sturmsession = c.match(/sturmsession=[0-9a-z]+/);
                 }
             }
-            if (!sturmsession) reject();
+            if (!sturmsession) reject(new Error("invalidlogin"));
             options.path = "/kzo/list/get-person-detail-list/list/30/id/0/noListData/1/selector/config-list-edit";
             options.headers["Cookie"] = newCookies;
             options.method = "GET";
@@ -156,7 +156,7 @@ function login(username, password) {
 
         req.on("timeout", () => {
             req.destroy();
-            reject();
+            reject(new Error("timeout"));
         });
     
         req.write(new URLSearchParams(body).toString());
@@ -201,7 +201,7 @@ function loginRegularKZO(user, pass) {
                 }
                 resolve();
             }
-            reject();
+            reject(new Error("kzoch_down"));
         });
     });
 }
@@ -256,7 +256,8 @@ function intranetReq(endpoint, body) {
         path: endpoint,
         method: "POST",
         headers: JSON.parse(JSON.stringify(headers)),
-        referrerPolicy: "strict-origin-when-cross-origin"
+        referrerPolicy: "strict-origin-when-cross-origin",
+        timeout: 5000
     };
     if (body.periodId == periods[0].period) {
         options.referrer = "https://intranet.tam.ch/kzo/calendar/index/period/" + body.periodId;
@@ -282,15 +283,25 @@ function intranetReq(endpoint, body) {
                             token = r.match(/csrfToken ?= ?'([0-z]+)/)[1];
                             intranetReq(endpoint, body).then(r => {
                                 resolve(r);
+                            }).catch(err => {
+                                reject(err);
                             });
                         });
                     }).catch(err => {
                         reject(err);
                     });
                 } else {
+                    if (Math.random() > 0.2) {
+                        reject(new Error("random failure"));
+                    }
                     resolve(str);
                 }
             });
+        });
+
+        req.on("timeout", () => {
+            req.destroy();
+            reject(new Error("timeout"));
         });
         
         req.on("error", err => {
@@ -501,7 +512,7 @@ app.get("/course-participants/:id", (req, res) => {
                     "id": el.PersonID
             })));
         }).catch(e => {
-            res.json({"error": "intranet_offline_nocache"});
+            res.json({"status": "intranet_offline_nocache"});
         });
     });
 });
@@ -565,7 +576,7 @@ app.get("/getName/:id", (req, res) => {
         intranetReq("/kzo/list/get-person-name", body).then((r) => {
             res.send(r);
         }).catch(e => {
-            res.sendStatus(500);
+            res.json({"status": "intranet_offline_nocache"});
         });
     });
 });
@@ -627,7 +638,7 @@ app.get("/class-personal-details/:classID", (req, res) => {
             }
             res.json(best.studentArray);
         }).catch(e => {
-            res.sendStatus(500);
+            res.json({"status": "intranet_offline_nocache"});
         });
     });
 });
