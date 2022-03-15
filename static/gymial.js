@@ -213,6 +213,10 @@ function initGymial() {
                     showPwForm();
                     return;
                 };
+                if (res.status && res.status == "intranet_offline_nocache") {
+                    showDetails(`<span>Das Intranet ist leider momentan offline. Versuche es später wieder.</span>`);
+                    return;
+                }
                 let htmlToAdd = `<h1 style="margin-bottom: 20px">Klassenliste ${$i("current-class").innerText}</h1>`;
                 for (let student of res) {
                     htmlToAdd += `<span class="student studentName person-link" data="${student.studentId}">${student.studentName}</span>`;
@@ -222,6 +226,9 @@ function initGymial() {
         } else {
             if (IDType == "student") {
                 fetch("/getName/" + parseInt(classID)).then(res => res.json()).then(personName => {
+                    if (personName.status && personName.status == "intranet_offline_nocache") {
+                        showDetails(`<span>Das Intranet ist leider momentan offline. Versuche es später wieder.</span>`);
+                    }
                     fetch(`/search-internal-kzoCH/${personName.firstname}/${personName.lastname}/_`).then(response => {
                         if (response.status == 401) {
                             return 401;
@@ -608,7 +615,6 @@ async function loadClass(startAtZero) {
         });
         progress(50);
         ttData = await ttReq.json();
-        console.log(ttData);
         if (ttData.status == "intranet_offline_nocache") {
             displayError("TAM-Intranet offline", "Das TAM-Intranet ist momentan leider offline, und dieser Stundenplan wurde nie auf dem Server abgespeichert. " +
             "Versuche es später wieder.");
@@ -803,8 +809,12 @@ function setLessonData(lesson) {
                 return;
             }
             let html = "";
-            for (let r of res) {
-                html += `<span class="student studentName person-link" data="${r.id}">${r.name}</span>`
+            if (res.status && res.status == "intranet_offline_nocache") {
+                html += `<span>Das Intranet ist leider momentan offline. Versuche es später wieder.</span>`;
+            } else {
+                for (let r of res) {
+                    html += `<span class="student studentName person-link" data="${r.id}">${r.name}</span>`
+                }
             }
             $i("names").innerHTML = html;
         });
