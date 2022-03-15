@@ -291,9 +291,6 @@ function intranetReq(endpoint, body) {
                         reject(err);
                     });
                 } else {
-                    if (Math.random() > 0.2) {
-                        reject(new Error("random failure"));
-                    }
                     resolve(str);
                 }
             });
