@@ -249,7 +249,7 @@ function searchPeopleKzoCH(firstName, lastName, classToSearch) {
     });
 }
 
-function intranetReq(endpoint, body) {
+function intranetReq(endpoint, body, canRetryLogin) {
     let options = {
         hostname: "intranet.tam.ch",
         port: 443,
@@ -273,6 +273,9 @@ function intranetReq(endpoint, body) {
             });
             res.on("end", () => {
                 if (str[0] === "<" || str.length == 0) { // invalid session
+                    if (canRetryLogin === false) {
+                        reject(new Error("successful_login_invalid_result"));
+                    }
                     console.log("logging in...");
                     login(process.env.user, process.env.password).then((sessionToken) => {
                         if (sessionToken != null) {
@@ -281,7 +284,7 @@ function intranetReq(endpoint, body) {
                         }
                         nodeFetch("https://intranet.tam.ch/kzo", {headers: headers}).then(r => r.text()).then(r => {
                             token = r.match(/csrfToken ?= ?'([0-z]+)/)[1];
-                            intranetReq(endpoint, body).then(r => {
+                            intranetReq(endpoint, body, false).then(r => {
                                 resolve(r);
                             }).catch(err => {
                                 reject(err);
@@ -503,7 +506,8 @@ app.get("/course-participants/:id", (req, res) => {
         let body = {
             "method": "GET"
         };
-        intranetReq(`/kzo/list/getlist/list/40/id/${req.params.id}/period/73`, body).then(r => {
+        let escapedId = parseInt(req.params.id);
+        intranetReq(`/kzo/list/getlist/list/40/id/${escapedId}/period/73`, body).then(r => {
             res.json(JSON.parse(r).data.map(el => ({
                     "name": el.Name + ", " + el.Vorname,
                     "id": el.PersonID
