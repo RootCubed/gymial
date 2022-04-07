@@ -17,11 +17,12 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-WYE0MDHZXP"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-WYE0MDHZXP');
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        if (self.location.hostname == "gymial.ch") {
+            gtag('js', new Date());
+            gtag('config', 'G-WYE0MDHZXP');
+        }
     </script>
 </head>
 <body>
