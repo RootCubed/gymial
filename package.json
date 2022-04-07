@@ -7,7 +7,6 @@
   "description": "An open-source KZO timetable",
   "main": "server.js",
   "type": "module",
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
@@ -22,6 +21,7 @@
     "iconv-lite": "^0.6.3",
     "jsdom": "^16.7.0",
     "node-fetch": "^3.2.0",
+    "rate-limiter-flexible": "^2.3.6",
     "redis": "^3.1.2"
   }
 }

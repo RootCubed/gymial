@@ -17,6 +17,32 @@ redis.auth(rtg.password);
 import { promisify } from "util";
 const redisHGet = promisify(redis.hget).bind(redis);
 
+import { RateLimiterRedis } from "rate-limiter-flexible";
+
+const limiterIntranetLogin = new RateLimiterRedis({
+    storeClient: redis,
+    keyPrefix: "intranet_login",
+    points: 30,
+    duration: 60,
+    blockDuration: 60
+});
+
+const limiterKZOch = new RateLimiterRedis({
+    storeClient: redis,
+    keyPrefix: "kzo_ch_total",
+    points: 30,
+    duration: 60,
+    blockDuration: 60
+});
+
+const limiterIntranetReq = new RateLimiterRedis({
+    storeClient: redis,
+    keyPrefix: "intranet_total",
+    points: 120,
+    duration: 60,
+    blockDuration: 30
+});
+
 app.use((req, res, next) => {
     if (req.header("x-forwarded-proto") !== "https" && req.hostname !== "localhost" && !req.hostname.includes("192.168") && !req.hostname.includes("rootcubed.dev")) {
         res.redirect(301, `https://${req.header("host")}${req.url}`);
@@ -105,7 +131,12 @@ function generateAPIKey() {
 }
 
 function login(username, password) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            await limiterIntranetLogin.consume();
+        } catch (e) {
+            reject(new Error("ratelimit"));
+        }
         let body = {
             loginuser: username,
             loginpassword: password,
@@ -207,9 +238,20 @@ function loginRegularKZO(user, pass) {
 }
 
 function searchPeopleKzoCH(firstName, lastName, classToSearch) {
-    return new Promise(async (resolve) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            await limiterKZOch.consume("");
+        } catch (e) {
+            reject(new Error("ratelimit"));
+            return;
+        }
         if (!kzoCHCookies.PHPSESSID) {
-            await loginRegularKZO(process.env.user, process.env.password);
+            try {
+                await loginRegularKZO(process.env.user, process.env.password);
+            } catch (e) {
+                reject(e);
+                return;
+            }
         }
         nodeFetch("https://intranet.kzo.ch/index.php?id=549", {
             "headers": {
@@ -231,7 +273,7 @@ function searchPeopleKzoCH(firstName, lastName, classToSearch) {
             "method": "POST",
             "mode": "cors",
             "credentials": "include"
-        }).then(res => res.buffer()).then(res => {
+        }).then(res => res.arrayBuffer()).then(res => {
             res = iconv.decode(Buffer.from(res), "iso-8859-1"); // bruh why does kzo.ch use ancient charsets, please just start using utf-8
             if (res.includes("Keine Adressen gefunden")) resolve([]);
             let table = res.match(/<table.*?adressliste">(.|\s)+?<\/table>/g)[0];
@@ -264,7 +306,12 @@ function intranetReq(endpoint, body, canRetryLogin) {
         options.headers.Referer = "https://intranet.tam.ch/kzo/calendar/index/period/" + body.periodId;
     }
     body.csrfToken = token;
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            await limiterIntranetReq.consume();
+        } catch (e) {
+            reject(new Error("ratelimit"));
+        }
         let str = "";
 
         let req = https.request(options, res => {
@@ -575,7 +622,7 @@ app.get("/getName/:id", (req, res) => {
             "method": "POST"
         };
         intranetReq("/kzo/list/get-person-name", body).then((r) => {
-            res.send(r);
+            res.send(JSON.parse(r));
         }).catch(e => {
             res.json({"status": "intranet_offline_nocache"});
         });
