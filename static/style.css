@@ -156,7 +156,7 @@ a:not(.overlay-tab) {
     position: relative;
 }
 
-.searchResult {
+.search-result {
     z-index: 2;
     display: block;
     background-color: white;
@@ -166,7 +166,7 @@ a:not(.overlay-tab) {
     font-size: 20px;
 }
 
-.searchResult:hover {
+.search-result:hover {
     background-color: #aaa;
 }
 

@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=0.7, maximum-scale=0.7">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script defer src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
-    <script defer src="gymial.js"></script>
     <link rel="stylesheet" href="style.css">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -85,7 +84,7 @@
         <div id="sidebar">
             <div id="search-dropdown" class="dropdown-content">
                 <label for="class-select" class="visuallyhidden">Suche nach Klasse, Raum oder Person</label>
-                <input id="class-select" placeholder="Suche" onfocus="filterObjects()" onkeyup="filterObjects()"/>
+                <input id="class-select" placeholder="Suche"/>
                 <div id="search-results"></div>
             </div>
             <span id="link-timetable" class="sidebar-link active">Stundenplan</span>
@@ -211,5 +210,6 @@
     <div id="hint-new-timetable">
         <span>Die neuen Stundenpläne sind jetzt online. Schaue sie dir hier an!</span>
     </div>
+    <script src="dist/bundle.js"></script>
 </body>
 </html>
