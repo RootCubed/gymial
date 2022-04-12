@@ -217,6 +217,10 @@ export function getCurrPeriod() {
     return viewState.currPeriod;
 }
 
+export function resizeEvent() {
+    applyScrolling();
+}
+
 function reloadClass() {
     loadTTData(viewState.entityType, viewState.entityID, viewState.time, viewState.currResources);
 }

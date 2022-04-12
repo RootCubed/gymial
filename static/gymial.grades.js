@@ -1,0 +1,38 @@
+const subjects = {
+    "AC": "Anwendungen des Computers",
+    "AM": "Anwendungen der Mathematik",
+    "B": "Biologie",
+    "BG": "Bildnerisches Gestalten",
+    "C": "Chemie",
+    "D": "Deutsch",
+    "DB": "Deutsch Beratungsstunde",
+    "E": "Englisch",
+    "EW": "Einführung Wirtschaft",
+    "EWR": "Einführung Wirtschaft und Recht",
+    "F": "Französisch",
+    "FB": "Französisch Beratungsstunde",
+    "FF": "Freifach",
+    "FIN": "Finanzen",
+    "GG": "Geographie",
+    "GR": "Griechisch",
+    "INS": "Instrumentalunterricht",
+    "IT": "Italienisch",
+    "K": "Klassenstunde",
+    "L": "Latein",
+    "M": "Mathematik",
+    "M+A": "Mensch und Arbeit",
+    "MU": "Musik",
+    "P": "Physik",
+    "R": "Recht",
+    "RL": "Religion",
+    "RW": "Rechnungswesen",
+    "SP": "Spanisch",
+    "T": "Turnen",
+    "TF": "Turnen Frauen",
+    "TM": "Turnen Männer",
+    "VWL": "Volkswirtschaftslehre",
+}
+
+export function init() {
+
+}

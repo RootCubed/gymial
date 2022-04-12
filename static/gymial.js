@@ -4,20 +4,22 @@ let wh = window.innerHeight;
 document.body.style.setProperty('--wh', `${wh}px`);
 
 if (document.readyState == "complete"){
-    initGymial();
+    init();
 } else {
     document.addEventListener("DOMContentLoaded", initGymial);
 }
 
-function initGymial() {
+function init() {
+    gymial.store.init();
+    
+    gymial.settings.init();
     gymial.account.init();
+    gymial.style.init();
+
     gymial.error.init();
     gymial.detail.init();
     gymial.menu.init();
     gymial.mensa.init();
-    gymial.settings.init();
-    gymial.style.init();
-    gymial.store.init();
     gymial.tt.init();
 
     window.addEventListener("resize", resizeScreen);
@@ -63,6 +65,6 @@ function resizeEnd() {
         setTimeout(resizeEnd, debounceDelay);
     } else {
         timeout = false;
-        applyScrolling();
+        gymial.tt.resizeEvent();
     }
 }

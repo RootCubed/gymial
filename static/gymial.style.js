@@ -3,7 +3,6 @@ import { $i, $c } from "./gymial.helper.js";
 import * as gymial from "./gymial.module.js";
 
 let avStyles;
-let currStyleName = "Classic Dark";
 
 // for previewer
 const cancelledLessons = [["AM", "04 Hu"], ["P", "51 Cp"], ["SP", "35 Mo"], ["M", "14 Hu"], ["G", "1C Gn"], ["L", "1G Sc"], ["AM", "18 Ke"], ["GG", "67 Hf"], ["C", "C2 Vz"]];
@@ -53,7 +52,7 @@ function initStyles() {
         for (let prop in avStyles[style]) {
             el.style.setProperty("--sp_" + prop, avStyles[style][prop]);
         }
-        if (style == currStyleName) {
+        if (style == gymial.store.getStyleName()) {
             el.classList.add("selected");
         }
         el.addEventListener("click", () => {
@@ -71,7 +70,7 @@ function initStyles() {
     }
 }
 
-function applyStyle(style) {
+export function applyStyle(style) {
     gymial.store.setStyle(style);
     for (let prop in style.data) {
         document.documentElement.style.setProperty("--" + prop, style.data[prop]);

@@ -1,10 +1,12 @@
 import * as gymial from "./gymial.module.js";
 
-let currStyleName;
+let currStyleName = "Classic Dark";
 let searchHistory, searchHistoryName;
 let username, apiToken;
 
-export function init(currPeriod) {
+// TODO: move code in init() into respective modules
+
+export function init() {
     try {
         let json = JSON.parse(window.localStorage.getItem("api"));
         setAPIKey(json.username, json.token);
@@ -18,18 +20,18 @@ export function init(currPeriod) {
     
     try {
         let currentStyle = JSON.parse(window.localStorage.getItem("style"));
-        gymial.style.applyStyle(currentStyle);
         currStyleName = currentStyle.name;
+        gymial.style.applyStyle(currentStyle);
     } catch (e) {}
 
     if (gymial.tt.isNextSemOnline() && window.localStorage) {
         let shouldShowHint = false;
         if (window.localStorage.getItem("seenNextSemHint")) {
-            if (window.localStorage.getItem("seenNextSemHint") < currPeriod) shouldShowHint = true;
+            if (window.localStorage.getItem("seenNextSemHint") < gymial.tt.getCurrPeriod()) shouldShowHint = true;
         } else {
             shouldShowHint = true;
         }
-        window.localStorage.setItem("seenNextSemHint", currPeriod);
+        window.localStorage.setItem("seenNextSemHint", gymial.tt.getCurrPeriod());
         if (shouldShowHint) {
             $i("hint-new-timetable").classList.add("visible");
         }
@@ -52,6 +54,10 @@ export function setAPIKey(username, token) {
     window.localStorage.setItem("api", JSON.stringify({username: username, token: token}));
     Cookies.set("username", json.username, {expires: 365});
     Cookies.set("apiToken", json.token, {expires: 365});
+}
+
+export function getStyleName() {
+    return currStyleName;
 }
 
 export function setStyle(styleData) {
