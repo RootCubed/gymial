@@ -6,7 +6,7 @@ document.body.style.setProperty('--wh', `${wh}px`);
 if (document.readyState == "complete"){
     init();
 } else {
-    document.addEventListener("DOMContentLoaded", initGymial);
+    document.addEventListener("DOMContentLoaded", init);
 }
 
 function init() {

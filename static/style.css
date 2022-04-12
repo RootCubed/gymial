@@ -454,11 +454,10 @@ img.teacher {
     cursor: pointer;
 }
 
-#week-back, #week-forward, #today, #forward-next-sem, #backward-next-sem {
+#week-btns span {
     float: right;
     margin-left: 15px;
     touch-action: manipulation;
-    stroke: var(--color-primary);
 }
 
 #today::before {
@@ -654,16 +653,21 @@ button, #logout, #persplan {
     margin-right: -200px;
 }
 
-span svg line {
+.color-svg line {
     stroke-width: 2;
     stroke: var(--color-primary);
 }
 
-span:not(#today) svg line {
+.color-svg polygon {
+    stroke: none;
+    fill: var(--color-primary);
+}
+
+.round-linecap svg line {
     stroke-linecap: round;
 }
 
-svg polygon {
+#grade-pluspoints {
     stroke: none;
     fill: var(--color-primary);
 }
