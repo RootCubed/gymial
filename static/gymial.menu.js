@@ -44,7 +44,7 @@ export function init() {
         overrideTitle(el.target.innerText);
         switch(el.target.innerText) {
             case VIEW_NAMES[0]:
-                gymial.tt.setClassName();
+                overrideTitle(gymial.tt.getClassName());
                 $i("panel-timetable").classList.add("scrollTimetable");
                 $i("link-timetable").classList.add("active");
                 $i("week-btns").classList.remove("hide");
@@ -126,71 +126,66 @@ export function overrideTitle(html) {
 
 function filterObjects() {
     let input = $i("class-select").value.toLowerCase().replace(' ', '');
-    $i("search-results").innerHTML = "";
-    if (input.length < 1) {
-        for (let search of searches) {
-            $i("search-results").innerHTML += `<span class="search-result" data="${search.id}">${search.name}</span>`;
-        }
-        return;
-    }
-    let t = classList.filter(val => {
-        if (val.className) {
-            return val.className.toLowerCase().replace(' ', '').includes(input);
-        } else if (val.room) {
-            return val.room.toLowerCase().includes(input);
-        } else {
-            return val.name.toLowerCase().includes(input);
-        }
-    });
     let resultHTML = "";
-    for (let found of t) {
-        if (found.classId) {
-            resultHTML += `<span class="search-result" data="c${found.classId}">${found.className.replace(' ', '')}</span>`;
-        } else if (found.acronym) {
-            resultHTML += `<span class="search-result" data="t${found.personId}">${found.name.replace(/\(.+?\)/, '')}</span>`;
-        } else if (found.room) {
-            resultHTML += `<span class="search-result" data="r${found.roomId}">${found.room}</span>`;
-        } else {
-            resultHTML += `<span class="search-result" data="s${found.personId}">${found.name.replace(/\(.+?\)/, '')}</span>`;
+    if (input.length < 1) {
+        for (let search of gymial.store.getSearchHistory()) {
+            resultHTML += `<span class="search-result" data="${search.id}">${search.name}</span>`;
+        }
+    } else {
+        let filtered = gymial.tt.getCurrResources().filter(val => {
+            if (val.className) {
+                return val.className.toLowerCase().replace(' ', '').includes(input);
+            } else if (val.room) {
+                return val.room.toLowerCase().includes(input);
+            } else {
+                return val.name.toLowerCase().includes(input);
+            }
+        });
+        for (let found of filtered) {
+            if (found.classId) {
+                resultHTML += `<span class="search-result" data="c${found.classId}">${found.className.replace(' ', '')}</span>`;
+            } else if (found.acronym) {
+                resultHTML += `<span class="search-result" data="t${found.personId}">${found.name.replace(/\(.+?\)/, '')}</span>`;
+            } else if (found.room) {
+                resultHTML += `<span class="search-result" data="r${found.roomId}">${found.room}</span>`;
+            } else {
+                resultHTML += `<span class="search-result" data="s${found.personId}">${found.name.replace(/\(.+?\)/, '')}</span>`;
+            }
         }
     }
     $i("search-results").innerHTML = resultHTML;
+    $c("search-result").forEach(sr => sr.addEventListener("click", el => {
+        let name = el.target.innerText;
+        let entityID = el.target.getAttribute("data");
+        let entityType = {
+            'c': "class",
+            't': "teacher",
+            's': "student",
+            'r': "room"
+        }[entityID[0]];
+        clickSearchResult(name, entityType, entityID);
+    }));
 }
 
-function clickSearchResult(el) {
-    let name = el.innerText;
-    $i("current-class").innerText = name;
-    classID = el.getAttribute("data");
-    switch(classID[0]) {
-        case 'c':
-            IDType = "class";
-            if (!nextSemOnline || currTime < NEXT_SEM_START) {
-                window.localStorage.setItem("class", JSON.stringify({id: classID.substr(1), name: name}));
-            }
-            break;
-        case 't':
-            IDType = "teacher";
-            break;
-        case 's':
-            IDType = "student";
-            break;
-        case 'r':
-            IDType = "room";
-            break;
-    }
-    searches.unshift({
-        id: classID,
-        name: name,
-        auth: true
-    });
-    // get rid of duplicated entries, removing all but the first occurrence
-    searches = searches.filter((v, i, a) => {
-        return a.findIndex(t => (t.id === v.id && t.name === v.name)) === i;
-    });
-    searches = searches.slice(0, 7); // max 7 search results
-    window.localStorage.setItem(searchHistoryName, JSON.stringify(searches));
-    classID = parseInt(classID.substr(1));
-    $i("class-select").value = "";
+function clickSearchResult(name, entityType, entityID) {
     gtag("event", "searchResClick");
-    loadClass(true);
+
+    // TODO: extract this to gymial.store
+    if (entityType == "class") {
+        if (!gymial.tt.isNextSemOnline() || currTime < NEXT_SEM_START) {
+            window.localStorage.setItem("class", JSON.stringify({id: entityID.substr(1), name: name}));
+        }
+    }
+
+    gymial.store.pushSearch(name, entityID);
+
+    $i("class-select").value = "";
+
+    let trueID = parseInt(entityID.substr(1));
+    if (entityType == "student") {
+        gymial.tt.setSelectedPerson(name);
+    } else {
+        gymial.tt.setClassName(name);
+    }
+    gymial.tt.loadTTData(entityType, trueID, gymial.tt.getCurrTime(), gymial.tt.getCurrResources());
 }

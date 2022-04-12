@@ -17,6 +17,7 @@ function initGymial() {
     gymial.mensa.init();
     gymial.settings.init();
     gymial.style.init();
+    gymial.store.init();
     gymial.tt.init();
 
     window.addEventListener("resize", resizeScreen);

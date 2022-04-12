@@ -1,5 +1,7 @@
 import * as gymial from "./gymial.module.js";
 
+import * as ttdata from "./gymial.ttdata.js";
+
 import { $s, $i, $c } from "./gymial.helper.js";
 
 const timesPre73 = ["07:30-08:15", "08:25-09:10", "09:20-10:05", "10:25-11:10", "11:20-12:05", "12:25-13:10", "13:20-14:05", "14:15-15:00", "15:10-15:55", "16:05-16:50", "16:55-17:40"];
@@ -19,23 +21,20 @@ const nextSemOnline = false;
 let times = timesPre73;
 let shortTimes = shortTimesPre73;
 
-const DAY = 24 * 60 * 60 * 1000;
-
-let timetableData;
-
-let entityType = "class";
-let entityID = 2659;
-let currPeriod = 76;
-let currClassName = "A4";
-
-let currTime = getFirstDayOfWeek(new Date()).getTime();
-
-let classList = [];
-
-let weekOffset = 0;
+let viewState = {
+    entityType: "class",
+    entityID: 2659,
+    entityName: "A4",
+    selPersonName: "",
+    time: ttdata.getFirstDayOfWeek(new Date()).getTime(),
+    currPeriod: 76,
+    currResources: null,
+    currTT: null,
+    weekOffset: 0
+};
 
 export function init() {
-    $i("today").setAttribute("data-content", weekOffset);
+    $i("today").setAttribute("data-content", viewState.weekOffset);
     
     // timetable entries
     document.addEventListener("click", el => {
@@ -44,8 +43,6 @@ export function init() {
         while (tg && tg.parentNode) {
             if (tg.classList.contains("timetable-entry") && !tg.classList.contains("empty") && !tg.classList.contains("timetable-time")) {
                 clickTimetableEntry(tg);
-            } else if (tg.classList.contains("searchResult")) {
-                clickSearchResult(tg);
             }
             tg = tg.parentNode;
         }
@@ -57,29 +54,29 @@ export function init() {
     
 
     $i("week-back").addEventListener("click", () => {
-        currTime -= DAY * 7;
-        weekOffset--;
+        viewState.time -= ttdata.DAY * 7;
+        viewState.weekOffset--;
         refreshTodayEl();
-        loadClass(true);
+        reloadClass();
     });
     $i("today").addEventListener("click", () => {
-        currTime = getFirstDayOfWeek(new Date()).getTime();
-        weekOffset = 0;
+        viewState.time = getFirstDayOfWeek(new Date()).getTime();
+        viewState.weekOffset = 0;
         refreshTodayEl();
-        loadClass(true);
+        reloadClass();
     });
     $i("week-forward").addEventListener("click", () => {
-        currTime += DAY * 7;
-        weekOffset++;
+        viewState.time += ttdata.DAY * 7;
+        viewState.weekOffset++;
         refreshTodayEl();
-        loadClass(true);
+        reloadClass();
     });
     $i("forward-next-sem").addEventListener("click", () => {
-        currTime = NEXT_SEM_START;
+        viewState.time = NEXT_SEM_START;
         let now = getFirstDayOfWeek(new Date()).getTime();
-        weekOffset = Math.floor((NEXT_SEM_START - now) / (DAY * 7));
+        viewState.weekOffset = Math.floor((NEXT_SEM_START - now) / (DAY * 7));
         refreshTodayEl();
-        loadClass(true);
+        reloadClass();
     });
     $i("backward-next-sem").addEventListener("click", () => {
         $i("today").click();
@@ -87,15 +84,15 @@ export function init() {
 
     // clicking on class name
     $i("current-class").addEventListener("click", () => {
-        if (currentView != 0) return; // timetable
+        if (gymial.menu.getCurrentView() != 0) return; // timetable
         if ($i("margin-details").classList.contains("visible")) return;
         $i("overlay-lesson-tabs").innerHTML = "";
         $i("room-detail").innerHTML = "";
         $i("teacher-detail").innerHTML = "";
         $i("detail-view").innerHTML = "";
         $i("overlay-lesson-tabs").style.display = "none";
-        if (IDType == "class") {
-            fetch(`/class-personal-details/${entityID}`)
+        if (viewState.entityType == "class") {
+            fetch(`/class-personal-details/${viewState.entityID}`)
             .then(response => {
                 if (response.status == 401) return 401;
                 return response.json();
@@ -115,7 +112,7 @@ export function init() {
                 gymial.detail.show(htmlToAdd);
             });
         } else {
-            if (entityType == "student") {
+            if (viewState.entityType == "student") {
                 fetch("/getName/" + parseInt(entityID)).then(res => res.json()).then(personName => {
                     if (personName.status && personName.status == "intranet_offline_nocache") {
                         gymial.detail.show(`<span>Das Intranet ist leider momentan offline. Versuche es später wieder.</span>`);
@@ -143,32 +140,37 @@ export function init() {
         }
     });
 
-    loadTTData(entityType, entityID, currTime);
+    loadTTData(viewState.entityType, viewState.entityID, viewState.time);
 }
 
 export async function loadTTData(entityType, entityID, time, resources) {
+    viewState.entityType = entityType;
+    viewState.entityID = entityID;
     if (!resources) {
         resources = await loadResources(time);
     }
     if (!resources || resources.length == 0) return;
+    
+    enableDisableSemButton(time);
 
-    if (!activeEntity(resources, entityType, entityID)) {
-        entityID = classList[0].classId;
+    let entityName = (entityType == "student") ? viewState.selPersonName : viewState.entityName;
+    if (!isActiveEntity(resources, entityType, entityID)) {
+        entityID = resources[0].classId;
         entityType = "class";
-        currClassName = classList[0].className.replace(' ', '');
+        entityName = resources[0].className.replace(' ', '');
         try {
             let json = JSON.parse(window.localStorage.getItem("class"));
             if (entityID == json.id) throw "localStorage is from this semester";
             entityID = json.id;
-            currClassName = json.name;
+            entityName = json.name;
         } catch (e) {}
-        setClassName();
     }
+    setClassName(entityName);
 
     loadPeriod(time).then(period => {
         if (!period) return;
-        if (period != currPeriod) {
-            currPeriod = period;
+        if (viewState.currPeriod != period) {
+            viewState.currPeriod = period;
             gymial.store.loadSearchHistory(currPeriod);
             loadTTData(entityType, entityID, time);
             return;
@@ -178,19 +180,45 @@ export async function loadTTData(entityType, entityID, time, resources) {
 }
 
 export function isNextSemOnline() {
-    return isNextSemOnline;
+    return nextSemOnline;
 }
 
 export function setClass(id) {
     entityID = id;
 }
 
-export function getCurrPeriod() {
-    return currPeriod;
+export function setClassName(name) {
+    viewState.entityName = name;
+
+    // If the user hasn't clicked away yet
+    if (gymial.menu.getCurrentView() == 0) {
+        gymial.menu.overrideTitle(name);
+    }
 }
 
-export function setClassName() {
-    gymial.menu.overrideTitle(currClassName);
+export function getClassName() {
+    return viewState.entityName;
+}
+
+export function setSelectedPerson(name) {
+    viewState.selPersonName = name;
+    setClassName(name);
+}
+
+export function getCurrResources() {
+    return viewState.currResources;
+}
+
+export function getCurrTime() {
+    return viewState.time;
+}
+
+export function getCurrPeriod() {
+    return viewState.currPeriod;
+}
+
+function reloadClass() {
+    loadTTData(viewState.entityType, viewState.entityID, viewState.time, viewState.currResources);
 }
 
 let canUseAbortController = !!AbortController;
@@ -202,7 +230,7 @@ if (canUseAbortController) {
 
 function refreshTodayEl() {
     let todayEl = $i("today");
-    todayEl.setAttribute("data-content", weekOffset);
+    todayEl.setAttribute("data-content", viewState.weekOffset);
     todayEl.classList.add("repaint");
     todayEl.classList.remove("repaint"); // small hack for WebKit browsers
     $i("hint-new-timetable").classList.remove("visible");
@@ -211,7 +239,6 @@ function refreshTodayEl() {
 async function loadResources(time) {
     gymial.menu.setProgress(10);
     gymial.error.hide();
-    enableDisableSemButton();
     $s("#timetable tbody").innerHTML = "";
     try {
         let timeReq = await fetch(`/resources/${time}`);
@@ -237,7 +264,7 @@ async function loadResources(time) {
     return null;
 }
 
-function activeEntity(resources, type, id) {
+function isActiveEntity(resources, type, id) {
     if (type != "class") return true;
 
     let cInClassList = false;
@@ -268,7 +295,7 @@ async function loadPeriod(time) {
     return null;
 }
 
-async function loadClass(resources, entityType, id, time, period) {
+async function loadClass(resources, entityType, entityID, time, period) {
     gymial.menu.setProgress(30);
     gymial.error.hide();
     gtag("event", "loadClass");
@@ -302,7 +329,7 @@ async function loadClass(resources, entityType, id, time, period) {
             gymial.menu.setProgress(100);
             $i("view-cached").addEventListener("click", () => {
                 gymial.error.hide();
-                $s("#timetable tbody").innerHTML = timetableHTML(timetableData);
+                $s("#timetable tbody").innerHTML = ttdata.buildHTML(viewState.currTT);
                 applyScrolling();
             });
         }
@@ -320,25 +347,16 @@ async function loadClass(resources, entityType, id, time, period) {
         gymial.menu.setProgress(100);
         return;
     }
-    if (entityType == "class") {
-        for (let i = 0; i < classList.length; i++) {
-            if (!classList[i].classId) break;
-            if (classList[i].classId == entityID) {
-                currClassName = classList[i].className.replace(' ', '');
-            }
-        }
-    } else if (IDType == "student") {
-        currClassName = idToName(entityID) + " (" + classFromTTData(ttData).replace(/ /g, '') + ")";
+    let entityName = viewState.entityName;
+    if (entityType == "student") {
+        entityName = viewState.selPersonName + " (" + ttdata.classFromTTData(ttData) + ")";
     }
-    // if the user hasn't clicked away yet
-    if (gymial.menu.getCurrentView() == 0) {
-        setClassName();
-    }
+    setClassName(entityName);
     gymial.menu.setProgress(60);
-    timetableData = convertToUsable(ttData);
+    viewState.currTT = ttdata.convertToUsable(ttData, time, times, shortTimes);
     
     if (shouldShow) {
-        $s("#timetable tbody").innerHTML = timetableHTML(timetableData);
+        $s("#timetable tbody").innerHTML = ttdata.buildHTML(viewState.currTT, times);
         applyScrolling();
     }
 
@@ -357,12 +375,12 @@ function applyScrolling() {
     });
 }
 
-function enableDisableSemButton() {
-    if (!nextSemOnline) {
+function enableDisableSemButton(time) {
+    if (!isNextSemOnline()) {
         $i("forward-next-sem").style.display = "none";
         $i("backward-next-sem").style.display = "none";
     } else {
-        if (currTime >= NEXT_SEM_START) {
+        if (time >= NEXT_SEM_START) {
             $i("forward-next-sem").style.display = "none";
             $i("backward-next-sem").style.display = "inline";
         } else {
@@ -372,45 +390,13 @@ function enableDisableSemButton() {
     }
 }
 
-function classFromTTData(data) {
-    let potentialClasses = {};
-    for (let d of data) {
-        if (d.classId.length == 1) {
-            if (potentialClasses[d.className]) {
-                potentialClasses[d.className]++;
-            } else {
-                potentialClasses[d.className] = 1;
-            }
-        }
-    }
-    let best = ["", 0];
-    for (let d in potentialClasses) {
-        if (potentialClasses[d] > best[1]) {
-            best[0] = d;
-            best[1] = potentialClasses[d];
-        }
-    }
-    return best[0];
-}
-
-function idToName(id) {
-    for (let el of classList) {
-        if (el.name) {
-            if (el.personId == id) {
-                return el.name;
-            }
-        }
-    }
-    return "";
-}
-
 function setLessonData(lesson) {
     if (!!lesson.tFull) {
         $i("teacher-detail").innerText = lesson.tFull;
     } else {
         $i("teacher-detail").innerText = "";
     }
-    $i("detail-view").innerHTML = "<div id='names'></div>";
+    gymial.detail.show("<div id='names'></div>");
     if (lesson.cId) {
         fetch("/course-participants/" + lesson.cId).then(r => {
             if (r.status == 401) return 401;
@@ -429,207 +415,23 @@ function setLessonData(lesson) {
                 }
             }
             $i("names").innerHTML = html;
-            for (let link of $c("person-link")) {
-                link.addEventListener("click", el => {
-                    clickPersonInLessonView(el.target);
-                });
-            }
+            $c("person-link").forEach(link => link.addEventListener("click", el => {
+                let name = el.target.innerText;
+                let id = parseInt(el.getAttribute("data"));
+                gymial.menu.overrideTitle(name);
+                setSelectedPerson(name);
+                loadTTData("student", id, viewState.time, viewState.currResources); // TODO: fix!
+                gymial.detail.hide();
+            }));
         });
     } else {
         $i("names").innerHTML = "Keine Informationen über die Teilnehmer an diesem Kurs!";
     }
 }
 
-function convertToUsable(timetable) {
-    let result = {};
-    // first pass of data, remove completely unnecessary stuff and find range of dates
-    let minimalLessons = [];
-    let insPersonIds = [];
-    for (let lesson of timetable) {
-        let mLesson = {
-            lDate: lesson.start,
-            lStart: lesson.lessonStart,
-            lEnd: lesson.lessonEnd,
-            cName: lesson.title,
-            cId: lesson.courseId,
-            class: lesson.classId,
-            tId: lesson.teacherId[0],
-            tAcronym: lesson.teacherAcronym,
-            tFull: lesson.teacherFullName,
-            room: lesson.roomName,
-            sNames: lesson.student,
-            fullDay: lesson.isAllDay,
-            special: lesson.timetableEntryTypeId == 15,
-            cancelled: lesson.timetableEntryTypeId == 11
-        };
-        if (mLesson.cName == "IU") {
-            if (!mLesson.sNames) continue;
-            if (!mLesson.sNames[0]) continue;
-            if (insPersonIds.indexOf(mLesson.sNames[0].studentId) > -1) continue;
-            insPersonIds.push(mLesson.sNames[0].studentId);
-        }
-        minimalLessons.push(mLesson);
-    }
-    let minDate = getFirstDayOfWeek(new Date(currTime));
-    for (let date = minDate; date < new Date(minDate.getTime() + DAY * 5); date = new Date(date.getTime() + DAY)) {
-        result[date.toLocaleDateString("de-CH", {timeZone: "Europe/Zurich"})] = 
-        new Array(times.length).fill(null).map(() => {
-            return {
-                type: "empty",
-                length: 1,
-                data: []
-            };
-        });
-    }
-    // second pass of data, put all lessons in array
-    for (let i = 0; i < minimalLessons.length; i++) {
-        let lesson = minimalLessons[i];
-
-        if (!result[dateToObjectKey(lesson.lDate)]) continue;
-
-        let tmpTime = lesson.lStart.split(':');
-        let shortTime = parseInt(tmpTime[0] + tmpTime[1]);
-
-        let index = 0;
-        while (shortTimes[index + 1] <= shortTime) {
-            index++;
-        }
-
-        result[dateToObjectKey(lesson.lDate)][index].type = "lesson";
-        result[dateToObjectKey(lesson.lDate)][index].data.push(lesson);
-    }
-    // third pass of data, find double lessons
-    for (let day in result) {
-        let currRef;
-        let lessonLength = 1;
-
-        for (let i = 0; i <= result[day].length; i++) {
-            if (currRef != 0 && !currRef) currRef = -1;
-
-            let compLesson = result[day][currRef];
-            let currLesson = result[day][i];
-
-            if (currLesson && currLesson.data.length > 0 && currLesson.data[0].fullDay) {
-                result[day][i].type = "lesson";
-                result[day][i].length = 11;
-                result[day][i].data = [result[day][i].data[0]]; // only use the full day info
-                for (let i = 1; i < result[day].length; i++) {
-                    result[day][i].type = "ignore";
-                }
-                break;
-            }
-
-            if (currLesson && compLesson && areLessonsIdentical(currLesson.data, compLesson.data)) {
-                lessonLength++;
-            } else {
-                if (result[day][currRef] && result[day][currRef].length > 0) { // && result[day][currRef].type != "empty"
-                    result[day][currRef].length = lessonLength;
-                    for (let cLes = currRef + 1; cLes < currRef + lessonLength; cLes++) {
-                        result[day][cLes].type = "ignore";
-                    }
-                }
-                currRef = i;
-                lessonLength = 1;
-            }
-        }
-    }
-    return result;
-}
-
-function areLessonsIdentical(les1, les2) {
-    if (!les1 || !les2) return false;
-    if (les1.length != les2.length) return false;
-    for (let j = 0; j < les1.length; j++) {
-        let les1Entries = les1[j];
-        let les2Entries = les2[j];
-        if (
-            les1Entries.cName != les2Entries.cName ||
-            les1Entries.tAcronym != les2Entries.tAcronym ||
-            (les1Entries.sNames && les2Entries.sNames && !arraysAreEqual(les1Entries.sNames, les2Entries.sNames))
-        ) {
-            return false;
-        }
-    }
-    return true;
-}
-
-function arraysAreEqual(ar1, ar2) {
-    if (ar1.length !== ar2.length) return false;
-    for (let i = 0; i < ar1.length; i++) {
-        if (ar1[i].studentId !== ar2[i].studentId) return false;
-    }
-    return true;
-}
-
-function dateToObjectKey(date) {
-    return new Date(parseInt(date.substr(6))).toLocaleDateString("de-CH", {timeZone: "Europe/Zurich"});
-}
-
-function getFirstDayOfWeek(d) {
-    let day = d.getDay();
-    let diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
-    return new Date(d.setDate(diff));
-}
-
-function timetableHTML(timetableData) {
-    let mainDivHTML = "";
-    let dates = "";
-    for (let day in timetableData) {
-        dates += `<th class="timetable-date">${day}</th>`;
-    }
-    mainDivHTML += `<tr><td class="timetable-time"></td>${dates}</tr>`;
-    for (let i = 0; i < times.length; i++) {
-        let timeRows = times[i].replace(/-/g, "-<wbr>");
-        mainDivHTML += `<tr class="time-row"><td class="timetable-entry timetable-time timetable-lesson-times">${timeRows}</td>`;
-        for (let day in timetableData) {
-            if (timetableData[day][i].type == "ignore") {
-                continue;
-            }
-            let lessons = "";
-            let isSpecial = "";
-            if (timetableData[day][i].type == "lesson") {
-                for (let lesson of timetableData[day][i].data) {
-                    let modText = "";
-                    if (lesson.special) isSpecial = "special";
-                    if (lesson.cancelled) modText = "cancelled";
-                    lessons += `<div class="${modText}"><span class="entry-title">${lesson.cName}</span>`;
-                    if (lesson.room != "") {
-                        lessons += `<span class="entry-room">${lesson.room}</span>`;
-                    }
-                    if (lesson.tAcronym != "") {
-                        lessons += `<span class="entry-teacher">${lesson.tAcronym}</span>`;
-                    }
-                    if (lesson.sNames != undefined && lesson.sNames.length > 0) {
-                        lessons += (lesson.cName == "IU") ? `<br><span class="entry-instrName">${lesson.sNames[0].studentName}</span>` : "";
-                    }
-                    lessons += "</div>";
-                }
-            }
-            if (timetableData[day][i].type == "empty") {
-                mainDivHTML += `<td rowspan=${timetableData[day][i].length} class="timetable-entry empty"><div class="sc_cont"></div></td>`;
-            } else {
-                let lLength = timetableData[day][i].length;
-                let lengthName = "";
-                if (lLength == 2) {
-                    lengthName = "double";
-                }
-                if (lLength == 3) {
-                    lengthName = "triple";
-                }
-                if (lLength == 11) {
-                    lengthName = "fullday";
-                }
-                mainDivHTML += `<td rowspan=${lLength} class="timetable-entry ${isSpecial}" data="${day + ";" + i}"><div class="sc_cont"><div class="scroller-container ${lengthName}"><div class="scroller">${lessons}<div class="addScroller"></div></div></div></div></td>`;
-            }
-        }
-        mainDivHTML += `</tr>`;
-    }
-    return mainDivHTML;
-}
-
 function clickTimetableEntry(el) {
     let lessonIndex = el.getAttribute("data").split(';');
-    let lessons = timetableData[lessonIndex[0]][lessonIndex[1]].data;
+    let lessons = viewState.currTT[lessonIndex[0]][lessonIndex[1]].data;
     let htmlString = "";
     for (let lesson of lessons) {
         if (lesson.special) return;
@@ -649,12 +451,4 @@ function clickTimetableEntry(el) {
         let index = Array.from(tg.parentNode.children).indexOf(tg);
         setLessonData(lessons[index]);
     }));
-}
-
-function clickPersonInLessonView(el) {
-    entityType = "student";
-    entityID = parseInt(el.getAttribute("data"));
-    gymial.menu.overrideTitle(el.innerText);
-    loadTTData(entityType, entityID, currTime, classList);
-    gymial.detail.hide();
 }

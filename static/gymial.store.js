@@ -22,7 +22,7 @@ export function init(currPeriod) {
         currStyleName = currentStyle.name;
     } catch (e) {}
 
-    if (nextSemOnline && window.localStorage) {
+    if (gymial.tt.isNextSemOnline() && window.localStorage) {
         let shouldShowHint = false;
         if (window.localStorage.getItem("seenNextSemHint")) {
             if (window.localStorage.getItem("seenNextSemHint") < currPeriod) shouldShowHint = true;
@@ -50,8 +50,8 @@ export function loadSearchHistory(period) {
 
 export function setAPIKey(username, token) {
     window.localStorage.setItem("api", JSON.stringify({username: username, token: token}));
-    Cookies.set("username",  json.username, {expires: 365});
-    Cookies.set("apiToken",  json.token, {expires: 365});
+    Cookies.set("username", json.username, {expires: 365});
+    Cookies.set("apiToken", json.token, {expires: 365});
 }
 
 export function setStyle(styleData) {
@@ -60,4 +60,19 @@ export function setStyle(styleData) {
 
 export function getSearchHistory() {
     return searchHistory;
+}
+
+export function pushSearch(name, id) {
+    searchHistory.unshift({
+        id: id,
+        name: name,
+        auth: true
+    });
+
+    // get rid of duplicated entries, removing all but the first occurrence
+    searchHistory = searchHistory.filter((v, i, a) => {
+        return a.findIndex(t => (t.id === v.id && t.name === v.name)) === i;
+    });
+    searchHistory = searchHistory.slice(0, 7); // max 7 search results
+    window.localStorage.setItem(searchHistoryName, JSON.stringify(searchHistory));
 }

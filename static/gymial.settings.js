@@ -43,11 +43,10 @@ export function init() {
         gymial.detail.hide();
     });
     
-    $i("persplan").addEventListener("click", ev => {
-        classID = persData.PersonID;
-        IDType = "student";
-        currClassName = persData.Nachname + ", " + persData.Vorname;
-        loadClass(true);
+    $i("persplan").addEventListener("click", () => {
+        let persData = gymial.account.getPersData();
+        gymial.tt.setSelectedPerson(persData.Nachname + ", " + persData.Vorname);
+        gymial.tt.loadTTData("student", persData.PersonID, gymial.tt.getCurrTime(), gymial.tt.getCurrResources());
         $i("link-timetable").click();
     });
 }
