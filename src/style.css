@@ -27,12 +27,14 @@ body {
     --wh: 100vh;
 }
 
-.no-transition {
+body.preload * {
     -webkit-transition: none !important;
     -moz-transition: none !important;
     -ms-transition: none !important;
     -o-transition: none !important;
     transition: none !important;
+    animation-duration: 0s !important;
+    -webkit-animation-duration: 0s !important;
 }
 
 * {

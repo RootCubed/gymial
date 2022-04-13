@@ -25,6 +25,9 @@ function init() {
     gymial.mensa.init();
     gymial.tt.init();
 
+    // disable animation from running at page load
+    document.body.className = "";
+
     window.addEventListener("resize", resizeScreen);
     window.addEventListener("orientationchange", resizeScreen);
 
