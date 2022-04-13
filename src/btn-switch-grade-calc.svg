@@ -1,5 +1,5 @@
-<svg width="30" height="30">
-    <rect stroke="#fff" fill="none" transform="matrix(1 -0.2 0 1 0 0)" x="7" y="7.5" width="13" height="22"/>
-    <ellipse stroke="#fff" fill="none" transform="matrix(1 -0.2 0 1 0 0)" cx="13.5" cy="14" rx="4" ry="3"/>
-    <path stroke="#fff" fill="none" d="m7 28h18v-21h-5"/>
+<svg width="30" height="30" xmlns="http://www.w3.org/2000/svg" stroke-width="2" stroke="#fff">
+    <rect fill="none" transform="matrix(1 -0.2 0 1 0 0)" x="7" y="7.5" width="13" height="22"/>
+    <ellipse fill="none" transform="matrix(1 -0.2 0 1 0 0)" cx="13.5" cy="14" rx="4" ry="3"/>
+    <path fill="none" d="m7 28h18v-21h-5"/>
 </svg>
