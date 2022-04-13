@@ -1,0 +1,21 @@
+{
+    "short_name": "Gymial",
+    "name": "Gymial - der open-source KZO-Stundenplan",
+    "icons": [
+        {
+            "src": "/apple-touch-icon.png",
+            "type": "image/png",
+            "sizes": "256x256"
+        },
+        {
+            "src": "/logo_512.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "maskable"
+        }
+    ],
+    "start_url": "/",
+    "background_color": "#333",
+    "theme_color": "#333",
+    "display": "fullscreen"
+}

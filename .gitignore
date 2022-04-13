@@ -1,7 +1,7 @@
-node_modules
-scripts
-cache
-static
+/node_modules
+/scripts
+/cache
+/static
 src/static/kzoMap/Reference Images
 src/static/kzoMap/map_plain.svg
 src/static/kzoMap/map_min.svg
