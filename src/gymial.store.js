@@ -13,12 +13,6 @@ export function init() {
     } catch (e) {}
     
     try {
-        let json = JSON.parse(window.localStorage.getItem("class"));
-        gymial.tt.setClass(json.id);
-        gymial.menu.overrideTitle(json.name);
-    } catch (e) {}
-    
-    try {
         let currentStyle = JSON.parse(window.localStorage.getItem("style"));
         currStyleName = currentStyle.name;
         gymial.style.applyStyle(currentStyle);
@@ -47,6 +41,18 @@ export function loadSearchHistory(period) {
         try {
             searchHistory = JSON.parse(window.localStorage.getItem(searchHistoryName));
         } catch (e) {}
+    }
+}
+
+export function getLoadedClass() {
+    try {
+        let json = JSON.parse(window.localStorage.getItem("class"));
+        return {
+            id: json.id,
+            name: json.name
+        };
+    } catch (e) {
+        return null;
     }
 }
 

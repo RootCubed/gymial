@@ -1,7 +1,10 @@
 import * as gymial from "./gymial.module.js";
 
+import { $i } from "./gymial.helper.js";
+
 // load resources
 import "./style.css";
+import "./style.grades.css";
 
 let wh = window.innerHeight;
 document.body.style.setProperty('--wh', `${wh}px`);
@@ -26,7 +29,8 @@ function init() {
     gymial.tt.init();
 
     // disable animation from running at page load
-    document.body.className = "";
+    $i("panels").style.display = "block";
+    setTimeout(() => document.body.className = "", 500);
 
     window.addEventListener("resize", resizeScreen);
     window.addEventListener("orientationchange", resizeScreen);

@@ -38,21 +38,21 @@ export function init() {
     // sidebar link
     $c("sidebar-link").forEach(el => el.addEventListener("click", el => {
         gymial.detail.hide();
-        $i("panel-timetable").className = "canScroll";
+        $i("panels").className = "scrollable";
         $i("current-class").classList.add("noclick");
         $c("sidebar-link").forEach(el => el.classList.remove("active"));
         overrideTitle(el.target.innerText);
         switch(el.target.innerText) {
             case VIEW_NAMES[0]:
                 overrideTitle(gymial.tt.getClassName());
-                $i("panel-timetable").classList.add("scrollTimetable");
+                $i("panels").classList.add("scrollTimetable");
                 $i("link-timetable").classList.add("active");
                 $i("week-btns").classList.remove("hide");
                 $i("current-class").classList.remove("noclick");
                 currentView = 0;
                 break;
             case VIEW_NAMES[1]:
-                $i("panel-timetable").classList.add("scrollLogin");
+                $i("panels").classList.add("scrollLogin");
                 $i("link-settings").classList.add("active");
                 $i("week-btns").classList.add("hide");
                 currentView = 1;
@@ -68,20 +68,20 @@ export function init() {
                     $i("toggle-mensa").innerText = currMensa;
                     gymial.mensa.loadMensa(currMensa, true);
                 });
-                $i("panel-timetable").classList.add("scrollMensa");
+                $i("panels").classList.add("scrollMensa");
                 $i("link-mensa").classList.add("active");
                 $i("week-btns").classList.add("hide");
                 currentView = 2;
                 break;
             case VIEW_NAMES[3]:
-                $i("panel-timetable").classList.add("scrollGrades");
+                $i("panels").classList.add("scrollGrades");
                 $i("link-grades").classList.add("active");
                 $i("week-btns").classList.add("hide");
                 currentView = 3;
                 break;
         }
         $i("sidebar").classList.remove("visible");
-        setTimeout(() => $i("panel-timetable").classList.remove("canScroll"), 500);
+        setTimeout(() => $i("panels").classList.remove("scrollable"), 500);
     }));
 }
 

@@ -9,7 +9,6 @@ const cancelledLessons = [["AM", "04 Hu"], ["P", "51 Cp"], ["SP", "35 Mo"], ["M"
 const nonCancelledLessons = [["E", "1C Cj"], ["M", "68 Mz"], ["MU", "64 Sn"], ["INS", "I1 Rt"], ["B", "B3 Ha"], ["L", "24 Sk"], ["EWR", "52 Bd"], ["M", "28 Dr"], ["G", "32 Wr"]];
 
 export function init() {
-    $i("styleprevsvg").style.display = "none";
     fetch("/styles/").then(res => res.json()).then(r => {
         avStyles = r;
         initStyles();

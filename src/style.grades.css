@@ -1,0 +1,60 @@
+#panel-grades {
+    text-align: center;
+    padding: 2vh 5vw;
+    padding: calc(var(--wh) * 0.02) 5vw;
+    height: calc(96vh - 63px);
+    height: calc(calc(var(--wh) * 0.96) - 63px);
+}
+
+#grades-heading {
+    margin: 20px;
+}
+
+.grades-overview-container {
+    display: inline-grid;
+    background-color: #737373;
+    min-width: 300px;
+    border-radius: 10px;
+    grid-template:
+        "title rounded colbar" 1fr
+        "avg rounded colbar" 1fr
+        /
+        1fr auto 10px;
+    justify-items: start;
+    cursor: pointer;
+}
+
+.grades-overview-container > span {
+    margin: 10px;
+}
+
+.grades-overview-title {
+    grid-area: title;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.grades-overview-avg {
+    grid-area: avg;
+    font-size: 20px;
+    align-self: end;
+}
+
+.grades-overview-avg::before {
+    content: '⌀ ';
+}
+
+.grades-overview-round-avg {
+    float: right;
+    font-size: 34px;
+    font-weight: bold;
+    grid-area: rounded;
+    align-self: center;
+}
+
+.grades-overview-vertbar {
+    grid-area: colbar;
+    background-color: #3EF746;
+    width: 100%;
+    border-radius: 0 10px 10px 0;
+}

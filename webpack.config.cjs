@@ -27,13 +27,18 @@ module.exports = {
                 test: /\.(png|svg|ico|webmanifest)$/,
                 include: [ path.resolve(__dirname, "src/static/") ],
                 type: "asset/resource"
+            },
+            {
+                test: /\.ttf$/,
+                type: "asset/resource"
             }
         ]
     },
     plugins: [
         new HtmlWebpackPlugin({
             filename: "index.html",
-            template: "./src/index.html"
+            template: "./src/index.html",
+            favicon: "./src/static/favicon.ico"
         }),
         new MiniCssExtractPlugin()
     ]

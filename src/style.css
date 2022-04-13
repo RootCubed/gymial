@@ -1,3 +1,22 @@
+@font-face {
+    font-family: "Source Sans Pro";
+    font-style: normal;
+    font-weight: 400;
+    src: url("~./static/fonts/source-sans-pro-v19-latin-ext_latin-regular.woff2") format("woff2"),
+        url("~./static/fonts/source-sans-pro-v19-latin-ext_latin-regular.woff") format("woff"),
+        url("~./static/fonts/source-sans-pro-v19-latin-ext_latin-regular.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Source Sans Pro";
+    font-style: normal;
+    font-weight: 700;
+    src: url("~./static/fonts/source-sans-pro-v19-latin-ext_latin-700.woff2") format("woff2"),
+        url("~./static/fonts/source-sans-pro-v19-latin-ext_latin-700.woff") format("woff"),
+        url("~./static/fonts/source-sans-pro-v19-latin-ext_latin-700.ttf") format("truetype");
+}
+  
+
 * {
     margin: 0;
     padding: 0;
@@ -6,7 +25,7 @@
 }
 
 :root {
-    --default-font: Tahoma, sans-serif;
+    --default-font: "Source Sans Pro", Arial, sans-serif;
     --bg-primary: #333;
     --bg-secondary: #37373b;
     --color-primary: #fff;
@@ -22,9 +41,12 @@
 }
 
 body {
-    background-color: var(--bg-primary);
-    overflow: hidden;
     --wh: 100vh;
+    background-color: var(--bg-secondary);
+    overflow: hidden;
+    position: relative;
+    height: 100vh;
+    height: var(--wh);
 }
 
 body.preload * {
@@ -51,16 +73,24 @@ a:not(.overlay-tab) {
 
 #scrollLimiter {
     overflow: hidden;
+    position: relative;
+    height: 100vh;
+    height: var(--wh);
 }
 
 #selection {
     padding: 10px;
     height: 40px;
     text-align: center;
+    background-color: var(--bg-primary);
+    position: relative;
+    z-index: 2;
 }
 
 #progress-bar-cont {
     background: white;
+    position: relative;
+    z-index: 2;
 }
 
 #progress-bar {
@@ -159,13 +189,12 @@ a:not(.overlay-tab) {
 }
 
 .search-result {
-    z-index: 2;
     display: block;
     background-color: white;
     padding: 10px;
     margin-left: 10px;
     cursor: pointer;
-    font-size: 20px;
+    font-size: 18px;
 }
 
 .search-result:hover {
@@ -456,12 +485,6 @@ img.teacher {
     cursor: pointer;
 }
 
-#week-btns span {
-    float: right;
-    margin-left: 15px;
-    touch-action: manipulation;
-}
-
 #today::before {
     content: attr(data-content);
     color: var(--color-primary);
@@ -533,35 +556,42 @@ button, #logout, #persplan {
 
 #panels {
     position: absolute;
-    height: calc(100vh - 63px);
-    height: calc(var(--wh) - 63px);
-    overflow: hidden;
     width: 100vw;
     background-color: var(--bg-secondary);
     color: var(--color-primary);
+    overflow: visible;
+}
+
+#panels.scrollable {
+    -webkit-transition: transform 0.5s cubic-bezier(.46,.03,.52,.96);
+    -moz-transition:    transform 0.5s cubic-bezier(.46,.03,.52,.96);
+    -ms-transition:     transform 0.5s cubic-bezier(.46,.03,.52,.96);
+    -o-transition:      transform 0.5s cubic-bezier(.46,.03,.52,.96);
+    transition:         transform 0.5s cubic-bezier(.46,.03,.52,.96);
 }
 
 #panels > div {
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
-#panel-timetable.scrollTimetable {
-    margin-top: 0;
+#panels.scrollTimetable {
+    transform: translate(0, 0);
 }
 
-#panel-timetable.scrollLogin {
-    margin-top: calc(-100vh + 63px);
-    margin-top: calc(var(--wh) * -1 + 63px);
+#panels.scrollLogin {
+    transform: translate(0, -100vh + 63px);
+    transform: translate(0, calc(var(--wh) * -1 + 63px));
 }
 
-#panel-timetable.scrollMensa {
-    margin-top: calc(-200vh + 63px + 63px);
-    margin-top: calc(var(--wh) * -2 + 63px + 63px);
+#panels.scrollMensa {
+    transform: translate(0, -200vh + 63px + 63px);
+    transform: translate(0, calc(var(--wh) * -2 + 63px + 63px));
 }
 
-#panel-timetable.scrollGrades {
-    margin-top: calc(-300vh + 63px + 63px + 63px);
-    margin-top: calc(var(--wh) * -3 + 63px + 63px + 63px);
+#panels.scrollGrades {
+    transform: translate(0, -300vh + 63px + 63px + 63px);
+    transform: translate(0, calc(var(--wh) * -3 + 63px + 63px + 63px));
 }
 
 #invalid-login {
@@ -578,20 +608,11 @@ button, #logout, #persplan {
     overflow: hidden;
 }
 
-#panel-timetable.canScroll {
-    -webkit-transition: margin-top 0.5s;
-    -moz-transition: margin-top 0.5s;
-    -ms-transition: margin-top 0.5s;
-    -o-transition: margin-top 0.5s;
-    transition: margin-top 0.5s;
-}
-
-#panel-settings, #panel-grades {
+#panel-settings {
     padding: 5vh 10vw;
     padding: calc(var(--wh) * 0.05) 10vw;
     height: calc(90vh - 63px);
     height: calc(calc(var(--wh) * 0.9) - 63px);
-    overflow-y: auto;
 }
 
 #mensa-table {
@@ -650,7 +671,7 @@ button, #logout, #persplan {
     width: 1px;
 }
 
-#week-btns {
+.topbar-btns {
     float: right;
     -webkit-transition: margin-right 0.5s;
     -moz-transition: margin-right 0.5s;
@@ -660,8 +681,14 @@ button, #logout, #persplan {
     position: relative;
 }
 
-#week-btns.hide {
+.topbar-btns.hide {
     margin-right: -220px;
+}
+
+.topbar-btns span {
+    float: right;
+    margin-left: 15px;
+    touch-action: manipulation;
 }
 
 .color-svg * {

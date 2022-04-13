@@ -7,14 +7,7 @@ import "./static/logo_512.png";
 
 const CACHE_NAME = "siteCache";
 const URLS_CACHE = [
-    "/",
-    "/style.css",
-    "/spinner.svg",
-    "/gymial.js",
-    "/manifest.webmanifest",
-    "/apple-touch-icon.png",
-    "/logo_512.png",
-    "/favicon.ico"
+    "/"
 ];
 
 self.addEventListener("message", function (event) {

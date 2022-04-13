@@ -35,6 +35,13 @@ let viewState = {
 
 export function init() {
     $i("today").setAttribute("data-content", viewState.weekOffset);
+
+    let loadedClass = gymial.store.getLoadedClass();
+    if (loadedClass) {
+        viewState.entityType = "class";
+        viewState.entityID = loadedClass.id;
+        setClassName(loadedClass.name);
+    }
     
     // timetable entries
     document.addEventListener("click", el => {
@@ -148,6 +155,7 @@ export async function loadTTData(entityType, entityID, time, resources) {
     viewState.entityID = entityID;
     if (!resources) {
         resources = await loadResources(time);
+        viewState.currResources = resources;
     }
     if (!resources || resources.length == 0) return;
     
