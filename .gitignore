@@ -1,8 +1,8 @@
 node_modules
 scripts
 cache
-static/kzoMap/Reference Images
-static/kzoMap/map_plain.svg
-static/kzoMap/map_min.svg
-static/kzoMap/map.svg
-static/dist
+static
+src/static/kzoMap/Reference Images
+src/static/kzoMap/map_plain.svg
+src/static/kzoMap/map_min.svg
+src/static/kzoMap/map.svg

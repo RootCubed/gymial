@@ -1,5 +1,8 @@
 import * as gymial from "./gymial.module.js";
 
+// load resources
+import "./style.css";
+
 let wh = window.innerHeight;
 document.body.style.setProperty('--wh', `${wh}px`);
 

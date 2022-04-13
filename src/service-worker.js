@@ -1,6 +1,10 @@
 // Version string to force reload after update
 const VERSION = "v0.15.1"
 
+// resources
+import "./static/apple-touch-icon.png";
+import "./static/logo_512.png";
+
 const CACHE_NAME = "siteCache";
 const URLS_CACHE = [
     "/",
