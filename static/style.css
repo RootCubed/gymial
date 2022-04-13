@@ -539,6 +539,10 @@ button, #logout, #persplan {
     color: var(--color-primary);
 }
 
+#panels > div {
+    overflow: auto;
+}
+
 #panel-timetable.scrollTimetable {
     margin-top: 0;
 }
@@ -565,6 +569,11 @@ button, #logout, #persplan {
 #panel-timetable, #panel-mensa {
     height: calc(100vh - 63px);
     height: calc(var(--wh) - 63px);
+}
+
+#panel-timetable-cont {
+    height: 100%;
+    overflow: hidden;
 }
 
 #panel-timetable.canScroll {
@@ -650,17 +659,24 @@ button, #logout, #persplan {
 }
 
 #week-btns.hide {
-    margin-right: -200px;
+    margin-right: -220px;
 }
 
-.color-svg line {
+.color-svg * {
     stroke-width: 2;
+    fill: none;
     stroke: var(--color-primary);
 }
 
 .color-svg polygon {
-    stroke: none;
     fill: var(--color-primary);
+    stroke: none;
+}
+
+.color-svg-fill * {
+    stroke-width: 2;
+    fill: var(--color-primary);
+    stroke: none;
 }
 
 .round-linecap svg line {

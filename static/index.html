@@ -76,39 +76,20 @@
                         <line x1="10" y1="15" x2="30" y2="15"></line>
                     </svg>
                 </span>
-                <span id="switch-matura-calc" class="buttonSpan" style="display: none;">
-                    <svg width="30" height="30">
-                        <rect x="5" y="5" width="18" height="23" stroke="#000" fill="#fff" />
-                        <path d="m 19 8.1 -2.2 5 2 -0.25 1 1.5 1.8 -5" stroke="#000" fill="#fff" />
-                        <path d="m 26 8.1 2.2 5 -2 -0.25 -1 1.5 -1.8 -5" stroke="#000" fill="#fff" />
-                        <path stroke="#000" fill="#fff" d="m27 7c-0.172 0.516-0.979 0.422-1.29 0.869-0.311 0.447 0.0593 1.17-0.365 1.51-0.424 0.341-1.05-0.175-1.55 0.0335s-0.583 1.02-1.12 1.07c-0.541 0.0579-0.791-0.716-1.33-0.812s-1.04 0.54-1.53 0.296c-0.487-0.244-0.278-1.03-0.676-1.4-0.398-0.371-1.17-0.108-1.44-0.576-0.278-0.468 0.322-1.02 0.188-1.54-0.134-0.527-0.923-0.722-0.904-1.27 0.0197-0.544 0.821-0.681 0.993-1.2 0.172-0.516-0.387-1.11-0.0761-1.55 0.311-0.447 1.06-0.129 1.48-0.47 0.424-0.341 0.273-1.14 0.776-1.35s0.96 0.464 1.5 0.406c0.541-0.0579 0.846-0.811 1.38-0.714 0.536 0.0969 0.557 0.909 1.04 1.15 0.487 0.244 1.15-0.225 1.55 0.146 0.398 0.371-0.0231 1.07 0.254 1.53 0.278 0.468 1.09 0.432 1.22 0.96 0.134 0.527-0.596 0.884-0.615 1.43-0.0197 0.544 0.683 0.953 0.511 1.47z" />
-                        <circle cx="22.1" cy="5.3" stroke="#000" fill="none" r="2.5" />
-                        <line x1="7" y1="8" x2="14" y2="8" stroke="#000" />
-                        <line x1="7" y1="11" x2="15" y2="11" stroke="#000" />
-                      
-                        <line x1="7" y1="17" x2="13" y2="17" stroke="#000" />
-                        <line x1="18" y1="17" x2="20" y2="17" stroke="#000" />
-                        
-                        <line x1="7" y1="20" x2="14" y2="20" stroke="#000" />
-                        <line x1="18" y1="20" x2="20" y2="20" stroke="#000" />
-                      
-                        <line x1="7" y1="23" x2="15" y2="23" stroke="#000" />
-                        <line x1="18" y1="23" x2="20" y2="23" stroke="#000" />
-                      </svg>
+                <span id="switch-matura-calc" class="buttonSpan color-svg">
+                    <%= require("./btn-matura-calc.svg") %>
                 </span>
-                <span id="switch-grade-calc" class="buttonSpan" style="display: none;">
+                <span id="switch-grade-calc" class="buttonSpan color-svg">
                     <svg width="30" height="30">
-                        <rect x="7" y="5" width="16" height="22" stroke="#000" fill="#fff" />
-                        <polygon points="7,5 21,1.5 21,24.5 7,27" stroke="#000" fill="#fff"/>
-                        <ellipse cx="13.6" cy="11" rx="5" ry="2.5" transform="skewY(-10)" stroke="#000" fill="#fff" />
-                        <line x1="10" y1="8" x2="18" y2="8" stroke="#000" />
-                        <line x1="10" y1="10" x2="16" y2="10" stroke="#000" />
-                    </svg>
+                        <rect stroke="#fff" fill="none" transform="matrix(1 -0.2 0 1 0 0)" x="7" y="7.5" width="13" height="22"/>
+                        <ellipse stroke="#fff" fill="none" transform="matrix(1 -0.2 0 1 0 0)" cx="13.5" cy="14" rx="4" ry="3"/>
+                        <path stroke="#fff" fill="none" d="m7 28h18v-21h-5"/>
+                     </svg>
                 </span>
-                <span id="grade-pluspoints" class="buttonSpan" style="display: none;">
+                <span id="grade-pluspoints" class="buttonSpan color-svg-fill">
                     <svg width="30" height="30">
-                        <path d="m6.86 21.3h2.45v-4.93h4.59v-2.2h-4.59v-4.96h-2.45v4.96h-4.59v2.2h4.59z"/>
-                        <path d="m15 25.9h2.45v-9.28h4.06c0.694 0 1.38-0.0817 2.05-0.245 0.694-0.163 1.33-0.439 1.9-0.827 0.592-0.408 1.08-0.908 1.47-1.5 0.388-0.612 0.653-1.27 0.796-1.96s0.214-1.39 0.214-2.08c0-0.694-0.0714-1.39-0.214-2.08-0.143-0.694-0.408-1.34-0.796-1.93-0.388-0.612-0.878-1.11-1.47-1.5-0.572-0.408-1.2-0.694-1.9-0.857-0.674-0.163-1.36-0.245-2.05-0.245h-6.51zm2.45-11.5v-8.82h4.06c0.551 0 1.09 0.102 1.62 0.306 0.551 0.184 1.01 0.5 1.38 0.949 0.367 0.429 0.623 0.919 0.766 1.47s0.214 1.11 0.214 1.68c0 0.572-0.0714 1.13-0.214 1.68-0.143 0.551-0.398 1.05-0.766 1.5-0.367 0.429-0.827 0.745-1.38 0.949-0.531 0.184-1.07 0.276-1.62 0.276z"/>
+                        <path stroke="none" fill="#fff" d="m14.4 19.6h-5.68v5.68h-2.34v-5.68h-5.68v-2.26h5.68v-5.68h2.34v5.68h5.68z"/>
+                        <path stroke="none" fill="#fff" d="m28.8 13q0 1.4-.493 2.59-.479 1.18-1.35 2.06-1.09 1.09-2.57 1.64-1.48.536-3.74.536h-2.79v7.82h-2.79v-21h5.69q1.89 0 3.2.324 1.31.31 2.33.987 1.2.803 1.85 2 .662 1.2.662 3.03zm-2.9.0705q0-1.09-.381-1.89-.381-.803-1.16-1.31-.677-.437-1.55-.62-.86-.197-2.18-.197h-2.76v8.39h2.35q1.69 0 2.75-.296 1.06-.31 1.72-.973.662-.677.93-1.42.282-.747.282-1.68z"/>
                     </svg>
                 </span>
             </div>
@@ -133,19 +114,21 @@
         </div>
         <div id="panels">
             <div id="panel-timetable">
-                <noscript>JavaScript wird für diese Website benötigt. Bitte aktiviere es</noscript>
-                <table id="timetable">
-                    <tbody>
-                    </tbody>
-                </table>
-                <div id="error-timetable">
-                    <svg width="125" height="125" viewBox="0 0 180 180">
-                        <circle fill="#f44336" cx="90" cy="90" r="80" stroke="white" stroke-width="5" />
-                        <path fill="white" d="M77,32L103,32L100,115L80,115Z"></path>
-                        <path fill="white" d="M78,129l24,0l0,15l-24,0z"></path>
-                    </svg>
-                    <span id="error-title">ERROR_TITLE</span>
-                    <span id="error-desc">ERROR_DESC</span>
+                <div id="panel-timetable-cont">
+                    <noscript>JavaScript wird für diese Website benötigt. Bitte aktiviere es</noscript>
+                    <table id="timetable">
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <div id="error-timetable">
+                        <svg width="125" height="125" viewBox="0 0 180 180">
+                            <circle fill="#f44336" cx="90" cy="90" r="80" stroke="white" stroke-width="5" />
+                            <path fill="white" d="M77,32L103,32L100,115L80,115Z"></path>
+                            <path fill="white" d="M78,129l24,0l0,15l-24,0z"></path>
+                        </svg>
+                        <span id="error-title">ERROR_TITLE</span>
+                        <span id="error-desc">ERROR_DESC</span>
+                    </div>
                 </div>
             </div>
             <div id="panel-settings">
