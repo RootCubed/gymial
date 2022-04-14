@@ -23,9 +23,9 @@
     <link rel="apple-touch-icon" href="<%= require("./static/apple-touch-icon.png") %>">
     <link rel="manifest" href="<%= require("./static/manifest.webmanifest") %>">
     <link rel="shortcut icon" href="<%= require("./static/favicon.ico") %>">
-
 </head>
-<body class="preload">
+<body>
+    <script>// to eliminate Firefox FOUC</script>
     <div id="scrollLimiter">
         <div id="selection">
             <span id="open-menu" class="buttonSpan color-svg round-linecap">
