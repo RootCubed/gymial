@@ -1,14 +1,11 @@
 // Version string to force reload after update
-const VERSION = "v1.0beta";
+const VERSION = "v1.0beta-1";
 
 // resources
 import "./static/apple-touch-icon.png";
 import "./static/logo_512.png";
 
 const CACHE_NAME = "siteCache";
-const URLS_CACHE = [
-    "/"
-];
 
 self.addEventListener("message", function (event) {
     if (event.data.action == "skipWaiting") {
@@ -17,27 +14,30 @@ self.addEventListener("message", function (event) {
 });
 
 self.addEventListener("install", ev => {
-    ev.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(URLS_CACHE)));
+    caches.delete(CACHE_NAME);
 });
 
-self.addEventListener("activate", ev => {
-
-});
+self.addEventListener("activate", ev => {});
 
 self.addEventListener("fetch", ev => {
     if (!navigator.onLine && ev.request.url.includes("resources")) {
         ev.respondWith(new Response(JSON.stringify({
             "offline": true,
             "data": []
-        })));
+        }))); // TODO: actually cache last timetable
         return;
     }
-    ev.respondWith(caches.match(ev.request).then(res => {
-        // Cache hit - return response
-        if (res && self.location.hostname == "gymial.ch") {
+    if (ev.request.url.match(/\/.+?\/.*/g)) {
+        // not a static resource, DO NOT cache!
+        ev.respondWith(fetch(ev.request));
+    } else {
+        ev.respondWith(caches.open(CACHE_NAME).then(async cache => {
+            const response = await cache.match(ev.request);
+            if (response) return response;
+            const res = await fetch(ev.request);
+            cache.put(ev.request, res.clone());
             return res;
-        }
-
-        return fetch(ev.request);
-    }));
+          })
+        );
+    }
 });

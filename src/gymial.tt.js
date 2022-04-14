@@ -14,6 +14,8 @@ const ERROR_GENERIC = "Beim Laden des Studenplans ist etwas schiefgelaufen. Stel
 "Andernfalls ist vermutlich das <a href='https://intranet.tam.ch/kzo/'>TAM-Intranet</a> momentan nicht erreichbar.";
 const ERROR_NOCACHE = "Das TAM-Intranet ist momentan leider offline, und dieser Stundenplan wurde nie auf dem Server abgespeichert. " +
 "Versuche es später wieder.";
+const ERROR_VIEWCACHE = "Das TAM-Intranet ist momentan leider offline. Klicke <a href='#' id='view-cached'>hier</a>," +
+" um die zuletzt geladene Version dieses Studenplans anschauen ";
 
 const NEXT_SEM_START = 1646002800000;
 const nextSemOnline = false;
@@ -259,7 +261,7 @@ async function loadResources(time) {
             console.warn("Resources returned " + classes.status);
             if (classes.status == "intranet_offline_nocache") throw classes.status;
         }
-        if (classes.data.offline) {
+        if (classes.offline) {
             gymial.menu.overrideTitle("Offline");
             gymial.menu.setProgress(100);
             return;
@@ -334,14 +336,13 @@ async function loadClass(resources, entityType, entityID, time, period) {
         } else if (ttData.status == "intranet_offline") {
             shouldShow = false;
             let time = new Date(ttData.time);
-            gymial.error.show("TAM-Intranet offline", "Das TAM-Intranet ist momentan leider offline. Klicke <a href='#' id='view-cached'>hier</a>," +
-            ` um die zuletzt geladene Version dieses Studenplans anschauen (Stand: ${time.toLocaleTimeString([], {
+            gymial.error.show("TAM-Intranet offline", ERROR_VIEWCACHE + `(Stand: ${time.toLocaleTimeString([], {
                 year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit"
             })})`);
             gymial.menu.setProgress(100);
             $i("view-cached").addEventListener("click", () => {
                 gymial.error.hide();
-                $s("#timetable tbody").innerHTML = ttdata.buildHTML(viewState.currTT);
+                $s("#timetable tbody").innerHTML = ttdata.buildHTML(viewState.currTT, times);
                 applyScrolling();
             });
         }

@@ -31,7 +31,7 @@ const subjects = {
     "TF": "Turnen Frauen",
     "TM": "Turnen Männer",
     "VWL": "Volkswirtschaftslehre",
-}
+};
 
 export function init() {
 

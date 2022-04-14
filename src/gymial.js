@@ -37,7 +37,7 @@ function init() {
     window.addEventListener("orientationchange", resizeScreen);
 
     // web worker
-    /*if (navigator.serviceWorker) {
+    if (navigator.serviceWorker) {
         navigator.serviceWorker.register("service-worker.js").then(sw => {
             sw.addEventListener("updatefound", () => {
                 let newWorker = sw.installing;
@@ -51,31 +51,19 @@ function init() {
         navigator.serviceWorker.addEventListener("controllerchange", () => {
             window.location.reload();
         });
-    }*/
+    }
 }
 
-let lastEvTime;
-let timeout = false;
-let debounceDelay = 50;
+let resizeTimer;
 function resizeScreen() {
-    // still set the wh variable, but we don't re-apply the scrolling effect yet
     let wh = window.innerHeight;
     if (document.body.style.getPropertyValue("--wh") != `${wh}px`) {
         document.body.style.setProperty("--wh", `${wh}px`);
     }
 
-    lastEvTime = Date.now();
-    if (timeout == false) {
-        timeout = true;
-        setTimeout(resizeEnd, debounceDelay);
-    }
-}
+    clearTimeout(resizeTimer);
 
-function resizeEnd() {
-    if (Date.now() - lastEvTime < debounceDelay) {
-        setTimeout(resizeEnd, debounceDelay);
-    } else {
-        timeout = false;
+    resizeTimer = setTimeout(() => {
         gymial.tt.resizeEvent();
-    }
+    }, 250);
 }
