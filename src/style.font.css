@@ -1,0 +1,17 @@
+@font-face {
+    font-family: "Source Sans Pro";
+    font-style: normal;
+    font-weight: normal;
+    font-display: fallback;
+    src: url("~./static/fonts/source-sans-pro-v19-latin-ext_latin-regular.woff2") format("woff2"),
+        url("~./static/fonts/source-sans-pro-v19-latin-ext_latin-regular.woff") format("woff");
+}
+
+@font-face {
+    font-family: "Source Sans Pro";
+    font-style: normal;
+    font-weight: bold;
+    font-display: fallback;
+    src: url("~./static/fonts/source-sans-pro-v19-latin-ext_latin-700.woff2") format("woff2"),
+        url("~./static/fonts/source-sans-pro-v19-latin-ext_latin-700.woff") format("woff");
+}

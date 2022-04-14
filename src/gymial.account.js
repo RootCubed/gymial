@@ -1,10 +1,46 @@
 import { $s, $i, $c } from "./gymial.helper.js";
+import * as gymial from "./gymial.module.js";
 
 let persData = {};
 
 export function init() {
     // try to see if we are already logged in
     loadPersData();
+
+    // logging in
+    $i("login-form").addEventListener("submit", ev => {
+        $i("invalid-login").style.display = "none";
+        $i("login-submit").style.display = "none";
+        let spinner = $s("#button-spinner img");
+        spinner.style.display = "inline";
+        ev.preventDefault();
+        let username = $i("login-user").value;
+        login(username, $i("login-pw").value).then(token => {
+            gymial.store.setAPIKey(username, token);
+            loadPersData();
+            gymial.tt.loadTTData(); // resources will be different when logged in
+            $i("link-timetable").click();
+            gymial.detail.hide();
+        }).catch(() => {
+            // Unsuccessful authentication
+            $i("invalid-login").style.display = "block";
+            $i("login-submit").style.display = "inline";
+            spinner.style.display = "none";
+        });
+    });
+}
+
+export async function login(username, password) {
+    let authReq = await fetch("/auth", {
+        method: "post",
+        body: `user=${username}&pass=${password}`
+    });
+    if (authReq.status == 401) {
+        throw new Error("401");
+    }
+    let token = await authReq.text();
+    if (!token) throw new Error("401");
+    return token;
 }
 
 export function loadPersData() {

@@ -107,7 +107,7 @@ export function init() {
                 return response.json();
             }).then(res => {
                 if (res == 401) {
-                    showPwForm();
+                    gymial.settings.showPwForm();
                     return;
                 }
                 if (res.status && res.status == "intranet_offline_nocache") {
@@ -133,7 +133,7 @@ export function init() {
                         return response.json();
                     }).then(res => {
                         if (res == 401) {
-                            showPwForm();
+                            gymial.settings.showPwForm();
                             return;
                         }
                         let personalStuff = "";
@@ -149,10 +149,14 @@ export function init() {
         }
     });
 
-    loadTTData(viewState.entityType, viewState.entityID, viewState.time);
+    loadTTData();
 }
 
 export async function loadTTData(entityType, entityID, time, resources) {
+    if (!entityType && viewState.entityType) {
+        loadTTData(viewState.entityType, viewState.entityID, viewState.time);
+        return;
+    }
     viewState.entityType = entityType;
     viewState.entityID = entityID;
     if (!resources) {
@@ -416,7 +420,7 @@ function setLessonData(lesson) {
             return r.json();
         }).then(res => {
             if (res == 401) {
-                showPwForm();
+                gymial.settings.showPwForm();
                 return;
             }
             let html = "";

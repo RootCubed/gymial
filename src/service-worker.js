@@ -27,8 +27,8 @@ self.addEventListener("fetch", ev => {
         }))); // TODO: actually cache last timetable
         return;
     }
-    if (ev.request.url.match(/\/.+?\/.*/g)) {
-        // not a static resource, DO NOT cache!
+    if (ev.request.url.match(/\/.+?\/.*/g) || !ev.request.url.includes("gymial.ch")) {
+        // not a static resource or on localhost, DO NOT cache!
         ev.respondWith(fetch(ev.request));
     } else {
         ev.respondWith(caches.open(CACHE_NAME).then(async cache => {
