@@ -5,7 +5,6 @@ import nodeFetch from "node-fetch";
 import cors from "cors";
 import crypto from "crypto";
 import compression from"compression";
-import minify from "express-minify";
 import iconv from "iconv-lite";
 import { JSDOM } from "jsdom";
 import fs from "fs";
@@ -62,12 +61,7 @@ app.use((req, res, next) => {
 });
 
 app.use(cors());
-app.use(compression());
-app.use(minify({
-    jsMatch: /javascript/,
-    cssMatch: /css/,
-    jsonMatch: false
-}));
+//app.use(compression());
 app.use(express.static("static"));
 
 let headers = {

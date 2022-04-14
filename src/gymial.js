@@ -6,9 +6,6 @@ import { $i } from "./gymial.helper.js";
 import "./style.css";
 import "./style.grades.css";
 
-let wh = window.innerHeight;
-document.body.style.setProperty('--wh', `${wh}px`);
-
 if (document.readyState == "complete"){
     init();
 } else {
@@ -16,6 +13,10 @@ if (document.readyState == "complete"){
 }
 
 function init() {
+
+    let wh = window.innerHeight;
+    document.body.style.setProperty('--wh', `${wh}px`);
+
     gymial.store.init();
     
     gymial.settings.init();
@@ -36,7 +37,7 @@ function init() {
     window.addEventListener("orientationchange", resizeScreen);
 
     // web worker
-    if (navigator.serviceWorker) {
+    /*if (navigator.serviceWorker) {
         navigator.serviceWorker.register("service-worker.js").then(sw => {
             sw.addEventListener("updatefound", () => {
                 let newWorker = sw.installing;
@@ -50,7 +51,7 @@ function init() {
         navigator.serviceWorker.addEventListener("controllerchange", () => {
             window.location.reload();
         });
-    }
+    }*/
 }
 
 let lastEvTime;

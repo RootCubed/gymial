@@ -1,5 +1,5 @@
 // Version string to force reload after update
-const VERSION = "v0.15.1"
+const VERSION = "v1.0beta";
 
 // resources
 import "./static/apple-touch-icon.png";

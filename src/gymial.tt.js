@@ -34,7 +34,7 @@ let viewState = {
 };
 
 export function init() {
-    $i("today").setAttribute("data-content", viewState.weekOffset);
+    refreshTodayEl();
 
     let loadedClass = gymial.store.getLoadedClass();
     if (loadedClass) {
@@ -300,7 +300,7 @@ async function loadPeriod(time) {
     } catch (e) {
         if (e.name != "AbortError") {
             console.error(`Error loading /period-from-time/${time}`);
-            displayError("Netzwerkfehler", ERROR_GENERIC);
+            gymial.error.show("Netzwerkfehler", ERROR_GENERIC);
             gymial.menu.setProgress(100);
         }
     }
