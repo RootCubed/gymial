@@ -1,3 +1,5 @@
+import { $c, $i } from "./gymial.helper.js";
+
 const subjects = {
     "AC": "Anwendungen des Computers",
     "AM": "Anwendungen der Mathematik",
@@ -34,5 +36,27 @@ const subjects = {
 };
 
 export function init() {
+    for (let e of $i("grades-content").children) {
+        e.addEventListener("click", el => {
+            $i("grades-sems-cont").classList.add("growing");
+            el.target.classList.add("growing");
+            setTimeout(() => {
+                $i("grades-semview-cont").classList.add("growing");
+                $i("grades-semview-cont").classList.add("visible");
+            }, 400);
+        });
+    }
 
+    $c("grades-back-btn").forEach(e => e.addEventListener("click", () => {
+        $i("grades-semview-cont").classList.remove("visible");
+        setTimeout(() => {
+            $i("grades-semview-cont").classList.remove("growing");
+            for (let e of $i("grades-content").children) {
+                e.classList.remove("growing");
+            }
+            setTimeout(() => {
+                $i("grades-sems-cont").classList.remove("growing");
+            }, 500);
+        }, 400);
+    }));
 }

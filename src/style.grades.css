@@ -1,20 +1,21 @@
 #panel-grades {
     text-align: center;
-    display: grid;
-    width: 200%;
-    transform: translate(-50%, 0);
-    grid-template-columns: 1fr 1fr;
-    transition: transform 0.25s;
+    width: 100%;
+    height: calc(100vh - var(--topbar-height));
+    height: calc(var(--wh) - var(--topbar-height));
+    position: relative;
     --grade-bg-col: transparent;
     --grade-cont-col: #737373;
 }
 
 .grades-cont {
+    position: absolute;
     height: calc(100vh - var(--topbar-height));
     height: calc(var(--wh) - var(--topbar-height));
     width: 100%;
     overflow-y: auto;
-    position: relative;
+    opacity: 0;
+    transition: opacity 0.75s;
 }
 
 .grades-group-cont {
@@ -47,16 +48,15 @@
     justify-items: start;
     cursor: pointer;
     margin: 5px;
-    flex: 1;
+    transition: transform 0.5s cubic-bezier(0,.8,0,1);
 }
 
 .grades-back-btn {
     position: absolute;
-    left: 0;
-    top: 0;
-    width: 60px;
-    display: block;
-    height: 60px;
+    right: 10px;
+    top: 10px;
+    width: 45px;
+    height: 45px;
     background-color: var(--bg-primary);
     font-size: 40px;
     font-weight: bold;
@@ -141,4 +141,35 @@
     background-color: #3EF746;
     width: 100%;
     border-radius: 0 10px 10px 0;
+}
+
+#grades-sems-cont {
+    z-index: 5;
+}
+
+#grades-semview-cont {
+    background-color: var(--grade-cont-col);
+    z-index: 4;
+}
+
+.grades-cont.growing {
+    overflow: hidden;
+}
+
+.grades-overview-container.growing {
+    transform: scale(200);
+    cursor: default;
+    transition: transform 0.5s cubic-bezier(1,0,.8,0);
+}
+
+.grades-overview-container:active {
+    transform: scale(0.95);
+}
+
+.grades-cont.visible {
+    opacity: 1;
+}
+
+.grades-cont.growing {
+    z-index: 10 !important;
 }

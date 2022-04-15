@@ -27,6 +27,7 @@ function init() {
 
     gymial.error.init();
     gymial.detail.init();
+    gymial.grades.init();
     gymial.menu.init();
     gymial.mensa.init();
     gymial.tt.init();
