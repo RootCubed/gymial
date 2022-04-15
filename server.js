@@ -8,6 +8,7 @@ import compression from"compression";
 import iconv from "iconv-lite";
 import { JSDOM } from "jsdom";
 import fs from "fs";
+import hyphenopoly from "hyphenopoly";
 
 const rtg = new URL(process.env.REDISTOGO_URL);
 import redisModule from "redis";
@@ -41,6 +42,11 @@ const limiterIntranetReq = new RateLimiterRedis({
     duration: 60,
     blockDuration: 30
 });
+
+const hyphenator = await hyphenopoly.config({
+    "require": ["de", "en-us"],
+    "hyphen": "•"
+}).get("de");
 
 app.use((req, res, next) => {
     if (req.header("x-forwarded-proto") !== "https" && req.hostname !== "localhost" && !req.hostname.includes("192.168") && !req.hostname.includes("rootcubed.dev")) {
@@ -280,7 +286,7 @@ function searchPeopleKzoCH(firstName, lastName, classToSearch) {
                     json[json.length - 1].push(e.replace(/<td.*?>/, '').replace(/<\/td>/, '').replace("&nbsp;", ''));
                 }
             }
-            resolve(json)
+            resolve(json);
         });
     });
 }
@@ -461,13 +467,20 @@ async function ttCallback(user, r) {
     if (json.status != 1) {
         throw json.message;
     }
+    // hyphenate title
+    json.data = json.data.map(entry => {
+        if (entry.title) {
+            entry.title = hyphenator(entry.title).replace(/•/g, "&shy;");
+        }
+        return entry;
+    });
     if (!isAuth) {
         const propsToKeep = [
             "id", "periodId", "start", "end", "lessonDate", "lessonStart", "lessonEnd", "lessonDuration",
             "timetableEntryTypeId", "timetableEntryType", "timetableEntryTypeLong", "timetableEntryTypeShort",
             "title", "courseId", "courseName", "course", "subjectName", "classId", "className", "teacherAcronym",
             "roomId", "roomName", "teacherId", "isAllDay"
-        ]
+        ];
         let basicJSON = new Array(json.data.length);
         for (let i = 0; i < json.data.length; i++) {
             basicJSON[i] = {};
@@ -527,7 +540,7 @@ app.get("/timetable/:type/:id/:time", async (req, res) => {
         try {
             res.json({"status": "ok", "data": ttData});
         } catch (e) {
-            res.json({"status": "error", "data": e.message})
+            res.json({"status": "error", "data": e.message});
         }
     }).catch(e => {
         if (ttCacheData) {
@@ -593,7 +606,7 @@ app.get("/resources/:time", async (req, res) => {
         resCache = {
             time: new Date(),
             data: r
-        }
+        };
         let resData = await resourcesCallback(user, r);
         res.json({"status": "ok", "data": resData});
     }).catch(e => {
@@ -686,7 +699,7 @@ app.get("/class-personal-details/:classID", (req, res) => {
 });
 
 app.get("/period-from-time/:time", (req, res) => {
-    res.end(getPeriod(req.params.time).toString());
+    res.end(getPeriod(req.params.time).toString() + "," + getPeriod(new Date().getTime()).toString());
 });
 
 const styles = JSON.parse(fs.readFileSync("style_presets.json"));
@@ -744,6 +757,7 @@ async function readMensa(identifier) {
             let kitchenName = m.getElementsByClassName("details-menu-type")[0].textContent;
             let menuName = m.getElementsByClassName("details-menu-name");
             let menuDescription = m.getElementsByClassName("details-menu-trimmings");
+
             if (menuName.length == 0) {
                 menuName = "";
             } else {
@@ -754,6 +768,11 @@ async function readMensa(identifier) {
             } else {
                 menuDescription = menuDescription[0].textContent;
             }
+
+            // hyphenate
+            menuName = hyphenator(menuName).replace(/•/g, "&shy;");
+            menuDescription = hyphenator(menuDescription).replace(/•/g, "&shy;");
+
             menu[dayName].push({
                 kitchen: kitchenName,
                 title: menuName,
