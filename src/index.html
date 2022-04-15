@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Gymial - der open-source KZO Stundenplan</title>
-    <meta name="viewport" content="width=device-width, initial-scale=0.7, maximum-scale=0.7">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="description" content="Gymial ist ein open-source Tool, das die Stundenpläne und Mensamenüs der KZO anzeigt.">
@@ -33,20 +33,20 @@
             </span>
             <h1 id="current-class">A4</h1>
             <div class="topbar-btns" id="week-btns">
-                <span id="forward-next-sem" class="buttonSpan color-svg round-linecap" style="display: none;">
-                    <%= require("./btn-forward-sem.svg") %>
-                </span>
-                <span id="week-forward" class="buttonSpan color-svg round-linecap">
-                    <%= require("./btn-week-forward.svg") %>
-                </span>
-                <span id="today" class="buttonSpan color-svg">
-                    <%= require("./btn-today.svg") %>
+                <span id="backward-next-sem" class="buttonSpan color-svg round-linecap" style="display: none;">
+                    <%= require("./btn-backward-sem.svg") %>
                 </span>
                 <span id="week-back" class="buttonSpan color-svg round-linecap">
                     <%= require("./btn-week-back.svg") %>
                 </span>
-                <span id="backward-next-sem" class="buttonSpan color-svg round-linecap" style="display: none;">
-                    <%= require("./btn-backward-sem.svg") %>
+                <span id="today" class="buttonSpan color-svg">
+                    <%= require("./btn-today.svg") %>
+                </span>
+                <span id="week-forward" class="buttonSpan color-svg round-linecap">
+                    <%= require("./btn-week-forward.svg") %>
+                </span>
+                <span id="forward-next-sem" class="buttonSpan color-svg round-linecap" style="display: none;">
+                    <%= require("./btn-forward-sem.svg") %>
                 </span>
             </div>
             <div class="topbar-btns" id="grade-btns" style="display: none;">
@@ -63,6 +63,9 @@
         </div>
         <div id="progress-bar-cont">
             <hr id="progress-bar">
+        </div>
+        <div id="hint-new-timetable">
+            <span>Die neuen Stundenpläne sind jetzt online. Schaue sie dir hier an!</span>
         </div>
         <div id="sidebar">
             <div id="search-dropdown" class="dropdown-content">
@@ -253,9 +256,6 @@
                 </form>
             </div>
         </div>
-    </div>
-    <div id="hint-new-timetable">
-        <span>Die neuen Stundenpläne sind jetzt online. Schaue sie dir hier an!</span>
     </div>
 </body>
 </html>

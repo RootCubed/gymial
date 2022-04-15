@@ -5,6 +5,7 @@ import { $i } from "./gymial.helper.js";
 // load resources
 import "./style.font.css";
 import "./style.css";
+import "./style.mobile.css";
 import "./style.grades.css";
 
 if (document.readyState == "complete"){
@@ -61,10 +62,18 @@ function resizeScreen() {
     if (document.body.style.getPropertyValue("--wh") != `${wh}px`) {
         document.body.style.setProperty("--wh", `${wh}px`);
     }
+    
+    // hacky fix for webkit browsers
+    gymial.tt.removeScrolling();
 
     clearTimeout(resizeTimer);
 
     resizeTimer = setTimeout(() => {
+        // sometimes iOS bugs out a bit, so we check it again
+        let wh = window.innerHeight;
+        if (document.body.style.getPropertyValue("--wh") != `${wh}px`) {
+            document.body.style.setProperty("--wh", `${wh}px`);
+        }
         gymial.tt.resizeEvent();
-    }, 250);
+    }, 150);
 }

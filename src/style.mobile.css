@@ -1,0 +1,117 @@
+@media only screen and (max-width: 900px) {
+    * {
+        font-size: 16px;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    * {
+        font-size: 15px;
+    }
+
+    :root {
+        --topbar-height: 53px;
+    }
+
+    #selection {
+        height: 30px;
+    }
+
+    #selection svg {
+        height: 25px;
+    }
+
+    #today::before {
+        padding: 8px 0 0px 24.5px;
+        font-size: 15px;
+    }
+
+    #sidebar {
+        width: 150px;
+    }
+
+    #current-class {
+        font-size: 20px;
+    }
+
+    #class-select, .sidebar-link {
+        font-size: inherit;
+    }
+
+    .sidebar-link {
+        margin: 3px 10px;
+        padding: 7px 0px;
+    }
+
+    #login-form h2 {
+        font-size: 22px;
+    }
+
+    form button, form input {
+        font-size: 16px !important;
+    }
+
+    .timetable-entry {
+        border-radius: 7px;
+    }
+
+    .timetable-entry span {
+        font-size: 14px;
+    }
+
+    .timetable-date {
+        font-size: 12px;
+    }
+
+    .timetable-time {
+        width: 50px;
+        font-size: 13px;
+    }
+
+    #timetable {
+        border-spacing: 3px;
+    }
+
+    .mensa-date {
+        font-size: 11px;
+    }
+
+    .mensa-desc, .mensa-desc * {
+        font-size: 12px;
+    }
+}
+
+@media only screen and (max-width: 400px) {
+    * {
+        line-height: 0.9;
+    }
+
+    .timetable-entry span {
+        font-size: 12px;
+    }
+    
+    .timetable-date {
+        font-size: 11px;
+    }
+
+    .timetable-time {
+        width: 40px;
+        font-size: 12px;
+    }
+}
+
+@media (min-width: 1025px) {
+    #panels {
+        width: calc(100vw - 200px);
+        right: 0;
+    }
+
+    #sidebar {
+        left: 0;
+    }
+
+    #open-menu {
+        visibility: hidden;
+        width: 0;
+    }
+}

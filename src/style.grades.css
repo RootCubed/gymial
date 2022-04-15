@@ -1,7 +1,5 @@
 #panel-grades {
     text-align: center;
-    height: calc(100vh - 63px);
-    height: calc(var(--wh) - 63px);
     display: grid;
     width: 200%;
     transform: translate(-50%, 0);
@@ -12,7 +10,8 @@
 }
 
 .grades-cont {
-    height: 100%;
+    height: calc(100vh - var(--topbar-height));
+    height: calc(var(--wh) - var(--topbar-height));
     width: 100%;
     overflow-y: auto;
     position: relative;

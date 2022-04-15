@@ -69,7 +69,7 @@ export function init() {
         reloadClass();
     });
     $i("today").addEventListener("click", () => {
-        viewState.time = getFirstDayOfWeek(new Date()).getTime();
+        viewState.time = ttdata.getFirstDayOfWeek(new Date()).getTime();
         viewState.weekOffset = 0;
         refreshTodayEl();
         reloadClass();
@@ -185,7 +185,7 @@ export async function loadTTData(entityType, entityID, time, resources) {
         if (!period) return;
         if (viewState.currPeriod != period) {
             viewState.currPeriod = period;
-            gymial.store.loadSearchHistory(currPeriod);
+            gymial.store.loadSearchHistory(viewState.currPeriod);
             loadTTData(entityType, entityID, time);
             return;
         }
@@ -247,10 +247,13 @@ if (canUseAbortController) {
 }
 
 function refreshTodayEl() {
-    let todayEl = $i("today");
-    todayEl.setAttribute("data-content", viewState.weekOffset);
-    todayEl.classList.add("repaint");
-    todayEl.classList.remove("repaint"); // small hack for WebKit browsers
+    let todayEl = $i("today-text");
+    if (viewState.weekOffset.toString().length > 2) {
+        todayEl.classList.add("small");
+    } else {
+        todayEl.classList.remove("small");
+    }
+    todayEl.innerHTML = viewState.weekOffset;
     $i("hint-new-timetable").classList.remove("visible");
 }
 
@@ -380,13 +383,22 @@ async function loadClass(resources, entityType, entityID, time, period) {
     gymial.menu.setProgress(100);
 }
 
-function applyScrolling() {
+export function removeScrolling() {
     $c("scroller").forEach(scrollerEl => {
         scrollerEl.classList.remove("scrolling");
+        scrollerEl.style.animation = "";
         let addScroller = scrollerEl.getElementsByClassName("addScroller")[0];
         addScroller.innerHTML = "";
-        if (scrollerEl.offsetHeight > scrollerEl.parentNode.offsetHeight) {
+    });
+}
+
+function applyScrolling() {
+    removeScrolling();
+    $c("scroller").forEach(scrollerEl => {
+        let addScroller = scrollerEl.getElementsByClassName("addScroller")[0];
+        if (scrollerEl.offsetHeight > scrollerEl.parentNode.parentNode.parentNode.offsetHeight + 5) {
             scrollerEl.classList.add("scrolling");
+            scrollerEl.style.animation = "scroll 4s linear 0s infinite";
             addScroller.innerHTML = scrollerEl.innerHTML; // duplicate text
         }
     });
