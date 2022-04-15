@@ -170,13 +170,6 @@ function filterObjects() {
 function clickSearchResult(name, entityType, entityID) {
     gtag("event", "searchResClick");
 
-    // TODO: extract this to gymial.store
-    if (entityType == "class") {
-        if (!gymial.tt.isNextSemOnline() || currTime < NEXT_SEM_START) {
-            window.localStorage.setItem("class", JSON.stringify({id: entityID.substr(1), name: name}));
-        }
-    }
-
     gymial.store.pushSearch(name, entityID);
 
     $i("class-select").value = "";

@@ -164,32 +164,47 @@ export async function loadTTData(entityType, entityID, time, resources) {
         viewState.currResources = resources;
     }
     if (!resources || resources.length == 0) return;
-    
-    enableDisableSemButton(time);
-
-    let entityName = (entityType == "student") ? viewState.selPersonName : viewState.entityName;
-    if (!isActiveEntity(resources, entityType, entityID)) {
-        entityID = resources[0].classId;
-        entityType = "class";
-        entityName = resources[0].className.replace(' ', '');
-        try {
-            let json = JSON.parse(window.localStorage.getItem("class"));
-            if (entityID == json.id) throw "localStorage is from this semester";
-            entityID = json.id;
-            entityName = json.name;
-        } catch (e) {}
-    }
-    setClassName(entityName);
 
     loadPeriod(time).then(period => {
         if (!period) return;
-        if (viewState.currPeriod != period) {
-            viewState.currPeriod = period;
+
+        let reqTTPeriod = period.split(",")[0];
+        let actualCurrPeriod = period.split(",")[1];
+    
+        enableDisableSemButton(time);
+
+        let entityName = (entityType == "student") ? viewState.selPersonName : viewState.entityName;
+        if (!isActiveEntity(resources, entityType, entityID)) {
+            try {
+                let cl = gymial.store.getLoadedClass();
+                if (isActiveEntity(resources, "class", cl.id)) {
+                    entityID = cl.id;
+                    entityName = cl.name;
+                } else {
+                    throw new Error("Stored class is not active either!");
+                }
+            } catch (e) {
+                entityID = resources[0].classId;
+                entityType = "class";
+                entityName = resources[0].className.replace(' ', '');
+                setClassName(entityName);
+            }
+            loadTTData(entityType, entityID, time, resources);
+            return;
+        }
+
+        if (entityType == "class" && reqTTPeriod == actualCurrPeriod) {
+            gymial.store.setLoadedClass(entityID, getClassName());
+        }
+
+        setClassName(entityName);
+        if (viewState.currPeriod != reqTTPeriod) {
+            viewState.currPeriod = reqTTPeriod;
             gymial.store.loadSearchHistory(viewState.currPeriod);
             loadTTData(entityType, entityID, time);
             return;
         }
-        loadClass(resources, entityType, entityID, time, period);
+        loadClass(resources, entityType, entityID, time, reqTTPeriod);
     });
 }
 
@@ -304,7 +319,7 @@ async function loadPeriod(time) {
         let periodReq = await fetch(`/period-from-time/${time}`, {
             signal: classLoadingSignal
         });
-        let period = parseInt(await periodReq.text());
+        let period = await periodReq.text();
         return period;
     } catch (e) {
         if (e.name != "AbortError") {

@@ -56,6 +56,10 @@ export function getLoadedClass() {
     }
 }
 
+export function setLoadedClass(id, name) {
+    window.localStorage.setItem("class", JSON.stringify({id: id, name: name}));
+}
+
 export function setAPIKey(username, token) {
     window.localStorage.setItem("api", JSON.stringify({username: username, token: token}));
     Cookies.set("username", json.username, {expires: 365});
