@@ -50,6 +50,10 @@ body.preload * {
     transition: color 0.2s, background-color 0.2s;
 }
 
+h2 {
+    font-size: 20px;
+}
+
 a:not(.overlay-tab) {
     color: var(--link-color);
 }
@@ -70,6 +74,7 @@ a:not(.overlay-tab) {
     z-index: 2;
     display: grid;
     grid-template: 1fr / auto 1fr auto;
+    align-items: center;
 }
 
 #selection svg {
@@ -107,8 +112,6 @@ a:not(.overlay-tab) {
     color: var(--color-primary);
     font-size: 25px;
     cursor: pointer;
-    align-self: end;
-    padding: 4px;
 }
 
 #current-class.noclick {
@@ -421,7 +424,7 @@ span.entry-title {
     color: black;
     display: inline-block;
     padding: 20px 30px 10px;
-    margin: 10px 0 -1px 10px;
+    margin: 10px 0 0 10px;
     border-radius: 10px 10px 0 0;
     cursor: pointer;
 }
@@ -492,7 +495,6 @@ img.teacher {
 .buttonSpan {
     padding-top: 5px;
     cursor: pointer;
-    align-self: end;
 }
 
 .repaint {
