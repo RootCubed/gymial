@@ -35,28 +35,36 @@ const subjects = {
     "VWL": "Volkswirtschaftslehre",
 };
 
+let animPlaying = false;
+
 export function init() {
     for (let e of $i("grades-content").children) {
         e.addEventListener("click", el => {
+            if (animPlaying) return;
+            animPlaying = true;
             $i("grades-sems-cont").classList.add("growing");
             el.target.classList.add("growing");
             setTimeout(() => {
                 $i("grades-semview-cont").classList.add("growing");
                 $i("grades-semview-cont").classList.add("visible");
-            }, 400);
+                animPlaying = false;
+            }, 200);
         });
     }
 
     $c("grades-back-btn").forEach(e => e.addEventListener("click", () => {
+        if (animPlaying) return;
+        animPlaying = true;
         $i("grades-semview-cont").classList.remove("visible");
         setTimeout(() => {
-            $i("grades-semview-cont").classList.remove("growing");
             for (let e of $i("grades-content").children) {
                 e.classList.remove("growing");
             }
             setTimeout(() => {
                 $i("grades-sems-cont").classList.remove("growing");
-            }, 500);
-        }, 400);
+                $i("grades-semview-cont").classList.remove("growing");
+                animPlaying = false;
+            }, 250);
+        }, 200);
     }));
 }

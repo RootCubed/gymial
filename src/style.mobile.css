@@ -14,7 +14,8 @@
     }
 
     #selection {
-        height: 30px;
+        height: 33px;
+        padding: 7px;
     }
 
     #selection svg {
@@ -24,6 +25,19 @@
     #today::before {
         padding: 8px 0 0px 24.5px;
         font-size: 15px;
+    }
+
+    #current-class {
+        font-size: 20px;
+    }
+
+    #current-class-cont {
+        height: 25px;
+        padding: 0;
+    }
+
+    .buttonSpan {
+        height: 25px;
     }
 
     #sidebar {
@@ -53,10 +67,6 @@
 
     .timetable-entry {
         border-radius: 7px;
-    }
-
-    .timetable-entry span {
-        font-size: 14px;
     }
 
     .timetable-date {

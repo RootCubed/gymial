@@ -48,7 +48,13 @@
     justify-items: start;
     cursor: pointer;
     margin: 5px;
-    transition: transform 0.5s cubic-bezier(0,.8,0,1);
+    transition: transform 0.25s cubic-bezier(0,.8,0,1);
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .grades-back-btn {
@@ -159,10 +165,10 @@
 .grades-overview-container.growing {
     transform: scale(200);
     cursor: default;
-    transition: transform 0.5s cubic-bezier(1,0,.8,0);
+    transition: transform 0.25s cubic-bezier(1,0,.8,0);
 }
 
-.grades-overview-container:active {
+.grades-overview-container:not(.growing):active {
     transform: scale(0.95);
 }
 

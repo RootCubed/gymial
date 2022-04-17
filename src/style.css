@@ -76,6 +76,12 @@ a:not(.overlay-tab) {
     align-items: center;
 }
 
+#current-class-cont {
+    align-self: end;
+    padding: 4px;
+    height: 30px;
+}
+
 #selection svg {
     height: 30px;
 }
@@ -492,7 +498,7 @@ img.teacher {
 }
 
 .buttonSpan {
-    padding-top: 5px;
+    height: 30px;
     cursor: pointer;
 }
 

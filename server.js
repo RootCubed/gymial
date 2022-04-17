@@ -120,7 +120,7 @@ const periods = [
 
 let ttCache = {};
 let resCache = {};
-const ttCacheTimeout = 1000 * 60 * 10; // 10 minutes
+const ttCacheTimeout = ((process.env.NODE_ENV == "development") ? 12 : 1) * 1000 * 60 * 10; // 10 minutes (2h in development branch)
 const resCacheTimeout = 1000 * 60 * 60 * 5; // 5 hours
 
 const goodTTCache = c => (!!c && !!c.time) && (new Date() - c.time) < ttCacheTimeout;
@@ -784,3 +784,8 @@ async function readMensa(identifier) {
 }
 
 app.listen(PORT, () => console.log("Web server is up and running on port " + PORT));
+
+process.on("uncaughtException", err => {
+    console.error("Uncaught error thrown: ", err);
+    process.exit(1);
+});
