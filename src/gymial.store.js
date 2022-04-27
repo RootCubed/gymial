@@ -92,3 +92,73 @@ export function pushSearch(name, id) {
     searchHistory = searchHistory.slice(0, 7); // max 7 search results
     window.localStorage.setItem(searchHistoryName, JSON.stringify(searchHistory));
 }
+
+export function getGradeData() {
+    // currently return dummy grade data.
+    return {
+        "HS22": {
+            "Deutsch": [
+                {
+                    "title": "Essay",
+                    "grade_type": "regular",
+                    "value": 4.06,
+                    "weighttype": "fullgrade",
+                    "weight": 1
+                },
+                {
+                    "title": "mündliche Beteiligung",
+                    "grade_type": "subgrade",
+                    "weighttype": "perc_entire",
+                    "weight": 0.2,
+                    "value": [
+                        {
+                            "title": "test 1",
+                            "grade_type": "regular",
+                            "value": 4.5,
+                            "weighttype": "fullgrade",
+                            "weight": 1
+                        },
+                        {
+                            "title": "test 2",
+                            "grade_type": "regular",
+                            "value": 5,
+                            "weighttype": "fullgrade",
+                            "weight": 1
+                        },
+                        {
+                            "title": "test 3",
+                            "grade_type": "bonus",
+                            "value": 0.05
+                        }
+                    ]
+                },
+                {
+                    "title": "Bonus",
+                    "grade_type": "bonus",
+                    "value": -0.05
+                }
+            ],
+            "Mathematik": [
+                {
+                    "title": "Prüfung 1",
+                    "grade_type": "regular",
+                    "value": 5.75,
+                    "weighttype": "fullgrade",
+                    "weight": 1
+                },
+                {
+                    "title": "Empty subgrade",
+                    "grade_type": "subgrade",
+                    "weighttype": "perc_entire",
+                    "weight": 0.2,
+                    "value": [
+                    ]
+                }
+            ],
+            "Französisch": [
+            ]
+        },
+        "FS21/22": {
+        }
+    };
+}
