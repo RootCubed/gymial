@@ -123,6 +123,22 @@ const subjects = {
     }
 };
 
+const gradeColors = [
+    "E52014", // 1
+    "E24412", // 1.5
+    "E52014", // 2
+    "EA582A", // 2.5
+    "DD9933", // 3
+    "DDCC33", // 3.5
+    "CBE436", // 4
+    "BFE868", // 4.5
+    "A7DD62", // 5
+    "3EF746", // 5.5
+    "36FF25", // 6
+];
+
+const getGradeColor = grade => "#" + ((grade < 1.0) ? getGradeColor(1.0) : (grade > 6.0) ? getGradeColor(6.0) : gradeColors[roundedAvg(grade, false) * 2 - 1]);
+
 let animPlaying = false;
 
 export function init() {
@@ -181,18 +197,27 @@ function reloadHTML() {
     }
 }
 
+function getGradeContainerHTML(topClass, title, avg, plusPoints) {
+    avg = avg.toFixed(2);
+    let rounded = roundedAvg(avg, plusPoints);
+    if (isNaN(avg)) {
+        avg = "-";
+        rounded = "-";
+    }
+    return `
+<div class="grades-overview-container ${topClass}" data-sem="${title}">
+    <span class="grades-overview-span grades-overview-title">${title}</span>
+    <span class="grades-overview-span grades-overview-avg has-avg-label">${avg}</span>
+    <span class="grades-overview-span grades-overview-round-avg">${rounded}</span>
+    <div class="grades-overview-vertbar" style="background-color: ${getGradeColor(avg)}"></div>
+</div>
+`;
+}
+
 function getSemestersHTML(data) {
     let html = "";
     for (let sem in data) {
-        let avg = calculateSemAvg(data[sem]);
-        html += `
-<div class="grades-overview-container grades-sem-container" data-sem="${sem}">
-    <span class="grades-overview-span grades-overview-title">${sem}</span>
-    <span class="grades-overview-span grades-overview-avg has-avg-label">${avg}</span>
-    <span class="grades-overview-span grades-overview-round-avg">${roundedAvg(avg, viewPluspoints)}</span>
-    <div class="grades-overview-vertbar"></div>
-</div>
-`;
+        html += getGradeContainerHTML("grades-sem-container", sem, calculateSemAvg(data[sem]), viewPluspoints);
     }
     return html;
 }
@@ -203,15 +228,7 @@ function getGradeListHTML(data, title) {
         let catName = (subjects[subj]) ? subjects[subj].category : "Andere";
         let categoryID = subjectCategories.indexOf(catName);
         subjGroups[categoryID].grades.push(data[subj]);
-        let avg = calculateGradesAvg(data[subj]);
-        subjGroups[categoryID].html += `
-<div class="grades-overview-container grades-subj-container">
-    <span class="grades-overview-span grades-overview-title">${subj}</span>
-    <span class="grades-overview-span grades-overview-avg has-avg-label">${avg}</span>
-    <span class="grades-overview-span grades-overview-round-avg">${roundedAvg(avg, viewPluspoints)}</span>
-    <div class="grades-overview-vertbar"></div>
-</div>
-`;
+        subjGroups[categoryID].html += getGradeContainerHTML("grades-subj-container", subj, calculateGradesAvg(data[subj]), viewPluspoints);
     }
     let html = `
 <div class="grades-back-btn">&#xd7;</div>
@@ -220,11 +237,30 @@ function getGradeListHTML(data, title) {
     let i = 1;
     for (let subjGroup of subjGroups) {
         if (subjGroup.grades.length > 0) {
+            let groupAvg = calculateGradesAvg(subjGroup.grades.map(grade => {
+                return {
+                    "title": "",
+                    "grade_type": "subgrade",
+                    "weight_type": "fullgrade",
+                    "weight": 1,
+                    "value": grade
+                };
+            })).toFixed(2);
+            console.log(subjGroup.grades.map(grade => {
+                return {
+                    "title": "",
+                    "grade_type": "subgrade",
+                    "weight_type": "fullgrade",
+                    "weight": 1,
+                    "value": grade
+                };
+            }));
+            if (isNaN(groupAvg)) groupAvg = "-";
             html += `
 <div class="grades-group-cont grades-sg${i}">
     <div class="grades-group-title">
         <span class="grades-group-name">${subjGroup.title}</span>
-        <span class="grades-group-avg has-avg-label">${calculateGradesAvg(subjGroup.grades)}</span>
+        <span class="grades-group-avg has-avg-label">${groupAvg}</span>
     </div>
     ${subjGroup.html}
 </div>      
@@ -244,11 +280,62 @@ function roundedAvg(grade, plusPoints) {
 }
 
 function calculateSemAvg(data) {
-    // TODO: implement
-    return calculateGradesAvg();
+    let sum = 0;
+    let count = 0;
+    for (let subj in data) {
+        let avg = calculateGradesAvg(data[subj]);
+        if (!isNaN(avg)) {
+            count++;
+            sum += avg;
+        }
+    }
+    return sum / count;
 }
 
 function calculateGradesAvg(data) {
-    // TODO: implement
-    return Math.floor((Math.random() * 5 + 1) * 100) / 100;
+    // recursively calculate subgrades
+    let gradesCalc = data.map(grade => {
+        switch (grade.grade_type) {
+            case "regular":
+                return grade;
+            case "bonus":
+                return grade;
+            case "subgrade":
+                let avg = calculateGradesAvg(grade.value);
+                let w = isNaN(avg) ? 0 : grade.weight;
+                return {
+                    "title": grade.title,
+                    "grade_type": "regular",
+                    "weight_type": grade.weight_type,
+                    "weight": w,
+                    "value": isNaN(avg) ? 0 : avg
+                };
+        }
+    });
+
+    // calculate regular grades, taking into account subgrades
+    let regGrades = gradesCalc.filter(grade => {
+        return grade.grade_type == "regular" && grade.weight_type == "fullgrade";
+    });
+    let regGradesWSum = regGrades.reduce((a, v) => a + v.weight, 0);
+    let regGradesAvg = regGrades.reduce((a, v) => a + v.value * v.weight, 0) / regGradesWSum;
+
+    // calculate grades with perc_entire, taking into account subgrades
+    let percEntireGrades = gradesCalc.filter(grade => {
+        return grade.grade_type == "regular" && grade.weight_type == "perc_entire";
+    });
+    let percEntireProp = percEntireGrades.reduce((a, v) => a + v.weight, 0);
+    if (percEntireProp > 1) alert("percEntireGrade over 100%");
+    let percEntireGradesAvg = 0;
+    if (percEntireGrades.length > 0) {
+        percEntireGradesAvg = percEntireGrades.reduce((a, v) => a + v.value * v.weight, 0) / percEntireProp;
+    }
+
+    // calculate bonus grades
+    let bonusGrades = gradesCalc.filter(grade => {
+        return grade.grade_type == "bonus";
+    });
+    let bonusSum = bonusGrades.reduce((a, v) => a + v.value, 0);
+
+    return percEntireGradesAvg * percEntireProp + regGradesAvg * (1 - percEntireProp) + bonusSum;
 }

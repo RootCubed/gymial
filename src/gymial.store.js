@@ -102,27 +102,27 @@ export function getGradeData() {
                     "title": "Essay",
                     "grade_type": "regular",
                     "value": 4.06,
-                    "weighttype": "fullgrade",
+                    "weight_type": "fullgrade",
                     "weight": 1
                 },
                 {
                     "title": "mündliche Beteiligung",
                     "grade_type": "subgrade",
-                    "weighttype": "perc_entire",
+                    "weight_type": "perc_entire",
                     "weight": 0.2,
                     "value": [
                         {
                             "title": "test 1",
                             "grade_type": "regular",
                             "value": 4.5,
-                            "weighttype": "fullgrade",
+                            "weight_type": "fullgrade",
                             "weight": 1
                         },
                         {
                             "title": "test 2",
                             "grade_type": "regular",
                             "value": 5,
-                            "weighttype": "fullgrade",
+                            "weight_type": "fullgrade",
                             "weight": 1
                         },
                         {
@@ -143,13 +143,13 @@ export function getGradeData() {
                     "title": "Prüfung 1",
                     "grade_type": "regular",
                     "value": 5.75,
-                    "weighttype": "fullgrade",
+                    "weight_type": "fullgrade",
                     "weight": 1
                 },
                 {
                     "title": "Empty subgrade",
                     "grade_type": "subgrade",
-                    "weighttype": "perc_entire",
+                    "weight_type": "perc_entire",
                     "weight": 0.2,
                     "value": [
                     ]

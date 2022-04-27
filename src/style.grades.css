@@ -144,7 +144,6 @@
 
 .grades-overview-vertbar {
     grid-area: colbar;
-    background-color: #3EF746;
     width: 100%;
     border-radius: 0 10px 10px 0;
 }
