@@ -1,4 +1,4 @@
-import { $c, $i } from "./gymial.helper.js";
+import { $c, $i, $sa } from "./gymial.helper.js";
 
 import { getGradeData } from "./gymial.store.js";
 
@@ -148,7 +148,7 @@ export function init() {
 function reloadHTML() {
     $i("grades-content").innerHTML = getSemestersHTML(getGradeData());
 
-    for (let e of $i("grades-content").children) {
+    for (let e of $sa("#grades-content .grades-sem-container")) {
         const semName = e.dataset.sem;
         e.addEventListener("click", () => {
             if (animPlaying) return;
@@ -215,7 +215,11 @@ function getGradeContainerHTML(topClass, title, avg, plusPoints) {
 }
 
 function getSemestersHTML(data) {
-    let html = "";
+    let html = `
+<div class="grades-overview-container grades-add-sem">
+    <span class="grades-overview-span">+</span>
+</div>
+`;
     for (let sem in data) {
         html += getGradeContainerHTML("grades-sem-container", sem, calculateSemAvg(data[sem]), viewPluspoints);
     }
@@ -232,7 +236,22 @@ function getGradeListHTML(data, title) {
     }
     let html = `
 <div class="grades-back-btn">&#xd7;</div>
+<span class="grades-more-btn">
+    <svg width="40" height="40">
+        <circle cx="8" cy="20" r="4" stroke="white" fill="white" />
+        <circle cx="20" cy="20" r="4" stroke="white" fill="white" />
+        <circle cx="32" cy="20" r="4" stroke="white" fill="white" />
+    </svg>
+</span>
 <h2 class="grades-heading">${title}</h2>
+<div>
+    <div class="grades-overview-container grades-add-grade">
+        <span class="grades-overview-span">+ Grade</span>
+    </div>
+    <div class="grades-overview-container grades-add-folder">
+        <span class="grades-overview-span">+ Folder</span>
+    </div>
+</div>
 `;
     let i = 1;
     for (let subjGroup of subjGroups) {

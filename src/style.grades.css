@@ -18,6 +18,12 @@
     transition: opacity 0.75s;
 }
 
+#grades-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 .grades-group-cont {
     display: flex;
     flex-direction: column;
@@ -58,6 +64,22 @@
 }
 
 .grades-back-btn {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    width: 45px;
+    height: 45px;
+    background-color: var(--bg-primary);
+    font-size: 40px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 25%;
+    cursor: pointer;
+}
+
+.grades-more-btn {
     position: absolute;
     right: 10px;
     top: 10px;
@@ -177,4 +199,17 @@
 
 .grades-cont.growing {
     z-index: 10 !important;
+}
+
+.grades-add-sem, .grades-add-grade, .grades-add-folder {
+    grid-template: "plus" 1fr / 1fr;
+    justify-items: center;
+    height: 80px;
+    align-items: center;
+    background-color: transparent;
+    border: 2px dashed white;
+}
+
+.grades-add-grade, .grades-add-folder {
+    width: calc(min(225px, 40%));
 }
