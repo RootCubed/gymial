@@ -182,7 +182,8 @@
             </div>
             <div id="login-window" style="display: none">
                 <form id="login-form" method="post" onsubmit="return false">
-                    <h3 style="text-align: center; margin-bottom: 20px;">Melde dich an, um Klassenlisten, Instrumentalstunden und Lehrerstundenpläne zu sehen.</h3>
+                    <h3>Anmelden</h3>
+                    <h4 style="margin-bottom: 20px;">Melde dich an, um Klassenlisten, Instrumentalstunden und Lehrerstundenpläne zu sehen.</h4>
                     <label id="label-user">Name (vorname.nachname)</label>
                     <input id="login-user" autocomplete="username" name="user" type="text" placeholder="Name" aria-labelledby="label-user" required>
         
@@ -198,15 +199,32 @@
             </div>
             <div id="grade-editor" style="display: none">
                 <form id="grade-form" method="post" onsubmit="return false">
-                    <h3 style="text-align: center; margin-bottom: 20px;">Note bearbeiten</h3>
+                    <h3>Note bearbeiten</h3>
                     <label id="label-grade-title">Titel</label>
                     <input id="grade-input-title" name="title" type="text" placeholder="Prüfung" aria-labelledby="label-grade-title" required>
         
                     <label id="label-grade-type">Notentyp</label>
-                    <span class="sidebar-link active">Prüfung</span>
-                    <span class="sidebar-link">Bonusnote</span>
-
-                    <button id="login-submit">Speichern</button>
+                    <div class="grade-chip-cont">
+                        <span class="grade-chip-sel active">Prüfung</span>
+                        <span class="grade-chip-sel">Bonusnote</span>
+                    </div>
+                    
+                    <label id="label-grade-grade">Note</label>
+                    <input id="grade-input-grade" name="grade" type="text" placeholder="4.5" aria-labelledby="label-grade-grade" required>
+                    
+                    <label id="label-weight-type">Gewicht angeben als:</label>
+                    <div class="grade-chip-cont">
+                        <span class="grade-chip-sel active">% einer ganzen Note</span>
+                        <span class="grade-chip-sel">% der Zeugnisnote</span>
+                    </div>
+                    
+                    <label id="label-grade-weight">Gewicht</label>
+                    <input id="grade-input-weight" name="weight" type="text" placeholder="1" aria-labelledby="label-grade-weight" required>
+                    
+                    <div id="grade-edit-button-cont">
+                        <button id="grade-edit-cancel">Abbrechen</button>
+                        <button id="grade-edit-submit">Speichern</button>
+                    </div>
                 </form>
             </div>
         </div>

@@ -372,8 +372,8 @@ span.entry-title {
     visibility: hidden;
     opacity: 0;
     position: fixed;
-    width: 80%;
-    height: 80%;
+    width: 80vw;
+    height: 80vh;
     top: 0;
     left: 0;
     padding: 10vh 10vw;
@@ -392,8 +392,8 @@ span.entry-title {
 
 #details-overlay {
     position: relative;
-    width: 100%;
-    height: 100%;
+    width: 80vw;
+    height: 80vh;
     background-color: #222222f8;
     color: white;
     border-radius: 5px;
@@ -511,15 +511,15 @@ img.teacher {
 }
 
 #login-form {
-    display: block;
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 80%;
-    margin: 0 10%;
+    padding: 5vh 5vw;
+    max-height: 100%;
+    overflow: auto;
 }
 
-#login-form h2 {
+#login-form h3, #grade-editor h3 {
     text-align: center;
     margin-bottom: 20px;
     font-size: 30px;

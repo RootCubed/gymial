@@ -107,24 +107,24 @@ export function init() {
                 return response.json();
             }).then(res => {
                 if (res == 401) {
-                    gymial.settings.showPwForm();
+                    gymial.detail.showPwForm();
                     return;
                 }
                 if (res.status && res.status == "intranet_offline_nocache") {
-                    gymial.detail.show(`<span>Das Intranet ist leider momentan offline. Versuche es später wieder.</span>`);
+                    gymial.detail.showDetail(`<span>Das Intranet ist leider momentan offline. Versuche es später wieder.</span>`);
                     return;
                 }
                 let htmlToAdd = `<h1 style="margin-bottom: 20px">Klassenliste ${$i("current-class").innerText}</h1>`;
                 for (let student of res) {
                     htmlToAdd += `<span class="student studentName person-link" data="${student.studentId}">${student.studentName}</span>`;
                 }
-                gymial.detail.show(htmlToAdd);
+                gymial.detail.showDetail(htmlToAdd);
             });
         } else {
             if (viewState.entityType == "student") {
                 fetch("/getName/" + parseInt(entityID)).then(res => res.json()).then(personName => {
                     if (personName.status && personName.status == "intranet_offline_nocache") {
-                        gymial.detail.show(`<span>Das Intranet ist leider momentan offline. Versuche es später wieder.</span>`);
+                        gymial.detail.showDetail(`<span>Das Intranet ist leider momentan offline. Versuche es später wieder.</span>`);
                     }
                     fetch(`/search-internal-kzoCH/${personName.firstname}/${personName.lastname}/_`).then(response => {
                         if (response.status == 401) {
@@ -133,18 +133,18 @@ export function init() {
                         return response.json();
                     }).then(res => {
                         if (res == 401) {
-                            gymial.settings.showPwForm();
+                            gymial.detail.showPwForm();
                             return;
                         }
                         let personalStuff = "";
                         for (let i = 3; i < 6; i++) {
                             personalStuff += "<p>" + res[0][i] + "</p>";
                         }
-                        gymial.detail.show(`<div class="student"><h1>${personName.firstname + " " + personName.lastname}</h1><br><div class="personalDetails">${personalStuff}</div></div>`);
+                        gymial.detail.showDetail(`<div class="student"><h1>${personName.firstname + " " + personName.lastname}</h1><br><div class="personalDetails">${personalStuff}</div></div>`);
                     });
                 });
             } else {
-                gymial.detail.show(`<div class="student"><h1>${$i("current-class").innerText}</h1><br><p>Lehrerinformationen werden bald hinzugefügt.</p></div>`);
+                gymial.detail.showDetail(`<div class="student"><h1>${$i("current-class").innerText}</h1><br><p>Lehrerinformationen werden bald hinzugefügt.</p></div>`);
             }
         }
     });
@@ -440,14 +440,14 @@ function setLessonData(lesson) {
     } else {
         $i("teacher-detail").innerText = "";
     }
-    gymial.detail.show("<div id='names'></div>");
+    gymial.detail.showDetail("<div id='names'></div>");
     if (lesson.cId) {
         fetch("/course-participants/" + lesson.cId).then(r => {
             if (r.status == 401) return 401;
             return r.json();
         }).then(res => {
             if (res == 401) {
-                gymial.settings.showPwForm();
+                gymial.detail.showPwForm();
                 return;
             }
             let html = "";
@@ -485,7 +485,7 @@ function clickTimetableEntry(el) {
     $i("overlay-lesson-tabs").innerHTML = htmlString;
     $i("overlay-lesson-tabs").children[0].classList.add("active");
     setLessonData(lessons[0]);
-    gymial.detail.show();
+    gymial.detail.showDetail();
     $c("overlay-tab").forEach(el => el.addEventListener("click", el => {
         let tg = el.target;
         let currActive = document.querySelector("#overlay-lesson-tabs .active");

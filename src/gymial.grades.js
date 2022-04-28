@@ -4,6 +4,8 @@ import { getGradeData } from "./gymial.store.js";
 
 import * as templ from "./gymial.templates.js";
 
+import * as g_detail from "./gymial.detail.js";
+
 let viewState = {
     viewPluspoints: false
 };
@@ -11,139 +13,6 @@ let viewState = {
 export function init() {
     reloadHTML();
 }
-
-const subjectCategories = [
-    "Sprachen",
-    "Naturwissenschaften",
-    "Geisteswissenschaften",
-    "Wirtschaftsfächer",
-    "Andere"
-];
-
-const subjects = {
-    "Anwendungen des Computers": {
-        "short_name": "AC",
-        "category": "Andere"
-    },
-    "Anwendungen der Mathematik": {
-        "short_name": "AM",
-        "category": "Naturwissenschaften"
-    },
-    "Biologie": {
-        "short_name": "B",
-        "category": "Naturwissenschaften"
-    },
-    "Bildnerisches Gestalten": {
-        "short_name": "BG",
-        "category": "Andere"
-    },
-    "Chemie": {
-        "short_name": "C",
-        "category": "Naturwissenschaften"
-    },
-    "Deutsch": {
-        "short_name": "D",
-        "category": "Sprachen"
-    },
-    "Englisch": {
-        "short_name": "E",
-        "category": "Sprachen"
-    },
-    "Einführung Wirtschaft": {
-        "short_name": "EW",
-        "category": "Wirtschaftsfächer"
-    },
-    "Einführung Wirtschaft und Recht": {
-        "short_name": "EWR",
-        "category": "Wirtschaftsfächer"
-    },
-    "Französisch": {
-        "short_name": "F",
-        "category": "Sprachen" 
-    },
-    "Freifach": {
-        "short_name": "FF",
-        "category": "Andere"
-    },
-    "Finanzen": {
-        "short_name": "FIN",
-        "category": "Wirtschaftsfächer"
-    },
-    "Geographie": {
-        "short_name": "GG",
-        "category": "Geisteswissenschaften"
-    },
-    "Geschichte": {
-        "short_name": "G",
-        "category": "Geisteswissenschaften"
-    },
-    "Griechisch": {
-        "short_name": "GR",
-        "category": "Sprachen" 
-    },
-    "Italienisch": {
-        "short_name": "IT",
-        "category": "Sprachen" 
-    },
-    "Latein": {
-        "short_name": "L",
-        "category": "Sprachen"  
-    },
-    "Mathematik": {
-        "short_name": "M",
-        "category": "Naturwissenschaften"  
-    },
-    "Mensch und Arbeit": {
-        "short_name": "M+A",
-        "category": "Wirtschaftsfächer"
-    },
-    "Musik": {
-        "short_name": "MU",
-        "category": "Andere" 
-    },
-    "Physik": {
-        "short_name": "P",
-        "category": "Naturwissenschaften"  
-    },
-    "Recht": {
-        "short_name": "R",
-        "category": "Wirtschaftsfächer"  
-    },
-    "Religion": {
-        "short_name": "RL",
-        "category": "Geisteswissenschaften" 
-    },
-    "Rechnungswesen": {
-        "short_name": "RW",
-        "category": "Wirtschaftsfächer" 
-    },
-    "Spanisch": {
-        "short_name": "SP",
-        "category": "Sprachen" 
-    },
-    "Turnen": {
-        "short_name": "T",
-        "category": "Andere"  
-    },
-    "Volkswirtschaftslehre": {
-        "short_name": "VWL",
-        "category": "Wirtschaftsfächer"
-    }
-};
-
-const gradeColors = [
-    "F70E0E", // 1
-    "E24412", // 1.5
-    "EE571B", // 2
-    "EA722A", // 2.5
-    "DD9933", // 3
-    "DDBA33", // 3.5
-    "DFE616", // 4
-    "BCD934", // 4.5
-    "9BE35F", // 5
-    "3EF746", // 5.5
-    "36FF25", // 6
-];
 
 // helper functions
 
@@ -294,7 +163,7 @@ function showGradeList(data, title, clickedEl, parent, type) {
         child.addEventListener("click", () => {
             let t = child;
             if (t.classList.contains("grades-grade-container") && !t.classList.contains("grades-subgrade")) {
-                alert("grade editor!");
+                g_detail.showGradeEditor();
                 return;
             }
             if (t.dataset.index) {
@@ -395,3 +264,138 @@ function getGradeList(data, title, colorname, type) {
     ], title, fAvg, "subj", html);
     return divEl;
 }
+
+// constants
+
+const subjectCategories = [
+    "Sprachen",
+    "Naturwissenschaften",
+    "Geisteswissenschaften",
+    "Wirtschaftsfächer",
+    "Andere"
+];
+
+const subjects = {
+    "Anwendungen des Computers": {
+        "short_name": "AC",
+        "category": "Andere"
+    },
+    "Anwendungen der Mathematik": {
+        "short_name": "AM",
+        "category": "Naturwissenschaften"
+    },
+    "Biologie": {
+        "short_name": "B",
+        "category": "Naturwissenschaften"
+    },
+    "Bildnerisches Gestalten": {
+        "short_name": "BG",
+        "category": "Andere"
+    },
+    "Chemie": {
+        "short_name": "C",
+        "category": "Naturwissenschaften"
+    },
+    "Deutsch": {
+        "short_name": "D",
+        "category": "Sprachen"
+    },
+    "Englisch": {
+        "short_name": "E",
+        "category": "Sprachen"
+    },
+    "Einführung Wirtschaft": {
+        "short_name": "EW",
+        "category": "Wirtschaftsfächer"
+    },
+    "Einführung Wirtschaft und Recht": {
+        "short_name": "EWR",
+        "category": "Wirtschaftsfächer"
+    },
+    "Französisch": {
+        "short_name": "F",
+        "category": "Sprachen" 
+    },
+    "Freifach": {
+        "short_name": "FF",
+        "category": "Andere"
+    },
+    "Finanzen": {
+        "short_name": "FIN",
+        "category": "Wirtschaftsfächer"
+    },
+    "Geographie": {
+        "short_name": "GG",
+        "category": "Geisteswissenschaften"
+    },
+    "Geschichte": {
+        "short_name": "G",
+        "category": "Geisteswissenschaften"
+    },
+    "Griechisch": {
+        "short_name": "GR",
+        "category": "Sprachen" 
+    },
+    "Italienisch": {
+        "short_name": "IT",
+        "category": "Sprachen" 
+    },
+    "Latein": {
+        "short_name": "L",
+        "category": "Sprachen"  
+    },
+    "Mathematik": {
+        "short_name": "M",
+        "category": "Naturwissenschaften"  
+    },
+    "Mensch und Arbeit": {
+        "short_name": "M+A",
+        "category": "Wirtschaftsfächer"
+    },
+    "Musik": {
+        "short_name": "MU",
+        "category": "Andere" 
+    },
+    "Physik": {
+        "short_name": "P",
+        "category": "Naturwissenschaften"  
+    },
+    "Recht": {
+        "short_name": "R",
+        "category": "Wirtschaftsfächer"  
+    },
+    "Religion": {
+        "short_name": "RL",
+        "category": "Geisteswissenschaften" 
+    },
+    "Rechnungswesen": {
+        "short_name": "RW",
+        "category": "Wirtschaftsfächer" 
+    },
+    "Spanisch": {
+        "short_name": "SP",
+        "category": "Sprachen" 
+    },
+    "Turnen": {
+        "short_name": "T",
+        "category": "Andere"  
+    },
+    "Volkswirtschaftslehre": {
+        "short_name": "VWL",
+        "category": "Wirtschaftsfächer"
+    }
+};
+
+const gradeColors = [
+    "F70E0E", // 1
+    "E24412", // 1.5
+    "EE571B", // 2
+    "EA722A", // 2.5
+    "DD9933", // 3
+    "DDBA33", // 3.5
+    "DFE616", // 4
+    "BCD934", // 4.5
+    "9BE35F", // 5
+    "3EF746", // 5.5
+    "36FF25", // 6
+];
