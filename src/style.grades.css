@@ -87,6 +87,11 @@
 
 .grades-more-btn {
     right: 10px;
+    transition: border-radius 0.2s;
+}
+
+.grades-more-btn.active {
+    border-radius: 25% 25% 0 0;
 }
 
 .grades-more-btn circle {
@@ -223,19 +228,28 @@
     top: 55px;
     background-color: var(--bg-primary);
     padding: 0;
-    transition: opacity 0.25s;
+    transition: opacity 0.25s, visibility 0.25s;
+    border-radius: 15px 0 15px 15px;
+    overflow: hidden;
 }
 
 .grades-dropdown-more.hidden {
     opacity: 0;
+    visibility: hidden;
 }
 
 .grades-link {
-    padding: 10px;
     display: block;
+    padding: 15px 20px;
+    text-align: left;
+    background-color: var(--bg-secondary);
     cursor: pointer;
 }
 
-.grades-delete-link {
-    background-color: #d23;
+.grades-link:not(:last-child) {
+  border-bottom: 1px solid var(--color-primary);
+}
+
+.grades-link:hover, .grades-more-btn:hover, .grades-back-btn:hover {
+  filter: brightness(125%);
 }

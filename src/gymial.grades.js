@@ -178,6 +178,7 @@ function showGradeList(data, title, clickedEl, parent, type) {
     });
 
     glEl.querySelector(".grades-more-btn").addEventListener("click", () => {
+        glEl.querySelector(".grades-more-btn").classList.toggle("active");
         glEl.querySelector(".grades-dropdown-more").classList.toggle("hidden");
     });
 
@@ -301,7 +302,8 @@ function getSubjList(data, title) {
     </svg>
 </span>
 <div class="grades-dropdown-more hidden">
-    <span class="grades-link grades-delete-link">${"Semester"} löschen</span>
+<span class="grades-link">${"Semester"} umbenennen</span>
+<span class="grades-link grades-delete-link">${"Semester"} löschen</span>
 </div>
 <h2 class="grades-heading">${title} (⌀ ${avg})</h2>
 <div>
@@ -352,6 +354,7 @@ function getGradeList(data, title, colorname, type) {
     </svg>
 </span>
 <div class="grades-dropdown-more hidden">
+    <span class="grades-link">${(type == "subj") ? "Fach" : "Note"} umbenennen</span>
     <span class="grades-link grades-delete-link">${(type == "subj") ? "Fach" : "Note"} löschen</span>
 </div>
 <h2 class="grades-heading">${title} (⌀ ${avg})</h2>

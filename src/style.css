@@ -562,6 +562,7 @@ button, #logout, #persplan {
     border-radius: 0;
     padding: 12px;
     display: block;
+    font-size: inherit;
 }
 
 #persplan {
