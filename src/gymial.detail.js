@@ -11,12 +11,27 @@ export function init() {
     });
 }
 
-export function show(html) {
+function show(divToShow) {
+    for (let div of ["details_cont", "login-window", "grade-editor"]) {
+        $i(div).style.display = (div == divToShow) ? "" : "none";
+    }
+}
+
+export function showDetail(html) {
     if (html) {
         $i("detail-view").innerHTML = html;
     }
-    $i("details_cont").style.display = "";
-    $i("login-window").style.display = "none";
+    show("details_cont");
+    $i("margin-details").classList.add("visible");
+}
+
+export function showPwForm() {
+    show("login-window");
+    $i("margin-details").classList.add("visible");
+}
+
+export function showGradeEditor() {
+    show("grade-editor");
     $i("margin-details").classList.add("visible");
 }
 

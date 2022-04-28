@@ -262,9 +262,54 @@
 }
 
 .grades-link:not(:last-child) {
-  border-bottom: 1px solid var(--color-primary);
+    border-bottom: 1px solid var(--color-primary);
 }
 
 .grades-link:hover, .grades-more-btn:hover, .grades-back-btn:hover {
-  filter: brightness(125%);
+    filter: brightness(125%);
+}
+
+#grade-editor {
+    position: absolute;
+    width: 70vw;
+    height: 70vh;
+    padding: 5vh 5vw;
+}
+
+#grade-form {
+    position: relative;
+    height: 100%;
+    overflow: auto;
+}
+
+.grade-chip-cont {
+    display: flex;
+}
+
+.grade-chip-sel {
+    display: inline-block;
+    margin: 5px;
+    padding: 10px;
+    font-size: 18px;
+    text-align: center;
+    cursor: pointer;
+    color: var(--link-color);
+    flex-grow: 1;
+    -webkit-transition: background-color 0.5s, color 0.5s;
+    -moz-transition: background-color 0.5s, color 0.5s;
+    -ms-transition: background-color 0.5s, color 0.5s;
+    -o-transition: background-color 0.5s, color 0.5s;
+    transition: background-color 0.5s, color 0.5s;
+}
+
+.grade-chip-sel.active {
+    background-color: #cfcfcf;
+    color: black;
+}
+
+#grade-edit-button-cont {
+    display: flex;
+    position: absolute;
+    width: 100%;
+    bottom: 0;
 }
