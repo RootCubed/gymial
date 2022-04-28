@@ -13,3 +13,7 @@ export function $i(id) {
 export function $c(className) {
     return Array(...document.getElementsByClassName(className));
 }
+
+export function $esc(unsafe) {
+    return unsafe.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
+}

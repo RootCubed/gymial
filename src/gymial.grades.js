@@ -1,4 +1,4 @@
-import { $c, $i, $sa } from "./gymial.helper.js";
+import { $c, $i, $sa, $esc } from "./gymial.helper.js";
 
 import { getGradeData } from "./gymial.store.js";
 
@@ -124,20 +124,23 @@ const subjects = {
 };
 
 const gradeColors = [
-    "E52014", // 1
+    "F70E0E", // 1
     "E24412", // 1.5
-    "E52014", // 2
-    "EA582A", // 2.5
+    "EE571B", // 2
+    "EA722A", // 2.5
     "DD9933", // 3
-    "DDCC33", // 3.5
-    "CBE436", // 4
-    "BFE868", // 4.5
-    "A7DD62", // 5
+    "DDBA33", // 3.5
+    "DFE616", // 4
+    "BCD934", // 4.5
+    "9BE35F", // 5
     "3EF746", // 5.5
     "36FF25", // 6
 ];
 
-const getGradeColor = grade => "#" + ((grade < 1.0) ? getGradeColor(1.0) : (grade > 6.0) ? getGradeColor(6.0) : gradeColors[roundedAvg(grade, false) * 2 - 1]);
+const getGradeColor = grade => {
+    let g = parseFloat(grade);
+    return "#" + ((g < 1.0) ? getGradeColor(1.0) : (g > 6.0) ? getGradeColor(6.0) : gradeColors[(roundedAvg(g, false) - 1) * 2]);
+};
 
 let animPlaying = false;
 
@@ -146,70 +149,128 @@ export function init() {
 }
 
 function reloadHTML() {
-    $i("grades-content").innerHTML = getSemestersHTML(getGradeData());
-
-    for (let e of $sa("#grades-content .grades-sem-container")) {
-        const semName = e.dataset.sem;
+    $i("main-grades-content").innerHTML = getSemestersHTML(getGradeData());
+    for (let e of $sa("#main-grades-content .grades-sem-container")) {
+        const semName = e.dataset.name;
         e.addEventListener("click", () => {
             if (animPlaying) return;
-
-            $i("grades-semview-cont").innerHTML = getGradeListHTML(getGradeData()[semName], semName);
-            
-            $c("grades-back-btn").forEach(e => e.addEventListener("click", () => {
-                if (animPlaying) return;
-                animPlaying = true;
-                $i("grades-semview-cont").classList.remove("visible");
-                setTimeout(() => {
-                    for (let e of $i("grades-content").children) {
-                        e.classList.remove("growing");
-                    }
-                    setTimeout(() => {
-                        $i("grades-sems-cont").classList.remove("growing");
-                        $i("grades-semview-cont").classList.remove("growing");
-                        animPlaying = false;
-                    }, 250);
-                }, 200);
-            }));
-
-            animPlaying = true;
-            $i("grades-sems-cont").classList.add("growing");
-            e.classList.add("growing");
-            setTimeout(() => {
-                $i("grades-semview-cont").classList.add("growing");
-                $i("grades-semview-cont").classList.add("visible");
-                animPlaying = false;
-            }, 200);            
-    
-            for (let e of $c("grades-subj-container")) {
-                e.addEventListener("click", el => {
-                    if (animPlaying) return;
-                    animPlaying = true;
-                    $i("grades-sems-cont").classList.add("growing");
-                    el.target.classList.add("growing");
-                    setTimeout(() => {
-                        $i("grades-semview-cont").classList.add("growing");
-                        $i("grades-semview-cont").classList.add("visible");
-                        animPlaying = false;
-                    }, 200);
-                });
-            }
+            showGradeList(getGradeData()[semName], semName, e, $i("grades-sems-cont"), "sem");
         });
     }
 }
 
-function getGradeContainerHTML(topClass, title, avg, plusPoints) {
-    avg = avg.toFixed(2);
+function showGradeList(data, title, clickedEl, parent, type) {
+    let glEl = (type == "sem") ? getSubjList(data, title) : getGradeList(data, title, clickedEl.dataset.color, type);
+    $i("panel-grades").appendChild(glEl);
+    
+    glEl.querySelector(".grades-back-btn").addEventListener("click", () => {
+        if (animPlaying) return;
+        animPlaying = true;
+        glEl.classList.remove("visible");
+        setTimeout(() => {
+            clickedEl.classList.remove("growing");
+            glEl.remove();
+            setTimeout(() => {
+                parent.classList.remove("growing");
+                animPlaying = false;
+            }, 250);
+        }, 100);
+    });
+
+    glEl.addEventListener("click", e => {
+        if (e.target == glEl.querySelector(".grades-more-btn")) return;
+        glEl.querySelector(".grades-dropdown-more").classList.add("hidden");
+    });
+
+    glEl.querySelector(".grades-more-btn").addEventListener("click", () => {
+        glEl.querySelector(".grades-dropdown-more").classList.toggle("hidden");
+    });
+
+    glEl.querySelector(".grades-delete-link").addEventListener("click", () => {
+        if (confirm("Wirklich löschen?")) {
+            // TODO
+        }
+    });
+
+    for (let child of glEl.getElementsByClassName("grades-overview-container")) {
+        child.addEventListener("click", () => {
+            let t = child;
+            if (t.classList.contains("grades-grade-container") && !t.classList.contains("grades-subgrade")) {
+                alert("grade editor!");
+                return;
+            }
+            if (t.dataset.name) {
+                showGradeList(data[t.dataset.name], t.dataset.name, t, glEl, "subj");
+            } else if (t.dataset.index) {
+                showGradeList(data[t.dataset.index].value, data[t.dataset.index].title, t, glEl, "grade");
+            }
+        }, false);
+    }
+
+    animPlaying = true;
+    parent.classList.add("growing");
+    clickedEl.classList.add("growing");
+    setTimeout(() => {
+        glEl.classList.add("visible");
+        animPlaying = false;
+    }, 100);
+}
+
+function getGradeOverviewContainerHTML(topClass, title, avg, plusPoints, color) {
+    avg = Math.floor(avg * 100) / 100; // floor so that e.g. 4.24999 doesn't get shown as 4.25
     let rounded = roundedAvg(avg, plusPoints);
     if (isNaN(avg)) {
         avg = "-";
         rounded = "-";
     }
     return `
-<div class="grades-overview-container ${topClass}" data-sem="${title}">
-    <span class="grades-overview-span grades-overview-title">${title}</span>
+<div class="grades-overview-container ${topClass}" data-name="${$esc(title)}" data-color="${color}">
+    <span class="grades-overview-span grades-overview-title">${$esc(title)}</span>
     <span class="grades-overview-span grades-overview-avg has-avg-label">${avg}</span>
     <span class="grades-overview-span grades-overview-round-avg">${rounded}</span>
     <div class="grades-overview-vertbar" style="background-color: ${getGradeColor(avg)}"></div>
+</div>
+`;
+}
+
+function weightAsString(grade) {
+    if (grade.grade_type == "bonus") return "(Bonusnote)";
+    let type = grade.weight_type;
+    let weight = grade.weight;
+    if (weight == 0) return "zählt nicht";
+    switch (type) {
+        case "fullgrade":
+            if (weight == 0.5) return "zählt halb";
+            if (weight == 1) return "zählt ganz";
+            if (weight == 2) return "zählt doppelt";
+            return "Gewicht: " + Math.round(weight * 100) / 100;
+        case "perc_entire":
+            return "Gewicht: " + Math.round(weight * 100 * 100) / 100 + "% der Zeugnisnote";
+    }
+}
+
+function getGradeContainerHTML(grade, index, color) {
+    // use calculateGradesAvg in case it is a subgrade
+    let gradeAvg = calculateGradesAvg([{
+        grade_type: grade.grade_type,
+        value: grade.value,
+        weight_type: "fullgrade",
+        weight: 1
+    }]);
+    let rounded = Math.floor(gradeAvg * 100) / 100;
+    if (isNaN(rounded)) {
+        rounded = "-";
+    }
+    if (grade.grade_type == "bonus" && grade.value >= 0) {
+        rounded = "+" + grade.value;
+    }
+    return `
+<div class="grades-overview-container grades-grade-container ${(grade.grade_type == "subgrade") ? "grades-subgrade" : ""}"
+data-index="${index}" data-color="${color}">
+    <span class="grades-overview-span grades-overview-title">${$esc(grade.title)}</span>
+    <span class="grades-overview-span grades-overview-weight">${weightAsString(grade)}</span>
+    <span class="grades-overview-span grades-overview-grade">${rounded}</span>
+    <div class="grades-overview-vertbar" style="background-color: ${getGradeColor(rounded)}"></div>
 </div>
 `;
 }
@@ -221,42 +282,43 @@ function getSemestersHTML(data) {
 </div>
 `;
     for (let sem in data) {
-        html += getGradeContainerHTML("grades-sem-container", sem, calculateSemAvg(data[sem]), viewPluspoints);
+        html += getGradeOverviewContainerHTML("grades-sem-container", sem, calculateSemAvg(data[sem]), viewPluspoints);
     }
     return html;
 }
 
-function getGradeListHTML(data, title) {
+function getSubjList(data, title) {
     let subjGroups = subjectCategories.map(e => ({"title": e, "grades": [], "html": ""}));
     for (let subj in data) {
         let catName = (subjects[subj]) ? subjects[subj].category : "Andere";
         let categoryID = subjectCategories.indexOf(catName);
         subjGroups[categoryID].grades.push(data[subj]);
-        subjGroups[categoryID].html += getGradeContainerHTML("grades-subj-container", subj, calculateGradesAvg(data[subj]), viewPluspoints);
+        subjGroups[categoryID].html += getGradeOverviewContainerHTML("grades-subj-container", subj, calculateGradesAvg(data[subj]), viewPluspoints, categoryID);
     }
+    let avg = Math.floor(calculateSemAvg(data) * 100) / 100;
     let html = `
 <div class="grades-back-btn">&#xd7;</div>
 <span class="grades-more-btn">
     <svg width="40" height="40">
-        <circle cx="8" cy="20" r="4" stroke="white" fill="white" />
-        <circle cx="20" cy="20" r="4" stroke="white" fill="white" />
-        <circle cx="32" cy="20" r="4" stroke="white" fill="white" />
+        <circle cx="8" cy="20" r="4" />
+        <circle cx="20" cy="20" r="4" />
+        <circle cx="32" cy="20" r="4" />
     </svg>
 </span>
-<h2 class="grades-heading">${title}</h2>
+<div class="grades-dropdown-more hidden">
+    <span class="grades-link grades-delete-link">${"Semester"} löschen</span>
+</div>
+<h2 class="grades-heading">${title} (⌀ ${avg})</h2>
 <div>
     <div class="grades-overview-container grades-add-grade">
-        <span class="grades-overview-span">+ Grade</span>
-    </div>
-    <div class="grades-overview-container grades-add-folder">
-        <span class="grades-overview-span">+ Folder</span>
+        <span class="grades-overview-span">+ Subject</span>
     </div>
 </div>
 `;
-    let i = 1;
-    for (let subjGroup of subjGroups) {
+    for (let i = 0; i < subjGroups.length; i++) {
+        let subjGroup = subjGroups[i];
         if (subjGroup.grades.length > 0) {
-            let groupAvg = calculateGradesAvg(subjGroup.grades.map(grade => {
+            let groupAvg = Math.floor(calculateGradesAvg(subjGroup.grades.map(grade => {
                 return {
                     "title": "",
                     "grade_type": "subgrade",
@@ -264,16 +326,7 @@ function getGradeListHTML(data, title) {
                     "weight": 1,
                     "value": grade
                 };
-            })).toFixed(2);
-            console.log(subjGroup.grades.map(grade => {
-                return {
-                    "title": "",
-                    "grade_type": "subgrade",
-                    "weight_type": "fullgrade",
-                    "weight": 1,
-                    "value": grade
-                };
-            }));
+            })) * 100) / 100;
             if (isNaN(groupAvg)) groupAvg = "-";
             html += `
 <div class="grades-group-cont grades-sg${i}">
@@ -285,9 +338,47 @@ function getGradeListHTML(data, title) {
 </div>      
 `;
         }
-        i++;
     }
-    return html;
+    let divEl = document.createElement("div");
+    divEl.classList.add("grades-cont");
+    divEl.innerHTML = html;
+    return divEl;
+}
+
+function getGradeList(data, title, colorname, type) {
+    let avg = Math.floor(calculateGradesAvg(data) * 100) / 100;
+    let html = `
+<div class="grades-back-btn">&#xd7;</div>
+<span class="grades-more-btn">
+    <svg width="40" height="40">
+        <circle cx="8" cy="20" r="3" />
+        <circle cx="20" cy="20" r="3" />
+        <circle cx="32" cy="20" r="3" />
+    </svg>
+</span>
+<div class="grades-dropdown-more hidden">
+    <span class="grades-link grades-delete-link">${(type == "subj") ? "Fach" : "Note"} löschen</span>
+</div>
+<h2 class="grades-heading">${title} (⌀ ${avg})</h2>
+<div class="grades-content">
+    <div style="width: 100%;">
+        <div class="grades-overview-container grades-add-grade">
+            <span class="grades-overview-span">+ Grade</span>
+        </div>
+        <div class="grades-overview-container grades-add-folder">
+            <span class="grades-overview-span">+ Folder</span>
+        </div>
+    </div>
+`;
+    for (let i = 0; i < data.length; i++) {
+        let grade = data[i];
+        html += getGradeContainerHTML(grade, i, colorname);
+    }
+    html += "</div>";
+    let divEl = document.createElement("div");
+    divEl.classList.add("grades-cont", "grades-sg" + colorname);
+    divEl.innerHTML = html;
+    return divEl;
 }
 
 function roundedAvg(grade, plusPoints) {
@@ -321,16 +412,20 @@ function calculateGradesAvg(data) {
                 return grade;
             case "subgrade":
                 let avg = calculateGradesAvg(grade.value);
-                let w = isNaN(avg) ? 0 : grade.weight;
+                if (isNaN(avg)) return null;
                 return {
                     "title": grade.title,
                     "grade_type": "regular",
                     "weight_type": grade.weight_type,
-                    "weight": w,
-                    "value": isNaN(avg) ? 0 : avg
+                    "weight": grade.weight,
+                    "value": avg
                 };
         }
-    });
+    }).filter(grade => grade != null);
+
+    console.log(gradesCalc);
+    
+    if (gradesCalc.length == 0) return NaN;
 
     // calculate regular grades, taking into account subgrades
     let regGrades = gradesCalc.filter(grade => {
@@ -355,6 +450,10 @@ function calculateGradesAvg(data) {
         return grade.grade_type == "bonus";
     });
     let bonusSum = bonusGrades.reduce((a, v) => a + v.value, 0);
+
+    if (regGradesWSum == 0) {
+        return percEntireGradesAvg + bonusSum;
+    }
 
     return percEntireGradesAvg * percEntireProp + regGradesAvg * (1 - percEntireProp) + bonusSum;
 }

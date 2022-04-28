@@ -103,7 +103,7 @@ export function getGradeData() {
                     "grade_type": "regular",
                     "value": 4.06,
                     "weight_type": "fullgrade",
-                    "weight": 1
+                    "weight": 0.75
                 },
                 {
                     "title": "mündliche Beteiligung",
@@ -116,7 +116,7 @@ export function getGradeData() {
                             "grade_type": "regular",
                             "value": 4.5,
                             "weight_type": "fullgrade",
-                            "weight": 1
+                            "weight": 0.8
                         },
                         {
                             "title": "test 2",
@@ -129,6 +129,91 @@ export function getGradeData() {
                             "title": "test 3",
                             "grade_type": "bonus",
                             "value": 0.05
+                        }
+                    ]
+                },
+                {
+                    "title": "view all grade colors",
+                    "grade_type": "subgrade",
+                    "weight_type": "perc_entire",
+                    "weight": 0,
+                    "value": [
+                        {
+                            "title": "pog",
+                            "grade_type": "regular",
+                            "value": 1,
+                            "weight_type": "fullgrade",
+                            "weight": 1
+                        },
+                        {
+                            "title": "pog",
+                            "grade_type": "regular",
+                            "value": 1.5,
+                            "weight_type": "fullgrade",
+                            "weight": 1
+                        },
+                        {
+                            "title": "pog",
+                            "grade_type": "regular",
+                            "value": 2,
+                            "weight_type": "fullgrade",
+                            "weight": 1
+                        },
+                        {
+                            "title": "pog",
+                            "grade_type": "regular",
+                            "value": 2.5,
+                            "weight_type": "fullgrade",
+                            "weight": 1
+                        },
+                        {
+                            "title": "pog",
+                            "grade_type": "regular",
+                            "value": 3,
+                            "weight_type": "fullgrade",
+                            "weight": 1
+                        },
+                        {
+                            "title": "pog",
+                            "grade_type": "regular",
+                            "value": 3.5,
+                            "weight_type": "fullgrade",
+                            "weight": 1
+                        },
+                        {
+                            "title": "pog",
+                            "grade_type": "regular",
+                            "value": 4,
+                            "weight_type": "fullgrade",
+                            "weight": 1
+                        },
+                        {
+                            "title": "pog",
+                            "grade_type": "regular",
+                            "value": 4.5,
+                            "weight_type": "fullgrade",
+                            "weight": 1
+                        },
+                        {
+                            "title": "pog",
+                            "grade_type": "regular",
+                            "value": 5,
+                            "weight_type": "fullgrade",
+                            "weight": 1
+                        },
+                        {
+                            "title": "pog",
+                            "grade_type": "regular",
+                            "value": 5.5,
+                            "weight_type": "fullgrade",
+                            "weight": 1
+                        },
+                        {
+                            "title": "pog",
+                            "grade_type": "regular",
+                            "value": 6,
+                            "weight_type": "fullgrade",
+                            "weight": 1
                         }
                     ]
                 },

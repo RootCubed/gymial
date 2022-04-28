@@ -16,9 +16,11 @@
     overflow-y: auto;
     opacity: 0;
     transition: opacity 0.75s;
+    z-index: 1;
+    background-color: var(--grade-bg-col);
 }
 
-#grades-content {
+.grades-content {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -32,12 +34,12 @@
     background-color: var(--grade-bg-col);
 }
 
-.grades-sg1 {
+.grades-sg0 {
     --grade-bg-col: #074552;
     --grade-cont-col: #1987B6;
 }
 
-.grades-sg2 {
+.grades-sg1 {
     --grade-bg-col: #99421D;
     --grade-cont-col: #D44E24;
 }
@@ -95,6 +97,10 @@
     cursor: pointer;
 }
 
+.grades-more-btn circle {
+    fill: var(--color-primary);
+}
+
 .grades-sem-container {
     grid-template:
         "title rounded colbar" 4fr
@@ -107,6 +113,14 @@
     grid-template:
         "title title colbar" auto
         "avg rounded colbar" auto
+        /
+        1fr auto 10px;
+}
+
+.grades-grade-container {
+    grid-template:
+        "title title colbar" 1fr
+        "weight grade colbar" 1fr
         /
         1fr auto 10px;
 }
@@ -127,6 +141,41 @@
     font-size: 22px;
 }
 
+.has-avg-label::before {
+    content: '⌀ ';
+}
+
+.grades-overview-round-avg, .grades-overview-grade {
+    grid-area: rounded;
+    float: right;
+    font-size: 34px;
+    font-weight: bold;
+    align-self: center;
+}
+
+.grades-overview-grade {
+    grid-area: grade;
+}
+
+.grades-overview-vertbar {
+    grid-area: colbar;
+    width: 100%;
+    border-radius: 0 10px 10px 0;
+}
+
+.grades-overview-avg {
+    grid-area: avg;
+    font-size: 20px;
+    align-self: end;
+    margin-top: 5px;
+}
+
+.grades-overview-weight {
+    grid-area: weight;
+    align-self: end;
+    text-align: left;
+}
+
 .grades-group-title {
     width: calc(min(450px, 80%));
 }
@@ -145,41 +194,7 @@
     float: right;
 }
 
-.grades-overview-avg {
-    grid-area: avg;
-    font-size: 20px;
-    align-self: end;
-    margin-top: 5px;
-}
-
-.has-avg-label::before {
-    content: '⌀ ';
-}
-
-.grades-overview-round-avg {
-    float: right;
-    font-size: 34px;
-    font-weight: bold;
-    grid-area: rounded;
-    align-self: center;
-}
-
-.grades-overview-vertbar {
-    grid-area: colbar;
-    width: 100%;
-    border-radius: 0 10px 10px 0;
-}
-
-#grades-sems-cont {
-    z-index: 5;
-}
-
-#grades-semview-cont {
-    background-color: var(--grade-cont-col);
-    z-index: 4;
-}
-
-.grades-cont.growing {
+#panel-grades .growing {
     overflow: hidden;
 }
 
@@ -190,15 +205,11 @@
 }
 
 .grades-overview-container:not(.growing):active {
-    transform: scale(0.95);
+    transform: scale(0.98);
 }
 
 .grades-cont.visible {
     opacity: 1;
-}
-
-.grades-cont.growing {
-    z-index: 10 !important;
 }
 
 .grades-add-sem, .grades-add-grade, .grades-add-folder {
@@ -212,4 +223,27 @@
 
 .grades-add-grade, .grades-add-folder {
     width: calc(min(225px, 40%));
+}
+
+.grades-dropdown-more {
+    position: absolute;
+    right: 10px;
+    top: 55px;
+    background-color: var(--bg-primary);
+    padding: 0;
+    transition: opacity 0.25s;
+}
+
+.grades-dropdown-more.hidden {
+    opacity: 0;
+}
+
+.grades-link {
+    padding: 10px;
+    display: block;
+    cursor: pointer;
+}
+
+.grades-delete-link {
+    background-color: #d23;
 }
