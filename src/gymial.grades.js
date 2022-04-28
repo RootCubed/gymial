@@ -295,9 +295,9 @@ function getSubjList(data, title) {
 <div class="grades-back-btn">&#xd7;</div>
 <span class="grades-more-btn">
     <svg width="40" height="40">
-        <circle cx="8" cy="20" r="4" />
-        <circle cx="20" cy="20" r="4" />
-        <circle cx="32" cy="20" r="4" />
+        <circle cx="8" cy="20" r="3" />
+        <circle cx="20" cy="20" r="3" />
+        <circle cx="32" cy="20" r="3" />
     </svg>
 </span>
 <div class="grades-dropdown-more hidden">

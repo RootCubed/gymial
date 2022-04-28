@@ -1,6 +1,6 @@
 import * as gymial from "./gymial.module.js";
 
-import { $s, $i, $c } from "./gymial.helper.js";
+import { $sa, $i, $c } from "./gymial.helper.js";
 
 let currentView = 0;
 const VIEW_NAMES = ["Stundenplan", "Einstellungen", "Mensaplan", "Noten"];
@@ -36,11 +36,12 @@ export function init() {
     });
 
     // sidebar link
-    $c("sidebar-link").forEach(el => el.addEventListener("click", el => {
+    let sidebarLinks = $sa("#sidebar > .sidebar-link");
+    sidebarLinks.forEach(el => el.addEventListener("click", el => {
         gymial.detail.hide();
         $i("panels").className = "scrollable";
         $i("current-class").classList.add("noclick");
-        $c("sidebar-link").forEach(el => el.classList.remove("active"));
+        sidebarLinks.forEach(el => el.classList.remove("active"));
         overrideTitle(el.target.innerText);
         switch(el.target.innerText) {
             case VIEW_NAMES[0]:
