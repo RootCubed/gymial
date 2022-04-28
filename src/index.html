@@ -196,6 +196,19 @@
                     </div>
                 </form>
             </div>
+            <div id="grade-editor" style="display: none">
+                <form id="grade-form" method="post" onsubmit="return false">
+                    <h3 style="text-align: center; margin-bottom: 20px;">Note bearbeiten</h3>
+                    <label id="label-grade-title">Titel</label>
+                    <input id="grade-input-title" name="title" type="text" placeholder="Prüfung" aria-labelledby="label-grade-title" required>
+        
+                    <label id="label-grade-type">Notentyp</label>
+                    <span class="sidebar-link active">Prüfung</span>
+                    <span class="sidebar-link">Bonusnote</span>
+
+                    <button id="login-submit">Speichern</button>
+                </form>
+            </div>
         </div>
     </div>
 </body>

@@ -63,7 +63,7 @@ const subjects = {
     },
     "Geographie": {
         "short_name": "GG",
-        "category": "Geisteswissenschaften" 
+        "category": "Geisteswissenschaften"
     },
     "Geschichte": {
         "short_name": "G",
@@ -175,11 +175,6 @@ function showGradeList(data, title, clickedEl, parent, type) {
                 animPlaying = false;
             }, 250);
         }, 100);
-    });
-
-    glEl.addEventListener("click", e => {
-        if (e.target == glEl.querySelector(".grades-more-btn")) return;
-        glEl.querySelector(".grades-dropdown-more").classList.add("hidden");
     });
 
     glEl.querySelector(".grades-more-btn").addEventListener("click", () => {

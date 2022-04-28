@@ -4,8 +4,8 @@
     height: calc(100vh - var(--topbar-height));
     height: calc(var(--wh) - var(--topbar-height));
     position: relative;
-    --grade-bg-col: transparent;
-    --grade-cont-col: #737373;
+    --grade-bg-col: var(--bg-primary);
+    --grade-cont-col: var(--bg-secondary);
 }
 
 .grades-cont {
@@ -35,17 +35,17 @@
 }
 
 .grades-sg0 {
-    --grade-bg-col: #074552;
-    --grade-cont-col: #1987B6;
+    /*--grade-bg-col: #074552;
+    --grade-cont-col: #1987B6;*/
 }
 
 .grades-sg1 {
-    --grade-bg-col: #99421D;
-    --grade-cont-col: #D44E24;
+    /*--grade-bg-col: #99421D;
+    --grade-cont-col: #D44E24;*/
 }
 
 .grades-heading {
-    margin: 20px;
+    margin: 20px 60px;
 }
 
 .grades-overview-container {
@@ -65,13 +65,12 @@
     user-select: none;
 }
 
-.grades-back-btn {
+.grades-back-btn, .grades-more-btn {
     position: absolute;
-    left: 10px;
     top: 10px;
     width: 45px;
     height: 45px;
-    background-color: var(--bg-primary);
+    background-color: var(--bg-secondary);
     font-size: 40px;
     font-weight: bold;
     display: flex;
@@ -81,20 +80,13 @@
     cursor: pointer;
 }
 
+.grades-back-btn {
+    left: 10px;
+    color: var(--color-primary);
+}
+
 .grades-more-btn {
-    position: absolute;
     right: 10px;
-    top: 10px;
-    width: 45px;
-    height: 45px;
-    background-color: var(--bg-primary);
-    font-size: 40px;
-    font-weight: bold;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 25%;
-    cursor: pointer;
 }
 
 .grades-more-btn circle {
@@ -218,7 +210,7 @@
     height: 80px;
     align-items: center;
     background-color: transparent;
-    border: 2px dashed white;
+    border: 2px dashed var(--color-primary);
 }
 
 .grades-add-grade, .grades-add-folder {
