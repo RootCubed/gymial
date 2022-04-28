@@ -8,16 +8,36 @@
     --grade-cont-col: var(--bg-secondary);
 }
 
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fade-out {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
 .grades-cont {
     position: absolute;
     height: calc(100vh - var(--topbar-height));
     height: calc(var(--wh) - var(--topbar-height));
     width: 100%;
     overflow-y: auto;
-    opacity: 0;
-    transition: opacity 0.75s;
-    z-index: 1;
     background-color: var(--grade-bg-col);
+    animation: 0.25s linear fade-in;
+}
+
+.grades-cont.fade-out {
+    animation: 0.25s linear fade-out;
 }
 
 .grades-content {
@@ -56,13 +76,18 @@
     justify-items: start;
     cursor: pointer;
     margin: 5px;
-    transition: transform 0.25s cubic-bezier(0,.8,0,1);
+    transition: transform 0.25s;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+
+.grades-overview-container.growing {
+    transform: scale(3);
+    cursor: default;
 }
 
 .grades-back-btn, .grades-more-btn {
@@ -195,18 +220,8 @@
     overflow: hidden;
 }
 
-.grades-overview-container.growing {
-    transform: scale(200);
-    cursor: default;
-    transition: transform 0.25s cubic-bezier(1,0,.8,0);
-}
-
 .grades-overview-container:not(.growing):active {
     transform: scale(0.98);
-}
-
-.grades-cont.visible {
-    opacity: 1;
 }
 
 .grades-add-sem, .grades-add-grade, .grades-add-folder {
