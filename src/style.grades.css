@@ -280,10 +280,29 @@
     position: relative;
     height: 100%;
     overflow: auto;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.grade-form-section {
+    margin-bottom: 20px;
+}
+
+#grade-form label {
+    font-size: 24px;
+}
+
+#grade-bonus-cont {
+    display: grid;
+    grid-template: "plusminus value" auto / 1fr 5fr;
 }
 
 .grade-chip-cont {
     display: flex;
+}
+
+.grade-chip-cont.vert {
+    flex-direction: column;
 }
 
 .grade-chip-sel {
@@ -300,6 +319,16 @@
     -ms-transition: background-color 0.5s, color 0.5s;
     -o-transition: background-color 0.5s, color 0.5s;
     transition: background-color 0.5s, color 0.5s;
+    background-color: #cfcfcf44;
+}
+
+.grade-chip-cont.vert .grade-chip-sel {
+    margin: 2px 5px;
+    padding: 5px;
+}
+
+.grade-chip-sel.large {
+    font-size: 22px;
 }
 
 .grade-chip-sel.active {
@@ -309,7 +338,5 @@
 
 #grade-edit-button-cont {
     display: flex;
-    position: absolute;
-    width: 100%;
-    bottom: 0;
+    margin-top: 20px;
 }

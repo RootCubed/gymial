@@ -555,11 +555,11 @@ button {
     width: 60px;
 }
 
-button, #logout, #persplan {
+button {
     margin: 20px auto;
     -webkit-appearance: none;
     background-color: #dddddd;
-    border-radius: 0;
+    border-radius: 5px;
     padding: 12px;
     display: block;
     font-size: inherit;

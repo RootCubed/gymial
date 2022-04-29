@@ -1,4 +1,4 @@
-import { $c, $i, $sa, $esc } from "./gymial.helper.js";
+import { $c, $i, $sa, $esc, $s } from "./gymial.helper.js";
 
 import { getGradeData } from "./gymial.store.js";
 
@@ -123,6 +123,16 @@ let animPlaying = false;
 
 function reloadHTML() {
     $i("main-grades-content").innerHTML = getSemesterList(getGradeData());
+    $s("#main-grades-content .grades-add-sem").addEventListener("click", () => {
+        g_detail.showGradeEditor({
+            title: "Semester bearbeiten",
+            gradeName: "HS22",
+            gradeType: "regular",
+            gradeVal: 5,
+            weightType: "full",
+            weightVal: 1
+        });
+    });
     for (let e of $sa("#main-grades-content .grades-sem-container")) {
         const semName = e.dataset.name;
         e.addEventListener("click", () => {
