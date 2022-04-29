@@ -215,7 +215,7 @@
     transform: scale(0.98);
 }
 
-.grades-add-sem, .grades-add-subj, .grades-add-grade, .grades-add-folder {
+.grades-add-sem, .grades-add-subj, .grades-add-grade, .grades-add-subgrade {
     grid-template: "plus" 1fr / 1fr;
     justify-items: center;
     height: 80px;
@@ -308,7 +308,7 @@
 #grade-form {
     position: relative;
     height: 100%;
-    overflow: auto;
+    max-width: 600px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
@@ -316,8 +316,9 @@
 
 #grade-form-main-cont {
     width: 100%;
-    max-width: 600px;
     align-self: center;
+    overflow: auto;
+    max-width: 600px;
 }
 
 .grade-form-section {
@@ -341,11 +342,11 @@
     display: inline-block;
     margin: 5px;
     padding: 10px;
-    font-size: 18px;
+    font-size: 16px;
     text-align: center;
     cursor: pointer;
     color: var(--link-color);
-    flex-grow: 1;
+    flex: 1 1 0;
     -webkit-transition: background-color 0.5s, color 0.5s;
     -moz-transition: background-color 0.5s, color 0.5s;
     -ms-transition: background-color 0.5s, color 0.5s;

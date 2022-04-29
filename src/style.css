@@ -333,6 +333,11 @@ span.entry-title {
     text-decoration: inherit;
 }
 
+.margin-error-span {
+    display: block;
+    margin: 20px 0;
+}
+
 #error-timetable {
     visibility: hidden;
     opacity: 0;
@@ -537,11 +542,11 @@ img.teacher {
 }
 
 form label {
-    font-size: 22px;
+    font-size: 18px;
 }
 
 label {
-    padding: 12px 0px 12px 0;
+    padding: 12px 0px;
     display: inline-block;
 }
 
@@ -549,7 +554,7 @@ input[type=text], input[type=password] {
     width: 100%;
     padding: 12px 20px;
     box-sizing: border-box;
-    font-size: 18px;
+    font-size: 16px;
 }
 
 #button-spinner {
@@ -564,7 +569,7 @@ input[type=text], input[type=password] {
 }
 
 #login-submit {
-    margin: 20px auto;
+    margin: 30px auto 0;
 }
 
 button {
@@ -575,7 +580,7 @@ button {
     padding: 12px;
     display: block;
     font-size: inherit;
-    margin: 20px;
+    margin: 20px 20px 0;
 }
 
 #persplan {

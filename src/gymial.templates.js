@@ -48,24 +48,24 @@ const gradeListAddForm = (placeholder) => `
 `;
 
 const gradeListAddForSem = `
-<div class="grades-overview-container grades-add-sem">
+<div class="grades-overview-container grades-add grades-add-sem">
     <span class="grades-overview-span">(Placeholder) +Semester</span>
     ${gradeListAddForm("HS22")}
 </div>
 `;
 
 const gradeListAddForSubj = `
-<div class="grades-overview-container grades-add-subj">
+<div class="grades-overview-container grades-add grades-add-subj">
     <span class="grades-overview-span">(Placeholder) +Subject</span>
     ${gradeListAddForm("Mathe")}
 </div>
 `;
 
 const gradeListAddForGrade = `
-<div class="grades-overview-container grades-add-grade small">
+<div class="grades-overview-container grades-add grades-add-grade small">
     <span class="grades-overview-span">(Placeholder) +Grade</span>
 </div>
-<div class="grades-overview-container grades-add-folder small">
+<div class="grades-overview-container grades-add grades-add-subgrade small">
     <span class="grades-overview-span">(Placeholder) +Folder</span>
 </div>
 `;

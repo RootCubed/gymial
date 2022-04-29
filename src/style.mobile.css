@@ -57,12 +57,21 @@
         font-size: inherit;
     }
 
-    #login-form h2 {
+    #login-form h3, #grade-editor h3 {
         font-size: 22px;
     }
 
-    form button, form input {
+    form label {
         font-size: 16px !important;
+        padding: 8px 0px;
+    }
+
+    form button, form input {
+        font-size: 14px !important;
+    }
+
+    button {
+        margin: 10px 10px 0;
     }
 
     .timetable-entry {
@@ -88,6 +97,10 @@
 
     .mensa-desc, .mensa-desc * {
         font-size: 12px;
+    }
+
+    .grade-form-section {
+        margin-bottom: 10px;
     }
 }
 

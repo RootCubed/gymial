@@ -452,7 +452,7 @@ function setLessonData(lesson) {
             }
             let html = "";
             if (res.status && res.status == "intranet_offline_nocache") {
-                html += `<span>Das Intranet ist leider momentan offline. Versuche es später wieder.</span>`;
+                html += `<span class="margin-error-span">Das Intranet ist leider momentan offline. Versuche es später wieder.</span>`;
             } else {
                 for (let r of res) {
                     html += `<span class="student studentName person-link" data="${r.id}">${r.name}</span>`;
@@ -467,6 +467,8 @@ function setLessonData(lesson) {
                 loadTTData("student", id, viewState.time, viewState.currResources); // TODO: fix!
                 gymial.detail.hide();
             }));
+        }).catch(() => {
+            $i("names").innerHTML = `<span class="margin-error-span">Es ist ein Fehler aufgetreten. Versuche es später wieder.</span>`;
         });
     } else {
         $i("names").innerHTML = "Keine Informationen über die Teilnehmer an diesem Kurs!";

@@ -52,26 +52,35 @@ export function showPwForm() {
     $i("margin-details").classList.add("visible");
 }
 
+let currGradeType = "exam";
+let currWeightType = "fullgrade";
+
+let hideRej;
+
 function gradeSwitchToTypeExam() {
     $i("grade-cont-typeexam").style.display = "";
     $i("grade-cont-typebonus").style.display = "none";
     $i("grade-type-exam").classList.add("active");
     $i("grade-type-bonus").classList.remove("active");
+    currGradeType = "exam";
 }
 function gradeSwitchToTypeBonus() {
     $i("grade-cont-typeexam").style.display = "none";
     $i("grade-cont-typebonus").style.display = "";
     $i("grade-type-exam").classList.remove("active");
     $i("grade-type-bonus").classList.add("active");
+    currGradeType = "bonus";
 }
 
 function gradeSwitchToWeightTypeFull() {
     $i("grade-weight-full").classList.add("active");
     $i("grade-weight-percentire").classList.remove("active");
+    currWeightType = "fullgrade";
 }
 function gradeSwitchToWeightTypePercEntire() {
     $i("grade-weight-full").classList.remove("active");
     $i("grade-weight-percentire").classList.add("active");
+    currWeightType = "percentire";
 }
 
 function gradeSwitchBonusPlus() {
@@ -105,7 +114,7 @@ export function showGradeEditor(config) {
     $i("grade-input-grade").value = config.gradeVal || "";
     $i("grade-input-bonus").value = config.bonusVal || "";
     if (config.weightType) {
-        if (config.weightType == "full") {
+        if (config.weightType == "fullgrade") {
             gradeSwitchToWeightTypeFull();
         } else {
             gradeSwitchToWeightTypePercEntire();
@@ -113,9 +122,31 @@ export function showGradeEditor(config) {
     }
     $i("grade-input-weight").value = config.weightVal || "";
     $i("margin-details").classList.add("visible");
+
+    return new Promise((res, rej) => {
+        hideRej = rej;
+        $i("grade-edit-cancel").addEventListener("click", () => {
+            hide();
+        }, {once: true});
+
+        $i("grade-edit-submit").addEventListener("click", () => {
+            res({
+                "title": $i("grade-input-title").value,
+                "grade_ype": currGradeType,
+                "value": $i(
+                    (currGradeType == "exam") ? "grade-input-grade" : "grade-input-bonus"
+                ).value,
+                "weight_type": currWeightType,
+                "weight": $i("grade-input-weight").value
+            });
+            hideRej = null;
+            hide();
+        }, {once: true});
+    });
 }
 
 export function hide() {
     $i("margin-details").classList.remove("visible");
     $i("scrollLimiter").classList.remove("blur");
+    if (hideRej) hideRej("cancel");
 }
