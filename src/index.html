@@ -200,49 +200,51 @@
             <div id="grade-editor" style="display: none">
                 <form id="grade-form" method="post" onsubmit="return false">
                     <h3 id="grade-form-title">Note bearbeiten</h3>
-                    <div class="grade-form-section">
-                        <label id="label-grade-title">Titel</label>
-                        <input id="grade-input-title" name="title" type="text" placeholder="Prüfung" aria-labelledby="label-grade-title" required>    
-                    </div>
-      
-                    <div class="grade-form-section">
-                        <label id="label-grade-type">Notentyp</label>
-                        <div class="grade-chip-cont">
-                            <span id="grade-type-exam" class="grade-chip-sel active">Prüfung</span>
-                            <span id="grade-type-bonus" class="grade-chip-sel">Bonusnote</span>
-                        </div>
-                    </div>
-
-                    <div id="grade-cont-typeexam">
+                    <div id="grade-form-main-cont">
                         <div class="grade-form-section">
-                            <label id="label-grade-grade">Note</label>
-                            <input id="grade-input-grade" name="grade" type="text" placeholder="Note eingeben" aria-labelledby="label-grade-grade"
-                                required pattern="\d(.\d+)?">
+                            <label id="label-grade-title">Titel</label>
+                            <input id="grade-input-title" name="title" type="text" placeholder="Prüfung" aria-labelledby="label-grade-title" required>    
                         </div>
-                        
-                        <div class="grade-form-section">
-                            <label id="label-weight-type">Gewicht angeben als:</label>
+        
+                        <div class="grade-form-section" id="grade-form-grade-type-cont">
+                            <label id="label-grade-type">Notentyp</label>
                             <div class="grade-chip-cont">
-                                <span id="grade-weight-full" class="grade-chip-sel active">% einer ganzen Note</span>
-                                <span id="grade-weight-percentire" class="grade-chip-sel">% der Zeugnisnote</span>
+                                <span id="grade-type-exam" class="grade-chip-sel active">Prüfung</span>
+                                <span id="grade-type-bonus" class="grade-chip-sel">Bonusnote</span>
                             </div>
                         </div>
-                        
-                        <div class="grade-form-section">
-                            <label id="label-grade-weight">Gewicht</label>
-                            <input id="grade-input-weight" name="weight" type="text" placeholder="Gewicht eingeben" aria-labelledby="label-grade-weight"
-                                required pattern="\d(.\d+)?">
-                        </div>   
-                    </div>
-                    <div id="grade-cont-typebonus" class="grade-form-section">
-                        <label id="label-grade-bonus">Bonus</label>
-                        <div id="grade-bonus-cont">
-                            <div class="grade-chip-cont vert">
-                                <span id="grade-bonus-plus" class="grade-chip-sel active large">+</span>
-                                <span id="grade-bonus-minus" class="grade-chip-sel large">-</span>
+
+                        <div id="grade-cont-typeexam">
+                            <div class="grade-form-section" id="grade-form-grade-entry-cont">
+                                <label id="label-grade-grade">Note</label>
+                                <input id="grade-input-grade" name="grade" type="text" placeholder="Note eingeben" aria-labelledby="label-grade-grade"
+                                    required pattern="\d(.\d+)?">
                             </div>
-                            <input id="grade-input-bonus" name="grade" type="text" placeholder="Bonus" aria-labelledby="label-grade-bonus"
-                                required pattern="\d(.\d+)?">
+                            
+                            <div class="grade-form-section">
+                                <label id="label-weight-type">Gewicht angeben als:</label>
+                                <div class="grade-chip-cont">
+                                    <span id="grade-weight-full" class="grade-chip-sel active">% einer ganzen Note</span>
+                                    <span id="grade-weight-percentire" class="grade-chip-sel">% der Zeugnisnote</span>
+                                </div>
+                            </div>
+                            
+                            <div class="grade-form-section">
+                                <label id="label-grade-weight">Gewicht</label>
+                                <input id="grade-input-weight" name="weight" type="text" placeholder="Gewicht eingeben" aria-labelledby="label-grade-weight"
+                                    required pattern="\d(.\d+)?">
+                            </div>   
+                        </div>
+                        <div id="grade-cont-typebonus" class="grade-form-section">
+                            <label id="label-grade-bonus">Bonus</label>
+                            <div id="grade-bonus-cont">
+                                <div class="grade-chip-cont vert">
+                                    <span id="grade-bonus-plus" class="grade-chip-sel active large">+</span>
+                                    <span id="grade-bonus-minus" class="grade-chip-sel large">-</span>
+                                </div>
+                                <input id="grade-input-bonus" name="grade" type="text" placeholder="Bonus" aria-labelledby="label-grade-bonus"
+                                    required pattern="\d(.\d+)?">
+                            </div>
                         </div>
                     </div>
                     

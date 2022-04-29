@@ -62,6 +62,11 @@ a:not(.overlay-tab) {
     position: relative;
     height: 100vh;
     height: var(--wh);
+    transition: filter .25s;
+}
+
+#scrollLimiter.blur {
+    filter: blur(5px);
 }
 
 #selection {
@@ -345,11 +350,11 @@ span.entry-title {
 #error-timetable.visible {
     visibility: visible;
     opacity: 1;
-    -webkit-transition: opacity 500ms ease-in-out, visibility 500ms ease-in-out;
-    -moz-transition: opacity 500ms ease-in-out, visibility 500ms ease-in-out;
-    -ms-transition: opacity 500ms ease-in-out, visibility 500ms ease-in-out;
-    -o-transition: opacity 500ms ease-in-out, visibility 500ms ease-in-out;
-    transition: opacity 500ms ease-in-out, visibility 500ms ease-in-out;
+    -webkit-transition: opacity .25s ease-in-out, visibility .25s ease-in-out;
+    -moz-transition: opacity .25s ease-in-out, visibility .25s ease-in-out;
+    -ms-transition: opacity .25s ease-in-out, visibility .25s ease-in-out;
+    -o-transition: opacity .25s ease-in-out, visibility .25s ease-in-out;
+    transition: opacity .25s ease-in-out, visibility .25s ease-in-out;
 }
 
 #error-timetable img {
@@ -378,11 +383,11 @@ span.entry-title {
     left: 0;
     padding: 10vh 10vw;
     z-index: 2;
-    -webkit-transition: opacity 500ms ease-in-out, visibility 500ms ease-in-out;
-    -moz-transition: opacity 500ms ease-in-out, visibility 500ms ease-in-out;
-    -ms-transition: opacity 500ms ease-in-out, visibility 500ms ease-in-out;
-    -o-transition: opacity 500ms ease-in-out, visibility 500ms ease-in-out;
-    transition: opacity 500ms ease-in-out, visibility 500ms ease-in-out;
+    -webkit-transition: opacity .25s ease-in-out, visibility .25s ease-in-out;
+    -moz-transition: opacity .25s ease-in-out, visibility .25s ease-in-out;
+    -ms-transition: opacity .25s ease-in-out, visibility .25s ease-in-out;
+    -o-transition: opacity .25s ease-in-out, visibility .25s ease-in-out;
+    transition: opacity .25s ease-in-out, visibility .25s ease-in-out;
 }
 
 #margin-details.visible {
@@ -410,13 +415,11 @@ span.entry-title {
 
 .icon-x::before {
     content: '\00d7';
-    color: #fff;
-    font-weight: 300;
-    font-size: xx-large;
+    font-size: 40px;
     position: absolute;
     right: 0;
     z-index: 2;
-    margin: 10px;
+    margin: 5px 15px;
     cursor: pointer;
 }
 
@@ -525,10 +528,6 @@ img.teacher {
     font-size: 30px;
 }
 
-form button, form input {
-    font-size: 20px;
-}
-
 label {
     padding: 12px 0px 12px 0;
     display: inline-block;
@@ -538,10 +537,7 @@ input[type=text], input[type=password] {
     width: 100%;
     padding: 12px 20px;
     box-sizing: border-box;
-}
-
-button {
-    color: black;
+    font-size: 20px;
 }
 
 #button-spinner {
@@ -555,14 +551,19 @@ button {
     width: 60px;
 }
 
-button {
+#login-submit {
     margin: 20px auto;
+}
+
+button {
+    color: black;
     -webkit-appearance: none;
     background-color: #dddddd;
     border-radius: 5px;
     padding: 12px;
     display: block;
     font-size: inherit;
+    margin: 20px;
 }
 
 #persplan {

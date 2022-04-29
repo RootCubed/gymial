@@ -1,6 +1,6 @@
 import { $c, $i, $sa, $esc, $s } from "./gymial.helper.js";
 
-import { getGradeData } from "./gymial.store.js";
+import { getGradeData, setGradeData } from "./gymial.store.js";
 
 import * as templ from "./gymial.templates.js";
 
@@ -119,30 +119,54 @@ function calculateGradesAvg(data) {
     return percEntireGradesAvg * percEntireProp + regGradesAvg * (1 - percEntireProp) + bonusSum;
 }
 
+function deleteInObj(data, path) {
+    let curr = data;
+    for (let i = 0; i < path.length - 1; i++) curr = curr[path[i]];
+    delete curr[path[path.length - 1]];
+    return data;
+}
+
+function getFromObj(data, path) {
+    let curr = data;
+    for (let i = 0; i < path.length; i++) curr = curr[path[i]];
+    return curr;
+}
+
 let animPlaying = false;
 
 function reloadHTML() {
     $i("main-grades-content").innerHTML = getSemesterList(getGradeData());
-    $s("#main-grades-content .grades-add-sem").addEventListener("click", () => {
-        g_detail.showGradeEditor({
-            title: "Semester bearbeiten",
-            gradeName: "HS22",
-            gradeType: "regular",
-            gradeVal: 5,
-            weightType: "full",
-            weightVal: 1
-        });
+    let addBtn = $s("#main-grades-content .grades-add-sem");
+    let addBtnInput = addBtn.querySelector("input");
+    addBtn.addEventListener("click", () => {
+        addBtn.classList.add("adding");
+        addBtnInput.focus();
+    });
+    $i("grades-sems-cont").addEventListener("click", ev => {
+        if (addBtn.contains(ev.target)) return;
+        addBtn.classList.remove("adding");
+    });
+    $s("#main-grades-content .grades-confirm-add-cont").addEventListener("click", () => {
+        let gradeName = addBtnInput.value;
+        let grades = getGradeData();
+        if (grades[gradeName]) {
+            alert("Dieses Semester besteht schon!");
+            return;
+        }
+        grades[gradeName] = {};
+        setGradeData(grades);
+        reloadHTML();
     });
     for (let e of $sa("#main-grades-content .grades-sem-container")) {
         const semName = e.dataset.name;
         e.addEventListener("click", () => {
             if (animPlaying) return;
-            showGradeList(getGradeData()[semName], semName, e, $i("grades-sems-cont"), "sem");
+            showGradeList(getGradeData()[semName], semName, e, $i("grades-sems-cont"), "sem", [semName]);
         });
     }
 }
 
-function showGradeList(data, title, clickedEl, parent, type) {
+function showGradeList(data, title, clickedEl, parent, type, ref) {
     let glEl = (type == "sem") ? getSubjList(data, title) : getGradeList(data, title, clickedEl.dataset.color, type);
     $i("panel-grades").appendChild(glEl);
     
@@ -165,21 +189,73 @@ function showGradeList(data, title, clickedEl, parent, type) {
 
     glEl.querySelector(".grades-delete-link").addEventListener("click", () => {
         if (confirm("Wirklich löschen?")) {
-            // TODO
+            let grades = getGradeData();
+            grades = deleteInObj(grades, ref);
+            setGradeData(grades);
+            glEl.querySelector(".grades-back-btn").click();
+            reloadHTML();
         }
     });
+
+    let addBtn = glEl.querySelector(".grades-add-subj");
+    if (addBtn) {
+        let addBtnInput = addBtn.querySelector("input");
+        addBtn.addEventListener("click", () => {
+            addBtn.classList.add("adding");
+            addBtnInput.focus();
+        });
+        glEl.addEventListener("click", ev => {
+            if (addBtn.contains(ev.target)) return;
+            addBtn.classList.remove("adding");
+        });
+        glEl.querySelector(".grades-confirm-add-cont").addEventListener("click", () => {
+            let subjName = addBtnInput.value;
+            let grades = getGradeData();
+            let subjs = getFromObj(grades, ref);
+            if (subjs[subjName]) {
+                alert("Dieses Fach besteht schon!");
+                return;
+            }
+            subjs[subjName] = [];
+            setGradeData(grades);
+            reloadHTML();
+        });
+    } else {
+        glEl.querySelector(".grades-add-grade").addEventListener("click", () => {
+            g_detail.showGradeEditor({
+                title: "Note hinzufügen",
+                gradeType: "regular",
+                weightType: "full"
+            });
+        });
+        glEl.querySelector(".grades-add-folder").addEventListener("click", () => {
+            g_detail.showGradeEditor({
+                title: "Ordner hinzufügen",
+                gradeType: "regular",
+                weightType: "full",
+                hideGradeEntry: true
+            });
+        });
+    }
 
     for (let child of glEl.getElementsByClassName("grades-overview-container")) {
         child.addEventListener("click", () => {
             let t = child;
             if (t.classList.contains("grades-grade-container") && !t.classList.contains("grades-subgrade")) {
-                g_detail.showGradeEditor();
+                g_detail.showGradeEditor({
+                    title: "Note bearbeiten",
+                    gradeName: "HS22",
+                    gradeType: "regular",
+                    gradeVal: 5,
+                    weightType: "full",
+                    weightVal: 1
+                });
                 return;
             }
             if (t.dataset.index) {
-                showGradeList(data[t.dataset.index].value, data[t.dataset.index].title, t, glEl, "grade");
+                showGradeList(data[t.dataset.index].value, data[t.dataset.index].title, t, glEl, "grade", [...ref, t.dataset.index, "value"]);
             } else if (t.dataset.name) {
-                showGradeList(data[t.dataset.name], t.dataset.name, t, glEl, "subj");
+                showGradeList(data[t.dataset.name], t.dataset.name, t, glEl, "subj", [...ref, t.dataset.name]);
             }
         }, false);
     }
@@ -213,15 +289,11 @@ function genGradeContainer(grade, index) {
 }
 
 function getSemesterList(data) {
-    let html = `
-<div class="grades-overview-container grades-add-sem">
-    <span class="grades-overview-span">(Placeholder) +Semester</span>
-</div>
-`;
+    let html = "";
     for (let sem in data) {
         html += genGradeOverviewContainer("grades-sem-container", sem, calculateSemAvg(data[sem]), viewState.viewPluspoints);
     }
-    return html;
+    return templ.gradeListSem(html);
 }
 
 function getSubjList(data, title) {
@@ -267,7 +339,7 @@ function getGradeList(data, title, colorname, type) {
         html += genGradeContainer(grade, i);
     }
     let divEl = document.createElement("div");
-    divEl.classList.add("grades-cont", "grades-sg" + colorname);
+    divEl.classList.add("grades-cont");
     divEl.innerHTML = templ.gradeList([
         { title: "Semester umbenennen", cl: "grades-rename-link" },
         { title: "Semester löschen", cl: "grades-delete-link" }

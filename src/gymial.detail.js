@@ -36,6 +36,7 @@ function show(divToShow) {
     for (let div of ["details_cont", "login-window", "grade-editor"]) {
         $i(div).style.display = (div == divToShow) ? "" : "none";
     }
+    $i("scrollLimiter").classList.add("blur");
 }
 
 export function showDetail(html) {
@@ -85,6 +86,14 @@ function gradeSwitchBonusMinus() {
 export function showGradeEditor(config) {
     show("grade-editor");
     $i("grade-form-title").innerHTML = $esc(config.title) || "";
+    if (config.hideGradeEntry) {
+        gradeSwitchToTypeExam();
+        $i("grade-form-grade-type-cont").style.display = "none";
+        $i("grade-form-grade-entry-cont").style.display = "none";
+    } else {
+        $i("grade-form-grade-type-cont").style.display = "";
+        $i("grade-form-grade-entry-cont").style.display = "";
+    }
     $i("grade-input-title").value = config.gradeName || "";
     if (config.gradeType) {
         if (config.gradeType == "regular") {
@@ -108,4 +117,5 @@ export function showGradeEditor(config) {
 
 export function hide() {
     $i("margin-details").classList.remove("visible");
+    $i("scrollLimiter").classList.remove("blur");
 }

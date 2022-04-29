@@ -38,26 +38,48 @@ const gradeListPre = (links, title, avg) => `
 <h2 class="grades-heading">${title} (⌀ ${avg})</h2>
 `;
 
+const gradeListAddForm = (placeholder) => `
+    <div class="grades-sem-add-form">
+        <input type="text" placeholder="${placeholder}">
+        <div class="grades-confirm-add-cont">
+            <span class="grades-confirm-add">+</span>
+        </div>
+    </div>  
+`;
+
 const gradeListAddForSem = `
-<div class="grades-overview-container grades-add-grade">
-    <span class="grades-overview-span">(Placeholder) +Subject</span>
+<div class="grades-overview-container grades-add-sem">
+    <span class="grades-overview-span">(Placeholder) +Semester</span>
+    ${gradeListAddForm("HS22")}
 </div>
 `;
 
 const gradeListAddForSubj = `
-<div class="grades-overview-container grades-add-grade">
+<div class="grades-overview-container grades-add-subj">
+    <span class="grades-overview-span">(Placeholder) +Subject</span>
+    ${gradeListAddForm("Mathe")}
+</div>
+`;
+
+const gradeListAddForGrade = `
+<div class="grades-overview-container grades-add-grade small">
     <span class="grades-overview-span">(Placeholder) +Grade</span>
 </div>
-<div class="grades-overview-container grades-add-folder">
+<div class="grades-overview-container grades-add-folder small">
     <span class="grades-overview-span">(Placeholder) +Folder</span>
 </div>
+`;
+
+export const gradeListSem = (content) => `
+${gradeListAddForSem}
+${content}
 `;
 
 export const gradeList = (links, title, avg, type, content) => `
 ${gradeListPre(links, title, avg)}
 ${(type == "sem") ? "" : "<div class=\"grades-content\">"}
     <div style="width: 100%;">
-        ${(type == "sem") ? gradeListAddForSem : gradeListAddForSubj}
+        ${(type == "sem") ? gradeListAddForSubj : gradeListAddForGrade}
     </div>
     ${content}
 ${(type == "sem") ? "" : "</div>"}

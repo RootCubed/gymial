@@ -37,6 +37,7 @@
 }
 
 .grades-cont.fade-out {
+    opacity: 0;
     animation: 0.25s linear fade-out;
 }
 
@@ -54,16 +55,6 @@
     background-color: var(--grade-bg-col);
 }
 
-.grades-sg0 {
-    /*--grade-bg-col: #074552;
-    --grade-cont-col: #1987B6;*/
-}
-
-.grades-sg1 {
-    /*--grade-bg-col: #99421D;
-    --grade-cont-col: #D44E24;*/
-}
-
 .grades-heading {
     margin: 20px 60px;
 }
@@ -77,6 +68,7 @@
     cursor: pointer;
     margin: 5px;
     transition: transform 0.25s;
+    overflow: hidden;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -182,7 +174,6 @@
 .grades-overview-vertbar {
     grid-area: colbar;
     width: 100%;
-    border-radius: 0 10px 10px 0;
 }
 
 .grades-overview-avg {
@@ -224,7 +215,7 @@
     transform: scale(0.98);
 }
 
-.grades-add-sem, .grades-add-grade, .grades-add-folder {
+.grades-add-sem, .grades-add-subj, .grades-add-grade, .grades-add-folder {
     grid-template: "plus" 1fr / 1fr;
     justify-items: center;
     height: 80px;
@@ -233,7 +224,7 @@
     border: 2px dashed var(--color-primary);
 }
 
-.grades-add-grade, .grades-add-folder {
+.grades-overview-container.small {
     width: calc(min(225px, 40%));
 }
 
@@ -269,6 +260,45 @@
     filter: brightness(125%);
 }
 
+.grades-sem-add-form {
+    display: none;
+    width: 100%;
+    height: 100%;
+}
+
+.grades-confirm-add {
+    display: block;
+    padding: 0 20px;
+    font-size: 35px;
+    align-self: center;
+}
+  
+.grades-confirm-add-cont {
+    display: flex;
+    height: 100%;
+    background-color: #22a8c7;
+}
+
+.grades-confirm-add-cont:hover {
+    background-color: #11849f;
+}
+
+.grades-confirm-add-cont:active {
+    background-color: #0c7086;
+}
+
+.grades-overview-container.adding:active {
+    transform: none;   
+}
+
+.grades-overview-container.adding .grades-overview-span {
+    display: none;
+}
+
+.grades-overview-container.adding .grades-sem-add-form {
+    display: flex;
+}
+
 #grade-editor {
     position: absolute;
     width: 70vw;
@@ -280,8 +310,15 @@
     position: relative;
     height: 100%;
     overflow: auto;
-    max-width: 600px;
     margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+#grade-form-main-cont {
+    width: 100%;
+    max-width: 600px;
+    align-self: center;
 }
 
 .grade-form-section {
@@ -319,7 +356,7 @@
     -ms-transition: background-color 0.5s, color 0.5s;
     -o-transition: background-color 0.5s, color 0.5s;
     transition: background-color 0.5s, color 0.5s;
-    background-color: #cfcfcf44;
+    border: 1px dashed #cfcfcf;
 }
 
 .grade-chip-cont.vert .grade-chip-sel {
@@ -334,9 +371,11 @@
 .grade-chip-sel.active {
     background-color: #cfcfcf;
     color: black;
+    border: none;
 }
 
 #grade-edit-button-cont {
     display: flex;
-    margin-top: 20px;
+    margin-top: auto;
+    align-self: end;
 }
