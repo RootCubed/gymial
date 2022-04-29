@@ -288,7 +288,7 @@
 }
 
 .grades-overview-container.adding:active {
-    transform: none;   
+    transform: none;
 }
 
 .grades-overview-container.adding .grades-overview-span {
@@ -300,7 +300,6 @@
 }
 
 #grade-editor {
-    position: absolute;
     width: 70vw;
     height: 70vh;
     padding: 5vh 5vw;
@@ -323,10 +322,6 @@
 
 .grade-form-section {
     margin-bottom: 20px;
-}
-
-#grade-form label {
-    font-size: 24px;
 }
 
 #grade-bonus-cont {
