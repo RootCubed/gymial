@@ -120,7 +120,7 @@ const periods = [
 
 let ttCache = {};
 let resCache = {};
-const ttCacheTimeout = ((process.env.NODE_ENV == "development") ? 12 : 1) * 1000 * 60 * 10; // 10 minutes (2h in development branch)
+const ttCacheTimeout = ((process.env.NODE_ENV == "development") ? 24 : 1) * 1000 * 60 * 10; // 10 minutes (4h in development branch)
 const resCacheTimeout = 1000 * 60 * 60 * 5; // 5 hours
 
 const goodTTCache = c => (!!c && !!c.time) && (new Date() - c.time) < ttCacheTimeout;
