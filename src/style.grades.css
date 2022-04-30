@@ -140,8 +140,20 @@
         1fr auto 10px;
 }
 
+.grades-grade-container.grades-subgrade {
+    grid-template:
+        "sg-icon title title colbar" 1fr
+        "weight weight grade colbar" auto
+        /
+        auto 1fr auto 10px;
+}
+
 .grades-overview-span {
     margin: 10px;
+}
+
+.grades-cont .color-svg * {
+    stroke-width: 3px;
 }
 
 .grades-overview-title {
@@ -190,6 +202,12 @@
     text-align: left;
 }
 
+.grades-overview-sg-icon {
+    grid-area: sg-icon;
+    width: 25px;
+    margin: 10px 0 0 10px;
+}
+
 .grades-group-title {
     width: calc(min(450px, 80%));
 }
@@ -216,6 +234,10 @@
     transform: scale(0.98);
 }
 
+.grades-add .grades-overview-span {
+    margin: 0;
+}
+
 .grades-add-sem, .grades-add-subj, .grades-add-grade, .grades-add-subgrade {
     grid-template: "plus" 1fr / 1fr;
     justify-items: center;
@@ -226,16 +248,7 @@
 }
 
 .grades-overview-container.small {
-    width: calc(min(225px, 40%));
-}
-
-.grades-grade-container.grades-subgrade::after {
-    content: url(~./static/icon-subgrade.svg);
-    position: absolute;
-    right: 10px;
-    top: 0;
-    margin: 5px;
-    width: 30px;
+    width: calc(min(225px, 40%) - 10px);
 }
 
 .grades-dropdown-more {
@@ -247,6 +260,7 @@
     transition: opacity 0.25s, visibility 0.25s;
     border-radius: 15px 0 15px 15px;
     overflow: hidden;
+    z-index: 1;
 }
 
 .grades-dropdown-more.hidden {
@@ -286,15 +300,15 @@
 .grades-confirm-add-cont {
     display: flex;
     height: 100%;
-    background-color: #18cc34;
+    background-color: #418a10;
 }
 
 .grades-confirm-add-cont:hover {
-    background-color: #39c11d;
+    background-color: #1a7307;
 }
 
 .grades-confirm-add-cont:active {
-    background-color: #1ca209;
+    background-color: #025513;
 }
 
 .grades-overview-container.adding:active {

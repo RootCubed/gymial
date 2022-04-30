@@ -403,6 +403,7 @@ span.entry-title {
 #details-overlay {
     width: 80vw;
     max-height: 80vh;
+    min-height: 50vh;
     background-color: #222222f8;
     color: white;
     border-radius: 5px;
@@ -414,10 +415,7 @@ span.entry-title {
 }
 
 #details_cont {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
+    max-height: inherit;
     display: flex;
     flex-direction: column;
 }
@@ -452,8 +450,8 @@ span.entry-title {
 
 #lesson-detail {
     color: white;
-    height: 100%;
     overflow-y: auto;
+    padding: 10px 0;
 }
 
 #room-detail, #teacher-detail {

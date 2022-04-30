@@ -1,3 +1,7 @@
+import sgIcon from "./icon-subgrade.svg";
+import addSgIcon from "./icon-add-subgrade.svg";
+import addGradeIcon from "./icon-add-grade.svg";
+
 const gradeContainerGeneric = (className, title, vertbarCol, content, index) => `
 <div class="grades-overview-container ${className}" data-name="${title}"
 ${(index != undefined) ? "data-index=\"" + index + "\"" : ""}>
@@ -16,6 +20,9 @@ export const gradeSubjContainer = (className, title, trueAvg, roundedAvg, vertba
 
 export const gradeGradeContainer = (className, index, title, weight, roundedAvg, vertbarCol) => {
     return gradeContainerGeneric(className, title, vertbarCol, `
+        <span class="grades-overview-sg-icon color-svg" style="${className.includes("subgrade") ? "" : "display: none;"}">
+            ${sgIcon}
+        </span>
         <span class="grades-overview-span grades-overview-weight">${weight}</span>
         <span class="grades-overview-span grades-overview-grade">${roundedAvg}</span>
     `, index);
@@ -49,24 +56,24 @@ const gradeListAddForm = (placeholder) => `
 
 const gradeListAddForSem = `
 <div class="grades-overview-container grades-add grades-add-sem">
-    <span class="grades-overview-span">(Placeholder) +Semester</span>
-    ${gradeListAddForm("HS22")}
+    <span class="grades-overview-span">Semester erstellen</span>
+    ${gradeListAddForm("Semester benennen")}
 </div>
 `;
 
 const gradeListAddForSubj = `
 <div class="grades-overview-container grades-add grades-add-subj">
-    <span class="grades-overview-span">(Placeholder) +Subject</span>
-    ${gradeListAddForm("Mathe")}
+    <span class="grades-overview-span">Fach hinzufügen</span>
+    ${gradeListAddForm("Fach")}
 </div>
 `;
 
 const gradeListAddForGrade = `
 <div class="grades-overview-container grades-add grades-add-grade small">
-    <span class="grades-overview-span">(Placeholder) +Grade</span>
+    <span class="grades-overview-span"><span class="color-svg">${addGradeIcon}</span></span>
 </div>
 <div class="grades-overview-container grades-add grades-add-subgrade small">
-    <span class="grades-overview-span">(Placeholder) +Folder</span>
+    <span class="grades-overview-span"><span class="color-svg">${addSgIcon}</span></span>
 </div>
 `;
 

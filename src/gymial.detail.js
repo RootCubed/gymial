@@ -3,11 +3,9 @@ import { $esc, $i, $c } from "./gymial.helper.js";
 export function init() {
     $i("grade-form").addEventListener("submit", () => {
         try {
-            let weightVal = $i("grade-input-weight").value;
-            if (weightVal.endsWith("%")) {
-                weightVal = parseFloat(weightVal) / 100;
-            } else {
-                weightVal = parseFloat(weightVal);
+            let weightVal = parseFloat($i("grade-input-weight").value);
+            if (currWeightType == "perc_entire") {
+                weightVal /= 100;
             }
             if (modalPromise) modalPromise.res({
                 "title": $i("grade-input-title").value,
@@ -141,19 +139,19 @@ export function showGradeEditor(config) {
     $i("grade-input-title").value = config.gradeName || "";
     let gradeVal = (config.gradeVal == undefined) ? "" : config.gradeVal;
     if (config.gradeType && config.gradeType == "bonus") {
-        $i("grade-input-bonus").value = gradeVal || "";
+        $i("grade-input-bonus").value = gradeVal;
         gradeSwitchToTypeBonus();
     } else {
-        $i("grade-input-grade").value = gradeVal || "";
+        $i("grade-input-grade").value = gradeVal;
         gradeSwitchToTypeExam();
     }
     let weightVal = (config.weightVal == undefined) ? "" : config.weightVal;
     if (config.weightType && config.weightType == "perc_entire") {
         gradeSwitchToWeightTypePercEntire();
-        $i("grade-input-weight").value = (weightVal * 100 + "%") || "";
+        $i("grade-input-weight").value = (weightVal * 100);
     } else {
         gradeSwitchToWeightTypeFull();
-        $i("grade-input-weight").value = weightVal || "";
+        $i("grade-input-weight").value = weightVal;
     }
 
     $i("grade-form-grade-type-cont").style.display = "";

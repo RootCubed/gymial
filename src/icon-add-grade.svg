@@ -1,0 +1,6 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" stroke="#fff" fill="none">
+    <path d="m 16 10 l 0 44 l 32 0 l 0 -34 l -10 -10 l -22 0" stroke-width="3" stroke-linecap="square" />
+    <path d="m 38 10 l 0 10 l 10 0" stroke-width="3" stroke-linecap="butt" />
+    <line x1="32" x2="32" y1="30" y2="42" stroke-width="3" />
+    <line x1="26" x2="38" y1="36" y2="36" stroke-width="3" />
+</svg>

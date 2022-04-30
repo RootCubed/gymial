@@ -199,6 +199,8 @@ function refreshGrades() {
     
     let addSemBtn = $s("#main-grades-content .grades-add-sem");
     registerClickAddBtn(addSemBtn, $i("grades-sems-cont"), name => {
+        name = name.trim();
+        if (name == "") return false;
         let sems = getAtContext(viewState.gradeData, viewState.context);
         if (sems[name]) {
             alert("Dieses Semester besteht schon!");
@@ -277,7 +279,7 @@ function clickOnCont(selEl) {
     $i("panel-grades").appendChild(glEl);
 
     animPlaying = true;
-    glEl.classList.add("growing");
+    selEl.closest(".grades-cont").classList.add("growing");
     selEl.classList.add("growing");
     setTimeout(() => { animPlaying = false; }, 250);
 }
@@ -350,6 +352,8 @@ function showGradeList(context) {
 
     let addSubjBtn = glEl.querySelector(".grades-add-subj");
     if (addSubjBtn) registerClickAddBtn(addSubjBtn, glEl, name => {
+        name = name.trim();
+        if (name == "") return false;
         let subjs = getAtContext(viewState.gradeData, viewState.context);
         if (subjs[name]) {
             alert("Dieses Fach besteht schon!");
