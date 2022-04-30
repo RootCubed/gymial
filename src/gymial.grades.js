@@ -201,10 +201,11 @@ function refreshGrades() {
     registerClickAddBtn(addSemBtn, $i("grades-sems-cont"), name => {
         let sems = getAtContext(viewState.gradeData, viewState.context);
         if (sems[name]) {
-            alert("Dieses Fach besteht schon!");
+            alert("Dieses Semester besteht schon!");
             return false;
         }
         sems[name] = [];
+        setGradeData(viewState.gradeData);
         return true;
     });
 
@@ -355,6 +356,7 @@ function showGradeList(context) {
             return false;
         }
         subjs[name] = [];
+        setGradeData(viewState.gradeData);
         return true;
     });
     let addGradeBtn = glEl.querySelector(".grades-add-grade");
