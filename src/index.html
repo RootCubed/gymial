@@ -104,13 +104,13 @@
             <div id="panel-settings">
                 <div class="settings-section">
                     <h2 class="settings-section-header">Account (nicht angemeldet)</h2>
-                    <button id="login">Melde dich an, um Klassenlisten, Instrumentalstunden und Lehrerstundenpläne zu sehen.</button>
+                    <button type="button" id="login">Melde dich an, um Klassenlisten, Instrumentalstunden und Lehrerstundenpläne zu sehen.</button>
                     <div id="accountinfo">
                         <span id="ownName"></span>
                         <div id="persDetails" style="display: none;">
                             <div id="otherDetails"></div>
-                            <button id="persplan">Persönlicher Stundenplan</button>
-                            <button id="logout">Abmelden</button>
+                            <button type="button" id="persplan">Persönlicher Stundenplan</button>
+                            <button type="button" id="logout">Abmelden</button>
                         </div>
                     </div>
                 </div>
@@ -121,6 +121,14 @@
                         <div id="stylepicker">
                         </div>
                     </div>
+                </div>
+                <div class="grades-section">
+                    <h2 class="settings-section-header">Noten</h2>
+                    <button type="button">Noten auf Cloud abspeichern (In Entwicklung)</button>
+                </div>
+                <div class="debug-section">
+                    <h2 class="settings-section-header">Mehr</h2>
+                    <button type="button" id="grades-reset-all">[DEBUG] Alle Noten zurücksetzen</button>
                 </div>
             </div>
             <div id="panel-mensa">
@@ -181,7 +189,7 @@
                 </div>
             </div>
             <div id="login-window" style="display: none">
-                <form id="login-form" method="post" onsubmit="return false">
+                <form id="login-form" method="get" onsubmit="return false">
                     <h3>Anmelden</h3>
                     <h4 style="margin-bottom: 20px;">Melde dich an, um Klassenlisten, Instrumentalstunden und Lehrerstundenpläne zu sehen.</h4>
                     <label id="label-user">Name (vorname.nachname)</label>
@@ -193,12 +201,12 @@
                     <div id="button-spinner">
                         <span id="invalid-login" style="display: none;">Ungültiges Login!</span>
                         <img width="40" src="<%= require("./static/spinner.svg") %>" alt="Loading spinner" style="display: none;">
-                        <button id="login-submit">Einloggen</button>
+                        <button type="submit" id="login-submit">Einloggen</button>
                     </div>
                 </form>
             </div>
             <div id="grade-editor" style="display: none">
-                <form id="grade-form" method="post" onsubmit="return false">
+                <form id="grade-form" method="get" onsubmit="return false">
                     <h3 id="grade-form-title">Note bearbeiten</h3>
                     <div id="grade-form-main-cont">
                         <div class="grade-form-section">
@@ -232,7 +240,7 @@
                             <div class="grade-form-section">
                                 <label id="label-grade-weight">Gewicht</label>
                                 <input id="grade-input-weight" name="weight" type="text" placeholder="Gewicht eingeben" aria-labelledby="label-grade-weight"
-                                    required pattern="\d(.\d+)?">
+                                    required pattern="(\d(.\d+)?)|(\d+(.\d+)?%)">
                             </div>   
                         </div>
                         <div id="grade-cont-typebonus" class="grade-form-section">
@@ -249,8 +257,8 @@
                     </div>
                     
                     <div id="grade-edit-button-cont">
-                        <button id="grade-edit-cancel">Abbrechen</button>
-                        <button id="grade-edit-submit">Speichern</button>
+                        <button type="button" id="grade-edit-cancel">Abbrechen</button>
+                        <button type="submit" id="grade-edit-submit">Speichern</button>
                     </div>
                 </form>
             </div>

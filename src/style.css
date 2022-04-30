@@ -555,6 +555,11 @@ input[type=text], input[type=password] {
     padding: 12px 20px;
     box-sizing: border-box;
     font-size: 16px;
+    border: none;
+}
+
+input:invalid {
+    border: 2px dashed red;
 }
 
 #button-spinner {
@@ -572,7 +577,7 @@ input[type=text], input[type=password] {
     margin: 30px auto 0;
 }
 
-button {
+button, input[type=submit] {
     color: black;
     -webkit-appearance: none;
     background-color: #dddddd;

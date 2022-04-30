@@ -13,6 +13,14 @@ let viewState = {
 };
 
 export function init() {
+    $i("grades-reset-all").addEventListener("click", () => {
+        if (confirm("Willst du wirklich alle Noten löschen? Dies kann nicht rückgängig gemacht werden!")) {
+            setGradeData({});
+            viewState.gradeData = {};
+            refreshGrades();
+        }
+    });
+
     viewState.gradeData = getGradeData();
     refreshGrades();
 }
@@ -80,12 +88,12 @@ function calculateGradesAvg(data) {
     if (gradesCalc.length == 0) return NaN;
 
     // calculate regular grades, taking into account subgrades
-    let regGrades = gradesCalc.filter(grade => grade.weight_type == "fullgrade");
+    let regGrades = gradesCalc.filter(grade => grade.grade_type == "regular" && grade.weight_type == "fullgrade");
     let regGradesWSum = regGrades.reduce((a, v) => a + v.weight, 0);
     let regGradesAvg = regGrades.reduce((a, v) => a + v.value * v.weight, 0) / regGradesWSum;
 
     // calculate grades with perc_entire, taking into account subgrades
-    let percEntireGrades = gradesCalc.filter(grade => grade.weight_type == "perc_entire");
+    let percEntireGrades = gradesCalc.filter(grade => grade.grade_type == "regular" && grade.weight_type == "perc_entire");
     let percEntireProp = percEntireGrades.reduce((a, v) => a + v.weight, 0);
     if (percEntireProp > 1) alert("percEntireGrade over 100%"); // TODO: better error modal
     let percEntireGradesAvg = 0;
@@ -121,11 +129,11 @@ function getCurrContextEl(context) {
 function pushContext(context, parentEl, selEl) {
     if (context.subj) {
         if (!context.grade) context.grade = [];
-        context.grade.push({ name: selEl.dataset.name, index: selEl.dataset.index, selEl: selEl, contEl: parentEl });
+        context.grade.push({ "name": selEl.dataset.name, "index": selEl.dataset.index, "selEl": selEl, "contEl": parentEl });
     } else if (context.sem) {
-        context.subj = { name: selEl.dataset.name, selEl: selEl, contEl: parentEl };
+        context.subj = { "name": selEl.dataset.name, "selEl": selEl, "contEl": parentEl };
     } else {
-        context.sem = { name: selEl.dataset.name, selEl: selEl, contEl: parentEl };
+        context.sem = { "name": selEl.dataset.name, "selEl": selEl, "contEl": parentEl };
     }
     return context;
 }
@@ -182,18 +190,29 @@ function editGrade(context, gradeData, newGrade) {
 let animPlaying = false;
 
 function refreshGrades() {
-    $i("main-grades-content").innerHTML = getSemesterList(getGradeData());
+    $i("main-grades-content").innerHTML = getSemesterList(viewState.gradeData);
 
     for (let e of $sa("#main-grades-content .grades-sem-container")) {
         e.addEventListener("click", () => clickOnCont(e));
     }
+    
+    let addSemBtn = $s("#main-grades-content .grades-add-sem");
+    registerClickAddBtn(addSemBtn, $i("grades-sems-cont"), name => {
+        let sems = getAtContext(viewState.gradeData, viewState.context);
+        if (sems[name]) {
+            alert("Dieses Fach besteht schon!");
+            return false;
+        }
+        sems[name] = [];
+        return true;
+    });
 
     // semester view, subject view, etc.
     let ctx = viewState.context;
     let currCtx = {};
     if (ctx.sem) {
-        let bnts = Array(...$i("main-grades-content").getElementsByClassName("grades-sem-container"));
-        let selBtn = bnts.find(e => e.dataset.name == ctx.sem.name);
+        let btns = Array(...$i("main-grades-content").getElementsByClassName("grades-sem-container"));
+        let selBtn = btns.find(e => e.dataset.name == ctx.sem.name);
         selBtn.classList.add("growing");
         ctx.sem.selEl = selBtn;
         
@@ -201,8 +220,8 @@ function refreshGrades() {
         showGradeList(currCtx);
     }
     if (ctx.subj) {
-        let bnts = Array(...ctx.sem.contEl.getElementsByClassName("grades-subj-container"));
-        let selBtn = bnts.find(e => e.dataset.name == ctx.subj.name);
+        let btns = Array(...ctx.sem.contEl.getElementsByClassName("grades-subj-container"));
+        let selBtn = btns.find(e => e.dataset.name == ctx.subj.name);
         selBtn.classList.add("growing");
         ctx.subj.selEl = selBtn;
         
@@ -210,15 +229,18 @@ function refreshGrades() {
         showGradeList(currCtx);
     }
     if (ctx.grade) {
+        let prevCont = ctx.subj.contEl;
         currCtx.grade = [];
         for (let g of ctx.grade) {
-            let bnts = Array(...g.contEl.getElementsByClassName("grades-subj-container"));
-            let selBtn = bnts.find(e => e.dataset.name == ctx.subj.name);
+            let btns = Array(...prevCont.getElementsByClassName("grades-grade-container"));
+            let selBtn = btns.find(e => e.dataset.index == g.index);
             selBtn.classList.add("growing");
             g.selEl = selBtn;
             
             currCtx.grade.push(g);
             showGradeList(currCtx);
+
+            prevCont = g.contEl;
         }
     }
     
@@ -232,16 +254,16 @@ function clickOnCont(selEl) {
         let grade = getAtContext(viewState.gradeData, viewState.context)[selEl.dataset.index];
         viewState.context.selected = selEl.dataset.index;
         g_detail.showGradeEditor({
-            title: "Note bearbeiten",
-            gradeName: grade.title,
-            gradeType: grade.grade_type,
-            gradeVal: grade.value,
-            weightType: grade.weight_type,
-            weightVal: grade.weight
+            "title": "Note bearbeiten",
+            "gradeName": grade.title,
+            "gradeType": grade.grade_type,
+            "gradeVal": grade.value,
+            "weightType": grade.weight_type,
+            "weightVal": grade.weight
         }).then(r => {
             editGrade(viewState.context, viewState.gradeData, r);
             refreshGrades();
-        }).catch();
+        }).catch(() => {});
         return;
     }
 
@@ -270,6 +292,31 @@ function closeCurrView(context) {
     }, 250);
 }
 
+function registerClickAddBtn(btn, cont, cb) {
+    let btnInput = btn.querySelector("input");
+    btn.addEventListener("click", () => {
+        btn.classList.add("adding");
+        btnInput.focus();
+    });
+
+    btnInput.addEventListener("keyup", ev => {
+        if (ev.key === "Escape") {
+            cont.click();
+        }
+    });
+
+    cont.addEventListener("click", ev => {
+        if (btn.contains(ev.target)) return;
+        btn.classList.remove("adding");
+    }, false);
+
+    cont.querySelector(".grades-confirm-add-cont").addEventListener("click", () => {
+        if (cb(btnInput.value)) {
+            refreshGrades();
+        }
+    });
+}
+
 function showGradeList(context) {
     let ctxEl = getCurrContextEl(context);
     let glEl = ctxEl.contEl;
@@ -294,62 +341,49 @@ function showGradeList(context) {
         closeCurrView(viewState.context);
         popContext(viewState.context);
     });
-    
-    let addBtn = glEl.querySelector(".grades-add");
-    let addBtnInput = addBtn.querySelector("input");
 
-    if (addBtn && getTypeFromContext(context) == "sem") {
-        addBtn.addEventListener("click", () => {
-            addBtn.classList.add("adding");
-            addBtnInput.focus();
-        });
-    
-        glEl.addEventListener("click", ev => {
-            if (addBtn.contains(ev.target)) return;
-            addBtn.classList.remove("adding");
-        }, false);
-
-        let btnConfirmAdd = glEl.querySelector(".grades-confirm-add-cont");
-        if (btnConfirmAdd) {
-            btnConfirmAdd.addEventListener("click", () => {
-                let subjName = addBtnInput.value;
-                let subjs = getAtContext(viewState.gradeData, viewState.context);
-                if (subjs[subjName]) {
-                    alert("Dieses Fach besteht schon!");
-                    return;
-                }
-                subjs[subjName] = [];
+    let addSubjBtn = glEl.querySelector(".grades-add-subj");
+    if (addSubjBtn) registerClickAddBtn(addSubjBtn, glEl, name => {
+        let subjs = getAtContext(viewState.gradeData, viewState.context);
+        if (subjs[name]) {
+            alert("Dieses Fach besteht schon!");
+            return false;
+        }
+        subjs[name] = [];
+        return true;
+    });
+    let addGradeBtn = glEl.querySelector(".grades-add-grade");
+    if (addGradeBtn) {
+        addGradeBtn.addEventListener("click", () => {
+            g_detail.showGradeEditor({
+                "title": "Note hinzufügen",
+                "gradeType": "regular",
+                "weightType": "fullgrade"
+            }).then(r => {
+                addGrade(viewState.context, viewState.gradeData, r);
                 refreshGrades();
-            });
-        }
-    } else {
-        let btnAddGrade = glEl.querySelector(".grades-add-grade");
-        if (btnAddGrade) {
-            btnAddGrade.addEventListener("click", () => {
-                g_detail.showGradeEditor({
-                    title: "Note hinzufügen",
-                    gradeType: "regular",
-                    weightType: "fullgrade"
-                }).then(r => {
-                    addGrade(viewState.context, viewState.gradeData, r);
-                    refreshGrades();
-                }).catch();
-            });
-        }
-        let btnAddSubgrade = glEl.querySelector(".grades-add-subgrade");
-        if (btnAddSubgrade) {
-            btnAddSubgrade.addEventListener("click", () => {
-                g_detail.showGradeEditor({
-                    title: "Ordner hinzufügen",
-                    gradeType: "regular",
-                    weightType: "fullgrade",
-                    hideGradeEntry: true
-                }).then(r => {
-                    addGrade(viewState.context, viewState.gradeData, r);
-                    refreshGrades();
-                }).catch();
-            });
-        }
+            }).catch(() => {});
+        });
+    }
+    let addSubgradeBtn = glEl.querySelector(".grades-add-subgrade");
+    if (addSubgradeBtn) {
+        addSubgradeBtn.addEventListener("click", () => {
+            g_detail.showGradeEditor({
+                title: "Ordner hinzufügen",
+                gradeType: "regular",
+                weightType: "fullgrade",
+                hideGradeEntry: true
+            }).then(r => {
+                addGrade(viewState.context, viewState.gradeData, {
+                    "title": r.title,
+                    "grade_type": "subgrade",
+                    "value": [],
+                    "weight_type": r.weight_type,
+                    "weight": r.weight
+                });
+                refreshGrades();
+            }).catch(() => {});
+        });
     }
 
     glEl.querySelector(".grades-more-btn").addEventListener("click", () => {

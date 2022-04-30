@@ -27,6 +27,7 @@ export function init() {
             $i("login-submit").style.display = "inline";
             spinner.style.display = "none";
         });
+        return false; // prevent redirect
     });
 }
 

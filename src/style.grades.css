@@ -276,15 +276,15 @@
 .grades-confirm-add-cont {
     display: flex;
     height: 100%;
-    background-color: #22a8c7;
+    background-color: #18cc34;
 }
 
 .grades-confirm-add-cont:hover {
-    background-color: #11849f;
+    background-color: #39c11d;
 }
 
 .grades-confirm-add-cont:active {
-    background-color: #0c7086;
+    background-color: #1ca209;
 }
 
 .grades-overview-container.adding:active {

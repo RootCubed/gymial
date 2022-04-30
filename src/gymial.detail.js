@@ -1,12 +1,37 @@
 import { $esc, $i, $c } from "./gymial.helper.js";
 
 export function init() {
+    $i("grade-form").addEventListener("submit", () => {
+        try {
+            let weightVal = $i("grade-input-weight").value;
+            if (weightVal.endsWith("%")) {
+                weightVal = parseFloat(weightVal) / 100;
+            } else {
+                weightVal = parseFloat(weightVal);
+            }
+            if (modalPromise) modalPromise.res({
+                "title": $i("grade-input-title").value,
+                "grade_type": currGradeType,
+                "value": parseFloat($i(
+                    (currGradeType == "regular") ? "grade-input-grade" : "grade-input-bonus"
+                ).value),
+                "weight_type": currWeightType,
+                "weight": weightVal
+            });
+            modalPromise = null;
+        } catch (e) {}
+        hide();
+        return false; // prevent redirect
+    });
+
     $i("margin-details").addEventListener("click", el => {
         if (el.target.id != "margin-details") return;
         hide();
     });
-
     $c("icon-x")[0].addEventListener("click", () => {
+        hide();
+    });
+    $i("grade-edit-cancel").addEventListener("click", () => {
         hide();
     });
     
@@ -55,20 +80,26 @@ export function showPwForm() {
 let currGradeType = "exam";
 let currWeightType = "fullgrade";
 
-let hideRej;
+let modalPromise;
 
 function gradeSwitchToTypeExam() {
     $i("grade-cont-typeexam").style.display = "";
     $i("grade-cont-typebonus").style.display = "none";
     $i("grade-type-exam").classList.add("active");
     $i("grade-type-bonus").classList.remove("active");
-    currGradeType = "exam";
+    $i("grade-input-grade").required = true;
+    $i("grade-input-weight").required = true;
+    $i("grade-input-bonus").required = false;
+    currGradeType = "regular";
 }
 function gradeSwitchToTypeBonus() {
     $i("grade-cont-typeexam").style.display = "none";
     $i("grade-cont-typebonus").style.display = "";
     $i("grade-type-exam").classList.remove("active");
     $i("grade-type-bonus").classList.add("active");
+    $i("grade-input-grade").required = false;
+    $i("grade-input-weight").required = false;
+    $i("grade-input-bonus").required = true;
     currGradeType = "bonus";
 }
 
@@ -80,7 +111,7 @@ function gradeSwitchToWeightTypeFull() {
 function gradeSwitchToWeightTypePercEntire() {
     $i("grade-weight-full").classList.remove("active");
     $i("grade-weight-percentire").classList.add("active");
-    currWeightType = "percentire";
+    currWeightType = "perc_entire";
 }
 
 function gradeSwitchBonusPlus() {
@@ -94,59 +125,48 @@ function gradeSwitchBonusMinus() {
 
 export function showGradeEditor(config) {
     show("grade-editor");
+    $i("grade-form").reset();
+    $i("grade-input-title").focus();
     $i("grade-form-title").innerHTML = $esc(config.title) || "";
+    $i("grade-input-title").value = config.gradeName || "";
+    if (config.gradeType && config.gradeType == "bonus") {
+        $i("grade-input-bonus").value = config.gradeVal || "";
+        gradeSwitchToTypeBonus();
+    } else {
+        $i("grade-input-grade").value = config.gradeVal || "";
+        gradeSwitchToTypeExam();
+    }
+    if (config.weightType && config.weightType == "perc_entire") {
+        gradeSwitchToWeightTypePercEntire();
+        $i("grade-input-weight").value = (config.weightVal * 100 + "%") || "";
+    } else {
+        gradeSwitchToWeightTypeFull();
+        $i("grade-input-weight").value = config.weightVal || "";
+    }
+
+    $i("grade-form-grade-type-cont").style.display = "";
+    $i("grade-form-grade-entry-cont").style.display = "";
+    $i("grade-input-grade").required = true;
     if (config.hideGradeEntry) {
         gradeSwitchToTypeExam();
         $i("grade-form-grade-type-cont").style.display = "none";
         $i("grade-form-grade-entry-cont").style.display = "none";
-    } else {
-        $i("grade-form-grade-type-cont").style.display = "";
-        $i("grade-form-grade-entry-cont").style.display = "";
+        $i("grade-input-grade").required = false;
     }
-    $i("grade-input-title").value = config.gradeName || "";
-    if (config.gradeType) {
-        if (config.gradeType == "regular") {
-            gradeSwitchToTypeExam();
-        } else {
-            gradeSwitchToTypeBonus();
-        }
-    }
-    $i("grade-input-grade").value = config.gradeVal || "";
-    $i("grade-input-bonus").value = config.bonusVal || "";
-    if (config.weightType) {
-        if (config.weightType == "fullgrade") {
-            gradeSwitchToWeightTypeFull();
-        } else {
-            gradeSwitchToWeightTypePercEntire();
-        }
-    }
-    $i("grade-input-weight").value = config.weightVal || "";
+
     $i("margin-details").classList.add("visible");
 
     return new Promise((res, rej) => {
-        hideRej = rej;
-        $i("grade-edit-cancel").addEventListener("click", () => {
-            hide();
-        }, {once: true});
-
-        $i("grade-edit-submit").addEventListener("click", () => {
-            res({
-                "title": $i("grade-input-title").value,
-                "grade_ype": currGradeType,
-                "value": $i(
-                    (currGradeType == "exam") ? "grade-input-grade" : "grade-input-bonus"
-                ).value,
-                "weight_type": currWeightType,
-                "weight": $i("grade-input-weight").value
-            });
-            hideRej = null;
-            hide();
-        }, {once: true});
+        modalPromise = {
+            res: res,
+            rej: () => rej("cancel")
+        };
     });
 }
 
 export function hide() {
     $i("margin-details").classList.remove("visible");
     $i("scrollLimiter").classList.remove("blur");
-    if (hideRej) hideRej("cancel");
+    if (modalPromise) modalPromise.rej();
+    modalPromise = null;
 }
