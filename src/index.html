@@ -230,17 +230,14 @@
                             </div>
                             
                             <div class="grade-form-section">
-                                <label id="label-weight-type">Gewicht angeben als:</label>
-                                <div class="grade-chip-cont">
-                                    <span id="grade-weight-full" class="grade-chip-sel active">% einer ganzen Note</span>
-                                    <span id="grade-weight-percentire" class="grade-chip-sel">% der Zeugnisnote</span>
-                                </div>
-                            </div>
-                            
-                            <div class="grade-form-section">
                                 <label id="label-grade-weight">Gewicht</label>
                                 <input id="grade-input-weight" name="weight" type="text" placeholder="Gewicht eingeben" aria-labelledby="label-grade-weight"
-                                    required pattern="(\d(.\d+)?)|(\d+(.\d+)?%)">
+                                    required pattern="\d+(.\d+)?%?">
+                                <span id="grade-weight-percent-symbol" style="display: none;">%</span>
+                                <div class="grade-chip-cont">
+                                    <span id="grade-weight-full" class="grade-chip-sel active">ganze Note(n)</span>
+                                    <span id="grade-weight-percentire" class="grade-chip-sel">% der Zeugnisnote</span>
+                                </div>
                             </div>   
                         </div>
                         <div id="grade-cont-typebonus" class="grade-form-section">

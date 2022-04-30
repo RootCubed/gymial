@@ -33,7 +33,7 @@ const getGradeColor = grade => {
 };
 
 function formatGrade(grade, isBonus) {
-    if (isBonus) return ((grade >= 0) ? "+" : "") + grade.toString();
+    if (isBonus) return ((grade >= 0) ? "+" : "") + (Number.isInteger(grade) ? (grade + ".0") : formatGrade(grade, false));
     if (isNaN(grade)) return "-";
     return Math.floor(grade * 100) / 100; // floor so that e.g. 4.24999 doesn't get shown as 4.25
 }
@@ -95,7 +95,6 @@ function calculateGradesAvg(data) {
     // calculate grades with perc_entire, taking into account subgrades
     let percEntireGrades = gradesCalc.filter(grade => grade.grade_type == "regular" && grade.weight_type == "perc_entire");
     let percEntireProp = percEntireGrades.reduce((a, v) => a + v.weight, 0);
-    if (percEntireProp > 1) alert("percEntireGrade over 100%"); // TODO: better error modal
     let percEntireGradesAvg = 0;
     if (percEntireGrades.length > 0) {
         percEntireGradesAvg = percEntireGrades.reduce((a, v) => a + v.value * v.weight, 0) / percEntireProp;
@@ -104,6 +103,8 @@ function calculateGradesAvg(data) {
     // calculate bonus grades
     let bonusGrades = gradesCalc.filter(grade => grade.grade_type == "bonus");
     let bonusSum = bonusGrades.reduce((a, v) => a + v.value, 0);
+
+    if (regGradesWSum == 0 && percEntireProp == 0) return NaN;
 
     if (regGradesWSum == 0) {
         return percEntireGradesAvg + bonusSum;
@@ -301,8 +302,11 @@ function registerClickAddBtn(btn, cont, cb) {
     });
 
     btnInput.addEventListener("keyup", ev => {
-        if (ev.key === "Escape") {
+        if (ev.key == "Escape") {
             cont.click();
+        }
+        if (ev.key == "Enter") {
+            cont.querySelector(".grades-confirm-add-cont").click();
         }
     });
 
@@ -388,11 +392,20 @@ function showGradeList(context) {
             }).catch(() => {});
         });
     }
-
+    
     glEl.querySelector(".grades-more-btn").addEventListener("click", () => {
         glEl.querySelector(".grades-more-btn").classList.toggle("active");
         glEl.querySelector(".grades-dropdown-more").classList.toggle("hidden");
     });
+    
+    glEl.addEventListener("click", ev => {
+        if (
+            glEl.querySelector(".grades-more-btn").contains(ev.target) ||
+            glEl.querySelector(".grades-dropdown-more").contains(ev.target)
+        ) return;
+        glEl.querySelector(".grades-more-btn").classList.remove("active");
+        glEl.querySelector(".grades-dropdown-more").classList.add("hidden");
+    }, false);
 
     for (let child of glEl.getElementsByClassName("grades-overview-container")) {
         if (child.classList.contains("grades-add")) continue;
@@ -414,7 +427,10 @@ function genGradeContainer(grade, index) {
         weight_type: "fullgrade",
         weight: 1
     }]);
-    let fAvg = formatGrade(gradeAvg, grade.grade_type == "bonus");
+    let fAvg = formatGrade(gradeAvg, false);
+    if (grade.grade_type == "bonus") {
+        fAvg = formatGrade(grade.value, true);
+    }
     let subgradeClass = (grade.grade_type == "subgrade") ? "grades-subgrade" : "";
     return templ.gradeGradeContainer(
         "grades-grade-container " + subgradeClass, index,

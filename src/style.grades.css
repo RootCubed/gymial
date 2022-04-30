@@ -69,6 +69,7 @@
     margin: 5px;
     transition: transform 0.25s;
     overflow: hidden;
+    position: relative;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -134,7 +135,7 @@
 .grades-grade-container {
     grid-template:
         "title title colbar" 1fr
-        "weight grade colbar" 1fr
+        "weight grade colbar" auto
         /
         1fr auto 10px;
 }
@@ -228,6 +229,15 @@
     width: calc(min(225px, 40%));
 }
 
+.grades-grade-container.grades-subgrade::after {
+    content: url(~./static/icon-subgrade.svg);
+    position: absolute;
+    right: 10px;
+    top: 0;
+    margin: 5px;
+    width: 30px;
+}
+
 .grades-dropdown-more {
     position: absolute;
     right: 10px;
@@ -300,16 +310,16 @@
 }
 
 #grade-editor {
-    width: 70vw;
+    width: 80vw;
     height: 70vh;
-    padding: 5vh 5vw;
+    padding: 5vh 0;
 }
 
 #grade-form {
     position: relative;
     height: 100%;
     max-width: 600px;
-    margin: 0 auto;
+    margin: 0 5vw;
     display: flex;
     flex-direction: column;
 }
@@ -319,10 +329,12 @@
     align-self: center;
     overflow: auto;
     max-width: 600px;
+    padding: 0 10px;
 }
 
 .grade-form-section {
     margin-bottom: 20px;
+    position: relative;
 }
 
 #grade-bonus-cont {
@@ -374,4 +386,14 @@
     display: flex;
     margin-top: auto;
     align-self: end;
+}
+
+#grade-weight-percent-symbol {
+    position: absolute;
+    right: 0;
+    color: #999;
+    padding: 10px;
+    display: inline-flex;
+    height: 25px;
+    align-items: center;
 }

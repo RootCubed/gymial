@@ -106,11 +106,21 @@ function gradeSwitchToTypeBonus() {
 function gradeSwitchToWeightTypeFull() {
     $i("grade-weight-full").classList.add("active");
     $i("grade-weight-percentire").classList.remove("active");
+    $i("grade-weight-percent-symbol").style.display = "none";
+    if (currWeightType == "perc_entire") {
+        let wVal = parseFloat($i("grade-input-weight").value);
+        if (!isNaN(wVal)) $i("grade-input-weight").value = wVal / 100;
+    }
     currWeightType = "fullgrade";
 }
 function gradeSwitchToWeightTypePercEntire() {
     $i("grade-weight-full").classList.remove("active");
     $i("grade-weight-percentire").classList.add("active");
+    $i("grade-weight-percent-symbol").style.display = "";
+    if (currWeightType == "fullgrade") {
+        let wVal = parseFloat($i("grade-input-weight").value);
+        if (!isNaN(wVal)) $i("grade-input-weight").value = wVal * 100;
+    }
     currWeightType = "perc_entire";
 }
 
@@ -129,24 +139,25 @@ export function showGradeEditor(config) {
     $i("grade-input-title").focus();
     $i("grade-form-title").innerHTML = $esc(config.title) || "";
     $i("grade-input-title").value = config.gradeName || "";
+    let gradeVal = (config.gradeVal == undefined) ? "" : config.gradeVal;
     if (config.gradeType && config.gradeType == "bonus") {
-        $i("grade-input-bonus").value = config.gradeVal || "";
+        $i("grade-input-bonus").value = gradeVal || "";
         gradeSwitchToTypeBonus();
     } else {
-        $i("grade-input-grade").value = config.gradeVal || "";
+        $i("grade-input-grade").value = gradeVal || "";
         gradeSwitchToTypeExam();
     }
+    let weightVal = (config.weightVal == undefined) ? "" : config.weightVal;
     if (config.weightType && config.weightType == "perc_entire") {
         gradeSwitchToWeightTypePercEntire();
-        $i("grade-input-weight").value = (config.weightVal * 100 + "%") || "";
+        $i("grade-input-weight").value = (weightVal * 100 + "%") || "";
     } else {
         gradeSwitchToWeightTypeFull();
-        $i("grade-input-weight").value = config.weightVal || "";
+        $i("grade-input-weight").value = weightVal || "";
     }
 
     $i("grade-form-grade-type-cont").style.display = "";
     $i("grade-form-grade-entry-cont").style.display = "";
-    $i("grade-input-grade").required = true;
     if (config.hideGradeEntry) {
         gradeSwitchToTypeExam();
         $i("grade-form-grade-type-cont").style.display = "none";
