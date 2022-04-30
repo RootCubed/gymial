@@ -10,7 +10,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "build": "webpack --mode development"
+    "build": "webpack --mode production",
+    "build-dev": "webpack --mode development"
   },
   "author": "Liam Braun",
   "license": "ISC",
