@@ -262,6 +262,7 @@ function clickOnCont(selEl) {
             "weightVal": grade.weight
         }).then(r => {
             editGrade(viewState.context, viewState.gradeData, r);
+            setGradeData(viewState.gradeData);
             refreshGrades();
         }).catch(() => {});
         return;
@@ -361,6 +362,7 @@ function showGradeList(context) {
                 "weightType": "fullgrade"
             }).then(r => {
                 addGrade(viewState.context, viewState.gradeData, r);
+                setGradeData(viewState.gradeData);
                 refreshGrades();
             }).catch(() => {});
         });
@@ -381,6 +383,7 @@ function showGradeList(context) {
                     "weight_type": r.weight_type,
                     "weight": r.weight
                 });
+                setGradeData(viewState.gradeData);
                 refreshGrades();
             }).catch(() => {});
         });
