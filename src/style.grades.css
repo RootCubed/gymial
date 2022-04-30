@@ -310,16 +310,16 @@
 }
 
 #grade-editor {
-    width: 80vw;
+    width: 70vw;
     height: 70vh;
-    padding: 5vh 0;
+    padding: 5vh 5vw;
 }
 
 #grade-form {
     position: relative;
     height: 100%;
     max-width: 600px;
-    margin: 0 5vw;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
 }
