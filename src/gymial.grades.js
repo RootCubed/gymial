@@ -206,7 +206,7 @@ function refreshGrades() {
             alert("Dieses Semester besteht schon!");
             return false;
         }
-        sems[name] = [];
+        sems[name] = {};
         setGradeData(viewState.gradeData);
         return true;
     });
