@@ -66,6 +66,17 @@ app.use((req, res, next) => {
     }
 });
 
+app.get("/service-worker.js", (req, res) => {
+    // idk what browsers do if the service worker 404s, so I'm returning the bare minimum so that it can be removed after
+    res.end(`
+self.addEventListener("message", ev => {
+    if (event.data.action == "skipWaiting") {
+        self.skipWaiting();
+    }
+});
+    `);
+});
+
 app.use(cors());
 app.use(compression());
 app.use(express.static("static"));
