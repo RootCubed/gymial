@@ -200,6 +200,10 @@
     grid-area: weight;
     align-self: end;
     text-align: left;
+    display: grid;
+    grid-template: "w frac text" auto / auto auto auto;
+    justify-items: center;
+    grid-gap: 5px;
 }
 
 .grades-overview-sg-icon {
@@ -410,4 +414,37 @@
     display: inline-flex;
     height: 25px;
     align-items: center;
+}
+
+.grades-overview-weight-t, .grades-overview-weight-w {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+.frac {
+    display: inline-grid;
+    grid-template: "f1" 1fr "f2" 1fr / 1fr;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' preserveAspectRatio='none' viewBox='0 0 21 21' width='21' height='21'> <path d='M0 11 L20 11' stroke='white' stroke-width='1' /></svg>");
+    background-repeat: no-repeat;
+    background-position: center center;
+    grid-area: frac;
+    background-size: 100% 100%;
+}
+.f1 {
+    grid-area: f1;
+    text-align: center;
+    align-self: center;
+    justify-self: center;
+}
+.f2 {
+    grid-area: f2;
+    text-align: center;
+    align-self: center;
+    justify-self: center;
+}
+.grades-overview-weight-t {
+    grid-area: text;
+}
+.grades-overview-weight-w {
+    grid-area: w;
 }

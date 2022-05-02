@@ -6,6 +6,7 @@ const gradeContainerGeneric = (className, title, vertbarCol, content, index) => 
 <div class="grades-overview-container ${className}" data-name="${title}"
 ${(index != undefined) ? "data-index=\"" + index + "\"" : ""}>
     <span class="grades-overview-span grades-overview-title">${title}</span>
+    <h3 style="margin-bottom: 15px;color: #ff4141;display:none;">Summe der Notenanteile über 100%!</h3>
     ${content}
     <div class="grades-overview-vertbar" style="background-color: ${vertbarCol}"></div>
 </div>
