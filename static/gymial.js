@@ -310,6 +310,16 @@ function initGymial() {
 
     // web worker
     if (navigator.serviceWorker) {
+        // The website receives hundreds of requests per second from time to time,
+        // and this might be caused by an erroneous service worker configuration.
+        // Disabling for now.
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+            for(let reg of registrations) {
+                reg.unregister();
+            }
+        });
+        
+        /*
         navigator.serviceWorker.register("service-worker.js").then(sw => {
             sw.addEventListener("updatefound", () => {
                 let newWorker = sw.installing;
@@ -322,7 +332,7 @@ function initGymial() {
         });
         navigator.serviceWorker.addEventListener("controllerchange", () => {
             window.location.reload();
-        });
+        });*/
     }
 
     init();
