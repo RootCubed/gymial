@@ -3,10 +3,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const path = require("path");
 
 module.exports = {
-    entry: {
-        "bundle": "./src/gymial.js",
-        "service-worker": "./src/service-worker.js"
-    },
+    entry: "./src/gymial.js",
     output: {
         path: path.resolve(__dirname, "static/"),
         filename: "[name].js",
