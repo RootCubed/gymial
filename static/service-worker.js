@@ -1,5 +1,5 @@
 // Version string to force reload after update
-const VERSION = "v0.15.1"
+const VERSION = "none"
 
 const CACHE_NAME = "siteCache";
 const URLS_CACHE = [
