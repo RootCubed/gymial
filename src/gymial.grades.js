@@ -47,11 +47,14 @@ function roundedAvg(grade, plusPoints) {
     return rounded;
 }
 
-function weightAsString(grade) {
+function weightAsHTML(grade) {
     if (grade.grade_type == "bonus") return "(Bonusnote)";
     let type = grade.weight_type;
     let weight = grade.weight;
     if (weight == 0) return "zählt nicht";
+    if (grade.frac_weight) {
+        return templ.weightSpan("Gewicht: ", grade.frac_weight, (type == "fullgrade") ? " einer ganzen Note" : " der Zeugnisnote");
+    }
     switch (type) {
         case "fullgrade":
             if (weight == 0.5) return "zählt halb";
@@ -263,7 +266,7 @@ function clickOnCont(selEl) {
             "gradeType": grade.grade_type,
             "gradeVal": grade.value,
             "weightType": grade.weight_type,
-            "weightVal": grade.weight
+            "weightVal": (grade.frac_weight) ? (grade.frac_weight.numer + "/" + grade.frac_weight.denom) : grade.weight
         }).then(r => {
             editGrade(viewState.context, viewState.gradeData, r);
             setGradeData(viewState.gradeData);
@@ -440,7 +443,7 @@ function genGradeContainer(grade, index) {
     let subgradeClass = (grade.grade_type == "subgrade") ? "grades-subgrade" : "";
     return templ.gradeGradeContainer(
         "grades-grade-container " + subgradeClass, index,
-        $esc(grade.title), weightAsString(grade), fAvg, getGradeColor(fAvg)
+        $esc(grade.title), weightAsHTML(grade), fAvg, getGradeColor(fAvg)
     );
 }
 

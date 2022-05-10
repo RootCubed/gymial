@@ -3,7 +3,6 @@ import * as gymial from "./gymial.module.js";
 import { $i } from "./gymial.helper.js";
 
 // load resources
-import "./style.font.css";
 import "./style.css";
 import "./style.mobile.css";
 import "./style.grades.css";

@@ -203,7 +203,7 @@
     display: grid;
     grid-template: "w frac text" auto / auto auto auto;
     justify-items: center;
-    grid-gap: 5px;
+    grid-gap: 6px;
 }
 
 .grades-overview-sg-icon {
@@ -406,6 +406,17 @@
     align-self: end;
 }
 
+#grade-edit-button-cont button {
+    margin-left: 20px;
+}
+
+#grade-edit-delete {
+    background-color: #d71111;
+    color: white;
+    width: 100%;
+    margin: 10px 0;
+}
+
 #grade-weight-percent-symbol {
     position: absolute;
     right: 0;
@@ -416,6 +427,10 @@
     align-items: center;
 }
 
+#label-grade-weight-hint.hidden {
+    display: none;
+}
+
 .grades-overview-weight-t, .grades-overview-weight-w {
     justify-content: center;
     align-items: center;
@@ -424,9 +439,6 @@
 .frac {
     display: inline-grid;
     grid-template: "f1" 1fr "f2" 1fr / 1fr;
-    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' preserveAspectRatio='none' viewBox='0 0 21 21' width='21' height='21'> <path d='M0 11 L20 11' stroke='white' stroke-width='1' /></svg>");
-    background-repeat: no-repeat;
-    background-position: center center;
     grid-area: frac;
     background-size: 100% 100%;
 }
@@ -435,12 +447,18 @@
     text-align: center;
     align-self: center;
     justify-self: center;
+    display: block;
+    width: 100%;
+    border-bottom: 1.75px solid white;
+    
 }
 .f2 {
     grid-area: f2;
     text-align: center;
     align-self: center;
     justify-self: center;
+    display: block;
+    width: 100%;
 }
 .grades-overview-weight-t {
     grid-area: text;

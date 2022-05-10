@@ -3,19 +3,21 @@ import { $esc, $i, $c } from "./gymial.helper.js";
 export function init() {
     $i("grade-form").addEventListener("submit", () => {
         try {
-            let weightVal = parseFloat($i("grade-input-weight").value);
-            if (currWeightType == "perc_entire") {
-                weightVal /= 100;
-            }
-            if (modalPromise) modalPromise.res({
+            let resVal = {
                 "title": $i("grade-input-title").value,
                 "grade_type": currGradeType,
                 "value": parseFloat($i(
                     (currGradeType == "regular") ? "grade-input-grade" : "grade-input-bonus"
                 ).value),
-                "weight_type": currWeightType,
-                "weight": weightVal
-            });
+                "weight_type": currWeightType
+            };
+            let weightVal = parseWeightVal($i("grade-input-weight").value);
+            if (typeof weightVal == "object") {
+                resVal.frac_weight = weightVal;
+            } else {
+                resVal.weight = weightVal;
+            }
+            if (modalPromise) modalPromise.res(resVal);
             modalPromise = null;
         } catch (e) {}
         hide();
@@ -32,6 +34,10 @@ export function init() {
     $i("grade-edit-cancel").addEventListener("click", () => {
         hide();
     });
+    $i("grade-edit-submit").addEventListener("click", () => {
+        $i("grade-form").classList.add("validate");
+    });
+
     
     $i("grade-type-exam").addEventListener("click", () => {
         gradeSwitchToTypeExam();
@@ -43,7 +49,7 @@ export function init() {
     $i("grade-weight-full").addEventListener("click", () => {
         gradeSwitchToWeightTypeFull();
     });
-    $i("grade-weight-percentire").addEventListener("click", () => {
+    $i("grade-weight-perc_entire").addEventListener("click", () => {
         gradeSwitchToWeightTypePercEntire();
     });
 
@@ -52,6 +58,23 @@ export function init() {
     });
     $i("grade-bonus-minus").addEventListener("click", () => {
         gradeSwitchBonusMinus();
+    });
+
+    $i("grade-input-weight").addEventListener("input", () => {
+        let val = $i("grade-input-weight").value;
+        if (val.match(/\d+\/.*/g) && parseInt(val.split("/")[0]) != 100) {
+            hidePercent();
+        } else if (currWeightType == "perc_entire") {
+            showPercent();
+        }
+        let parsed = parseWeightVal(val);
+        let closeToFrac = isCloseToFraction(parsed);
+        if (!isNaN(parsed) && typeof parsed != "object" && closeToFrac != false) {
+            $i("label-grade-weight-hint").classList.remove("hidden");
+            $i("label-grade-weight-hint").innerHTML = `(Tipp: du kannst auch Brüche eingeben, z.B. ${closeToFrac})`;
+        } else {
+            $i("label-grade-weight-hint").classList.add("hidden");
+        }
     });
 }
 
@@ -101,23 +124,55 @@ function gradeSwitchToTypeBonus() {
     currGradeType = "bonus";
 }
 
+function showPercent() {
+    $i("grade-weight-percent-symbol").style.display = "";
+}
+
+function hidePercent() {
+    $i("grade-weight-percent-symbol").style.display = "none";
+}
+
+function parseWeightVal(val) {
+    if (val.includes("/")) {
+        return { numer: parseInt(val.split("/")[0]), denom: parseInt(val.split("/")[1]) };
+    }
+    return parseFloat(val);
+}
+
+function isCloseToFraction(val) {
+    if (val > 1) val /= 100;
+    const commonNumers = [1, 2, 5, 10, 20];
+    const commonDenoms = [3, 6, 9];
+    for (let n of commonNumers) {
+        for (let d of commonDenoms) {
+            let divRes = n / d;
+            if (Math.abs(val - divRes) < 0.01) return n + "/" + d;
+        }
+    }
+    return false;
+}
+
 function gradeSwitchToWeightTypeFull() {
     $i("grade-weight-full").classList.add("active");
-    $i("grade-weight-percentire").classList.remove("active");
-    $i("grade-weight-percent-symbol").style.display = "none";
+    $i("grade-weight-perc_entire").classList.remove("active");
+    hidePercent();
     if (currWeightType == "perc_entire") {
-        let wVal = parseFloat($i("grade-input-weight").value);
-        if (!isNaN(wVal)) $i("grade-input-weight").value = wVal / 100;
+        let wVal = parseWeightVal($i("grade-input-weight").value);
+        if (!isNaN(wVal) || typeof wVal == "object") {
+            $i("grade-input-weight").value = (typeof wVal == "object") ? (wVal.numer + "/" + wVal.denom) : (wVal / 100);
+        }
     }
     currWeightType = "fullgrade";
 }
 function gradeSwitchToWeightTypePercEntire() {
     $i("grade-weight-full").classList.remove("active");
-    $i("grade-weight-percentire").classList.add("active");
-    $i("grade-weight-percent-symbol").style.display = "";
+    $i("grade-weight-perc_entire").classList.add("active");
+    showPercent();
     if (currWeightType == "fullgrade") {
-        let wVal = parseFloat($i("grade-input-weight").value);
-        if (!isNaN(wVal)) $i("grade-input-weight").value = wVal * 100;
+        let wVal = parseWeightVal($i("grade-input-weight").value);
+        if (!isNaN(wVal) || typeof wVal == "object") {
+            $i("grade-input-weight").value = (typeof wVal == "object") ? (wVal.numer + "/" + wVal.denom) : (wVal * 100);
+        }
     }
     currWeightType = "perc_entire";
 }
@@ -134,6 +189,7 @@ function gradeSwitchBonusMinus() {
 export function showGradeEditor(config) {
     show("grade-editor");
     $i("grade-form").reset();
+    $i("grade-form").classList.remove("validate");
     $i("grade-input-title").focus();
     $i("grade-form-title").innerHTML = $esc(config.title) || "";
     $i("grade-input-title").value = config.gradeName || "";
@@ -148,7 +204,7 @@ export function showGradeEditor(config) {
     let weightVal = (config.weightVal == undefined) ? "" : config.weightVal;
     if (config.weightType && config.weightType == "perc_entire") {
         gradeSwitchToWeightTypePercEntire();
-        $i("grade-input-weight").value = (weightVal * 100);
+        $i("grade-input-weight").value = (weightVal.includes("/")) ? weightVal : (weightVal * 100);
     } else {
         gradeSwitchToWeightTypeFull();
         $i("grade-input-weight").value = weightVal;

@@ -30,8 +30,13 @@ export const gradeGradeContainer = (className, index, title, weight, roundedAvg,
 };
 
 const gradeListPre = (links, title, avg) => `
-<div class="grades-back-btn">&#xd7;</div>
-<span class="grades-more-btn">
+<div class="grades-back-btn color-svg">
+    <svg width="40" height="40">
+        <line x1="12" y1="12" x2="28" y2="28" />
+        <line x1="28" y1="12" x2="12" y2="28" />
+    </svg>
+</div>
+<span class="grades-more-btn color-svg-fill">
     <svg width="40" height="40">
         <circle cx="8" cy="20" r="3" />
         <circle cx="20" cy="20" r="3" />
@@ -101,4 +106,16 @@ export const gradeGroup = (title, avg, content) => `
     </div>
     ${content}
 </div> 
+`;
+
+export const weightSpan = (pre, frac, post) => `
+<span class="grades-overview-weight-w">${pre}</span>
+<div class="frac">
+${
+    (frac == null) ? "" :
+    `<span class="f1">${frac.numer}</span>
+    <span class="f2">${frac.denom}</span>`
+}
+</div>
+<span class="grades-overview-weight-t">${post}</span>
 `;

@@ -556,7 +556,7 @@ input[type=text], input[type=password] {
     border: none;
 }
 
-input:invalid {
+form.validate input:invalid {
     border: 2px dashed red;
 }
 
@@ -583,7 +583,7 @@ button, input[type=submit] {
     padding: 12px;
     display: block;
     font-size: inherit;
-    margin: 20px 20px 0;
+    margin: 20px 0 0;
 }
 
 #persplan {
@@ -764,7 +764,7 @@ svg text.small {
 }
 
 .settings-section-header {
-    margin: 20px;
+    margin: 20px 0;
 }
 
 #accountinfo {

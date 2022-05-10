@@ -19,6 +19,17 @@
             gtag('config', 'G-WYE0MDHZXP');
         }
     </script>
+
+    <style>
+        @font-face {
+            font-family: "IBM Plex Sans";
+            font-style: normal;
+            font-weight: normal;
+            font-display: swap;
+            src: url("~./static/fonts/Inter-Regular.woff2") format("woff2"),
+                url("~./static/fonts/Inter-Regular.woff") format("woff");
+        }
+    </style>
     
     <link rel="apple-touch-icon" href="<%= require("./static/apple-touch-icon.png") %>">
     <link rel="manifest" href="<%= require("./static/manifest.webmanifest") %>">
@@ -104,7 +115,8 @@
             <div id="panel-settings">
                 <div class="settings-section">
                     <h2 class="settings-section-header">Account (nicht angemeldet)</h2>
-                    <button type="button" id="login">Melde dich an, um Klassenlisten, Instrumentalstunden und Lehrerstundenpläne zu sehen.</button>
+                    Melde dich an, um Klassenlisten, Instrumentalstunden und Lehrerstundenpläne zu sehen.
+                    <button type="button" id="login">Zum Login</button>
                     <div id="accountinfo">
                         <span id="ownName"></span>
                         <div id="persDetails" style="display: none;">
@@ -211,7 +223,11 @@
                     <div id="grade-form-main-cont">
                         <div class="grade-form-section">
                             <label id="label-grade-title">Titel</label>
-                            <input id="grade-input-title" name="title" type="text" placeholder="Name eingeben" aria-labelledby="label-grade-title" required>    
+                            <input id="grade-input-title" name="title" type="text" aria-labelledby="label-grade-title"
+                                placeholder="Name eingeben"
+                                oninvalid="this.setCustomValidity('Bitte fülle dieses Feld aus.')"
+                                oninput="this.setCustomValidity('')"
+                                required>
                         </div>
         
                         <div class="grade-form-section" id="grade-form-grade-type-cont">
@@ -226,19 +242,23 @@
                             <div class="grade-form-section" id="grade-form-grade-entry-cont">
                                 <label id="label-grade-grade">Note</label>
                                 <input id="grade-input-grade" name="grade" type="text" placeholder="Note eingeben" aria-labelledby="label-grade-grade"
-                                    required pattern="\d(\.\d+)?">
+                                    required pattern="\d(\.\d+)?"
+                                    oninvalid="this.setCustomValidity('Bitte gib eine Zahl ein.')"
+                                    oninput="this.setCustomValidity('')">
                             </div>
                             
                             <div class="grade-form-section">
-                                <label id="label-grade-weight">Gewicht</label>
+                                <label id="label-grade-weight">Gewicht <span id="label-grade-weight-hint" class="hidden">(Tipp: du kannst auch Brüche eingeben, z.B. 2/3)</span></label>
                                 <input id="grade-input-weight" name="weight" type="text" placeholder="Gewicht eingeben" aria-labelledby="label-grade-weight"
-                                    required pattern="\d+(\.\d+)?%?">
+                                    required pattern="(\d+/\d+)|(\d+(\.\d+)?%?)"
+                                    oninvalid="this.setCustomValidity('Bitte gib eine Zahl oder einen Bruch ein.')"
+                                    oninput="this.setCustomValidity('')">
                                 <span id="grade-weight-percent-symbol" style="display: none;">%</span>
                                 <div class="grade-chip-cont">
                                     <span id="grade-weight-full" class="grade-chip-sel active">ganze Note(n)</span>
-                                    <span id="grade-weight-percentire" class="grade-chip-sel">% der Zeugnisnote</span>
+                                    <span id="grade-weight-perc_entire" class="grade-chip-sel">% der Zeugnisnote</span>
                                 </div>
-                            </div>   
+                            </div>
                         </div>
                         <div id="grade-cont-typebonus" class="grade-form-section">
                             <label id="label-grade-bonus">Bonus</label>
@@ -248,9 +268,12 @@
                                     <span id="grade-bonus-minus" class="grade-chip-sel large">-</span>
                                 </div>
                                 <input id="grade-input-bonus" name="grade" type="text" placeholder="Bonus" aria-labelledby="label-grade-bonus"
-                                    required pattern="\d(\.\d+)?">
+                                    required pattern="\d(\.\d+)?"
+                                    oninvalid="this.setCustomValidity('Bitte gib eine Zahl ein.')"
+                                    oninput="this.setCustomValidity('')">
                             </div>
                         </div>
+                        <button type="button" id="grade-edit-delete">Note löschen</button>
                     </div>
                     
                     <div id="grade-edit-button-cont">
