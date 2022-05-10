@@ -105,10 +105,6 @@
 }
 
 @media only screen and (max-width: 400px) {
-    * {
-        line-height: 0.9;
-    }
-
     .timetable-entry span {
         font-size: 12px;
     }

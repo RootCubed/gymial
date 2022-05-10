@@ -6,7 +6,7 @@
 }
 
 :root {
-    --default-font: "Source Sans Pro", Arial, sans-serif;
+    --default-font: "Inter", Arial, sans-serif;
     --bg-primary: #333;
     --bg-secondary: #37373b;
     --color-primary: #fff;
@@ -50,7 +50,7 @@ body.preload * {
 }
 
 span {
-    font-size: 18px;
+    font-size: 17px;
 }
 
 a:not(.overlay-tab) {
