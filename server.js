@@ -44,9 +44,9 @@ const limiterIntranetReq = new RateLimiterRedis({
 });
 
 app.use((req, res, next) => {
-    if (req.header("x-forwarded-proto") !== "https" && req.hostname !== "localhost" && !req.hostname.includes("192.168") && !req.hostname.includes("rootcubed.dev")) {
-        res.redirect(301, `https://${req.header("host")}${req.url}`);
-    } else {
+    //if (req.header("x-forwarded-proto") !== "https" && req.hostname !== "localhost" && !req.hostname.includes("192.168") && !req.hostname.includes("rootcubed.dev")) {
+    //    res.redirect(301, `https://${req.header("host")}${req.url}`);
+    //} else {
         if (req.headers.cookie) {
             let user = cookieToUser(req.headers.cookie);
             isAuthorized(user).then(isAuth => {
@@ -58,7 +58,7 @@ app.use((req, res, next) => {
             });
         }
         next();
-    }
+    //}
 });
 
 app.use(cors());
