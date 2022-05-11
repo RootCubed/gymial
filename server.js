@@ -11,16 +11,16 @@ import fs from "fs";
 import hyphenopoly from "hyphenopoly";
 
 const rtg = new URL(process.env.REDISTOGO_URL);
-import redisModule from "redis";
-const redis = redisModule.createClient(rtg.port, rtg.hostname);
-redis.auth(rtg.password);
-import { promisify } from "util";
-const redisHGet = promisify(redis.hget).bind(redis);
+import { createClient } from "redis";
+const redisClient = createClient({
+    url: `redis://${rtg.hostname}:${rtg.port}`
+});
+await redisClient.auth(rtg.password);
 
 import { RateLimiterRedis } from "rate-limiter-flexible";
 
 const limiterIntranetLogin = new RateLimiterRedis({
-    storeClient: redis,
+    storeClient: redisClient,
     keyPrefix: "intranet_login",
     points: 30,
     duration: 60,
@@ -28,7 +28,7 @@ const limiterIntranetLogin = new RateLimiterRedis({
 });
 
 const limiterKZOch = new RateLimiterRedis({
-    storeClient: redis,
+    storeClient: redisClient,
     keyPrefix: "kzo_ch_total",
     points: 30,
     duration: 60,
@@ -36,7 +36,7 @@ const limiterKZOch = new RateLimiterRedis({
 });
 
 const limiterIntranetReq = new RateLimiterRedis({
-    storeClient: redis,
+    storeClient: redisClient,
     keyPrefix: "intranet_total",
     points: 120,
     duration: 60,
@@ -56,9 +56,9 @@ app.use((req, res, next) => {
             let user = cookieToUser(req.headers.cookie);
             isAuthorized(user).then(isAuth => {
                 if (isAuth) {
-                    redis.hincrby("user:" + user.username, "requests", 1);
+                    redisClient.hincrby("user:" + user.username, "requests", 1);
                 } else {
-                    redis.incr("nonAuthReqs");
+                    redisClient.incr("nonAuthReqs");
                 }
             });
         }
@@ -379,7 +379,7 @@ async function verifyAuthentication(username, password) {
         return false;
     }
     if (!token) return false;
-    redis.hset("user:" + username, "persData", JSON.stringify(token[1]));
+    redisClient.hset("user:" + username, "persData", JSON.stringify(token[1]));
     return true;
 }
 
@@ -411,9 +411,18 @@ function cookieToUser(cookie) {
 async function isAuthorized(user) {
     if (!user) return false;
     if (!user.username || !user.apiToken) return false;
-    let correctAPIToken = await redisHGet("user:" + user.username, "token");
-    if (correctAPIToken == null) return false;
-    return (user.apiToken == correctAPIToken);
+    let res = await new Promise((res, rej) => {
+        redisClient.get("tokens:" + user.username, (err, userTokens) => {
+            if (err) {
+                console.error("Error fetching token data:", err);
+                res(false);
+            } else {
+                const json = userTokens ? JSON.parse(userTokens) : {};
+                res(json[user.apiToken] && new Date(json[user.apiToken]).getTime() > Date.now());
+            }
+        });
+    });
+    return res;
 }
 
 function toStandardFormat (token) {
@@ -436,11 +445,26 @@ app.post("/auth", (req, res) => {
             verifyAuthentication(bodyJSON.user, bodyJSON.pass).then(r => {
                 if (r) {
                     let token = generateAPIKey();
-                    redis.hset("user:" + bodyJSON.user, "token", token);
-                    redis.hget("user:" + bodyJSON.user, "requests", (err, res) => {
-                        if (res == null) redis.hset("user:" + bodyJSON.user, "requests", 0);
+                    redisClient.get("tokens:" + bodyJSON.user, (err, tokens) => {
+                        if (err) {
+                            console.error("Error fetching token data:", err);
+                            res.status(500).end();
+                            return;
+                        }
+                        let tokenJSON = tokens ? JSON.parse(tokens) : {};
+                        // clean up invalidated tokens
+                        let tokenList = {};
+                        let keepTokens = Object.keys(tokenJSON).sort((a, b) => tokenJSON[b] - tokenJSON[a]).slice(0, 10); // keep 10 newest tokens
+                        for (let key of keepTokens) {
+                            if (new Date(tokenJSON[key]).getTime() > Date.now()) tokenList[key] = tokenJSON[key];
+                        }
+                        tokenList[token] = Date.now() + 60 * 60 * 24 * 365; // store token for one year
+                        redisClient.set("tokens:" + bodyJSON.user, JSON.stringify(tokenList));
+                        redisClient.hget("user:" + bodyJSON.user, "requests", (err, reqs) => {
+                            if (reqs == null) redisClient.hset("user:" + bodyJSON.user, "requests", 0);
+                        });
+                        res.send(token).end();
                     });
-                    res.send(token).end();
                 } else {
                     res.status(401).end();
                 }
@@ -451,7 +475,7 @@ app.post("/auth", (req, res) => {
 
 app.get("/myData", (req, res) => {
     let user = cookieToUser(req.headers.cookie);
-    isAuthorized(user).then(isAuth => {
+    isAuthorized(user).then(async isAuth => {
         if (!isAuth) {
             res.json({
                 data: [],
@@ -459,15 +483,20 @@ app.get("/myData", (req, res) => {
             });
             return;
         }
-        redis.hget("user:" + user.username, "persData", (err, r) => {
-            if (r == null) {
+        redisClient.hget("user:" + user.username, "persData", (err, persData) => {
+            if (err) {
+                console.error("Error fetching user data:", err);
+                res.status(500).end();
+                return;
+            }
+            if (persData == null) {
                 res.json({
                     data: [],
                     total: 0
                 });
                 return;
             }
-            res.json(JSON.parse(r));
+            res.json(JSON.parse(persData));
         });
     });
 });
@@ -795,6 +824,11 @@ async function readMensa(identifier) {
 }
 
 app.listen(PORT, () => console.log("Web server is up and running on port " + PORT));
+
+process.on("unhandledRejection", (reason, p) => {
+    console.log("Unhandled Rejection at: Promise", p, "reason:", reason);
+    console.log(reason.stack);
+});
 
 process.on("uncaughtException", err => {
     console.error("Uncaught error thrown: ", err);
