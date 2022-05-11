@@ -62,8 +62,8 @@ export function setLoadedClass(id, name) {
 
 export function setAPIKey(username, token) {
     window.localStorage.setItem("api", JSON.stringify({username: username, token: token}));
-    Cookies.set("username", json.username, {expires: 365});
-    Cookies.set("apiToken", json.token, {expires: 365});
+    Cookies.set("username", username, {expires: 365});
+    Cookies.set("apiToken", token, {expires: 365});
 }
 
 export function getStyleName() {
@@ -105,4 +105,10 @@ export function getGradeData() {
 
 export function setGradeData(data) {
     window.localStorage.setItem("grades", JSON.stringify(data));
+    window.localStorage.setItem("grades_mod_ts", Date.now());
+}
+
+export function getGradeLastMod() {
+    let r = window.localStorage.getItem("grades_mod_ts");
+    return (r != undefined) ? parseInt(r) : 0;
 }

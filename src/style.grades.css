@@ -116,6 +116,14 @@
     fill: var(--color-primary);
 }
 
+.grades-view-header {
+    position: sticky;
+    display: grid;
+    top: 0;
+    background-color: inherit;
+    z-index: 1;
+}
+
 .grades-sem-container {
     grid-template:
         "title rounded colbar" 4fr
@@ -206,6 +214,13 @@
     grid-gap: 6px;
 }
 
+.grades-small-pluspoint-cont {
+    font-weight: bold;
+    padding: 5px;
+    border-radius: 5px;
+    background-color: var(--bg-primary);
+}
+
 .grades-overview-sg-icon {
     grid-area: sg-icon;
     width: 25px;
@@ -264,7 +279,7 @@
     transition: opacity 0.25s, visibility 0.25s;
     border-radius: 15px 0 15px 15px;
     overflow: hidden;
-    z-index: 1;
+    z-index: 2;
 }
 
 .grades-dropdown-more.hidden {

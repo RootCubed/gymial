@@ -1,6 +1,6 @@
 import { $c, $i, $sa, $esc, $s } from "./gymial.helper.js";
 
-import { getGradeData, setGradeData } from "./gymial.store.js";
+import { getGradeData, setGradeData, getGradeLastMod } from "./gymial.store.js";
 
 import * as templ from "./gymial.templates.js";
 
@@ -13,12 +13,42 @@ let viewState = {
 };
 
 export function init() {
+    $i("grades-save-cloud-spinner").style.display = "none";
+
     $i("grades-reset-all").addEventListener("click", () => {
         if (confirm("Willst du wirklich alle Noten löschen? Dies kann nicht rückgängig gemacht werden!")) {
             setGradeData({});
             viewState.gradeData = {};
             refreshGrades();
         }
+    });
+
+    $i("grades-save-cloud").addEventListener("click", async () => {
+        try {
+            $i("grades-save-cloud").style.display = "none";
+            $i("grades-save-cloud-spinner").style.display = "";
+            let gradesReq = await fetch("/grades");
+            if (gradesReq.status == 401) {
+                throw new Error("401");
+            }
+            let gradesJSON = await gradesReq.json();
+            alert(gradesJSON.lastmod + " " + getGradeLastMod());
+            if (gradesJSON.lastmod > getGradeLastMod()) {
+                viewState.gradeData = gradesJSON.data;
+                setGradeData(viewState.gradeData);
+            } else {
+                gradesReq = await fetch("/grades", {
+                    method: "post",
+                    body: JSON.stringify(viewState.gradeData)
+                });
+                if (gradesReq.status == 401) {
+                    throw new Error("401");
+                }
+            }
+            refreshGrades();
+        } catch (e) {}
+        $i("grades-save-cloud").style.display = "";
+        $i("grades-save-cloud-spinner").style.display = "none";
     });
 
     viewState.gradeData = getGradeData();
@@ -42,7 +72,8 @@ function roundedAvg(grade, plusPoints) {
     if (isNaN(grade) || grade == "-") return "-";
     let rounded = Math.round(grade * 2) / 2;
     if (plusPoints) {
-        return (rounded > 4) ? (rounded - 4) : (4 - rounded) * -2;
+        let pp = (rounded > 4) ? (rounded - 4) : (4 - rounded) * -2;
+        return (pp >= 0 ? "+" : "") + pp.toFixed(1);
     }
     return rounded;
 }
@@ -249,8 +280,6 @@ function refreshGrades() {
             prevCont = g.contEl;
         }
     }
-    
-    setGradeData(viewState.gradeData);
 }
 
 function clickOnCont(selEl) {
@@ -421,6 +450,11 @@ function showGradeList(context) {
     }
 }
 
+function genSemOverviewContainer(topClass, title, avg) {
+    let fAvg = formatGrade(avg, false);
+    return templ.gradeSemContainer(topClass, $esc(title), roundedAvg(avg, true), fAvg, getGradeColor(avg));
+}
+
 function genGradeOverviewContainer(topClass, title, avg, plusPoints) {
     let fAvg = formatGrade(avg, false);
     let rAvg = roundedAvg(avg, plusPoints);
@@ -449,7 +483,7 @@ function genGradeContainer(grade, index) {
 function getSemesterList(data) {
     let html = "";
     for (let sem in data) {
-        html += genGradeOverviewContainer("grades-sem-container", sem, calculateSemAvg(data[sem]), viewState.viewPluspoints);
+        html += genSemOverviewContainer("grades-sem-container", sem, calculateSemAvg(data[sem]));
     }
     return templ.gradeListSem(html);
 }
@@ -464,7 +498,7 @@ function getSubjList(data, title, parentType) {
             let catName = (subjects[subj]) ? subjects[subj].category : "Andere";
             let categoryID = subjectCategories.indexOf(catName);
             subjGroups[categoryID].grades.push(data[subj]);
-            subjGroups[categoryID].html += genGradeOverviewContainer("grades-subj-container", subj, calculateGradesAvg(data[subj]), viewState.viewPluspoints, categoryID);
+            subjGroups[categoryID].html += genGradeOverviewContainer("grades-subj-container", subj, calculateGradesAvg(data[subj]), viewState.viewPluspoints);
         }
     
         for (let i = 0; i < subjGroups.length; i++) {

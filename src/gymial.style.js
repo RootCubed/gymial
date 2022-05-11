@@ -21,6 +21,7 @@ function initStyles() {
     try {
         svgContent = new XMLSerializer().serializeToString($i("styleprevsvg").getSVGDocument());
     } catch (e) {
+        console.info("style preview svg not loaded yet");
         // The SVG is not ready yet, wait until it is loaded
         $i("styleprevsvg").addEventListener("load", () => {
             initStyles();

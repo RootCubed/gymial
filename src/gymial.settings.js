@@ -13,7 +13,7 @@ export function init() {
         Cookies.remove("username");
         Cookies.remove("apiToken");
         window.localStorage.removeItem("api");
-        postLogout();
+        gymial.account.logout();
     });
     
     $i("persplan").addEventListener("click", () => {

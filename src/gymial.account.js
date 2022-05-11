@@ -51,7 +51,6 @@ export function loadPersData() {
             persData = res.data[0];
             $i("ownName").innerText = persData.Vorname + " " + persData.Nachname;
             $i("otherDetails").innerText = persData.Adresse + ", " + persData.PLZ + " " + persData.Ort;
-            $i("login-form").style.display = "none";
             $i("accountinfo").style.display = "inline";
             $s("#panel-settings h2").innerText = "Account";
             $i("login-btn-cont").style.display = "none";
@@ -63,8 +62,10 @@ export function loadPersData() {
 export function logout() {
     $i("invalid-login").style.display = "none";
     $s("#panel-settings h2").innerText = "Account (nicht angemeldet)";
-    $i("login").style.display = "inline";
+    $i("login-btn-cont").style.display = "";
     $i("accountinfo").style.display = "none";
+    $i("login-submit").style.display = "";
+    $s("#button-spinner img").style.display = "none";
 }
 
 export function getPersData() {

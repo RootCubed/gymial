@@ -9,13 +9,25 @@ import iconv from "iconv-lite";
 import { JSDOM } from "jsdom";
 import fs from "fs";
 import hyphenopoly from "hyphenopoly";
+import redis from "redis";
+import zlib from "zlib";
+import pg from "pg";
+
+const MAX_GRADES_SIZE = 5000; // 5KB
 
 const rtg = new URL(process.env.REDISTOGO_URL);
-import { createClient } from "redis";
-const redisClient = createClient({
+const redisClient = redis.createClient({
     url: `redis://${rtg.hostname}:${rtg.port}`
 });
 await redisClient.auth(rtg.password);
+
+const pgClient = new pg.Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false
+    }
+});
+pgClient.connect();
 
 import { RateLimiterRedis } from "rate-limiter-flexible";
 
@@ -66,6 +78,11 @@ app.use((req, res, next) => {
     }
 });
 
+app.use((req, res, next) => {
+    res.setTimeout(20000, () => res.sendStatus(408));
+    next();
+});
+
 app.get("/service-worker.js", (req, res) => {
     // idk what browsers do if the service worker 404s, so I'm returning the bare minimum so that it can be removed after
     res.end(`
@@ -103,6 +120,10 @@ const PORT = process.env.PORT || 3000;
 let token = "";
 
 const periods = [
+    {
+        "period": 77,
+        "startTime": 1661119200000
+    },
     {
         "period": 76,
         "startTime": 1646002800000
@@ -333,6 +354,7 @@ function intranetReq(endpoint, body, canRetryLogin) {
                 if (str[0] === "<" || str.length == 0) { // invalid session
                     if (canRetryLogin === false) {
                         reject(new Error("successful_login_invalid_result"));
+                        return;
                     }
                     console.log("logging in...");
                     login(process.env.user, process.env.password).then((sessionToken) => {
@@ -425,12 +447,12 @@ async function isAuthorized(user) {
     return res;
 }
 
-function toStandardFormat (token) {
+function toStandardFormat(token) {
     return token.toLowerCase().replace(/\@studmail.kzo.ch/g, "").trim();
 }
 
 app.post("/auth", (req, res) => {
-    var body = "";
+    let body = "";
     req.on("data", chunk => {
         body += chunk.toString();
     });
@@ -555,7 +577,7 @@ app.get("/timetable/:type/:id/:time", async (req, res) => {
         case "room":
             break;
         default:
-            res.status(400).end();
+            res.sendStatus(400).end();
             return;
     }
     let user = cookieToUser(req.headers.cookie);
@@ -588,7 +610,7 @@ app.get("/timetable/:type/:id/:time", async (req, res) => {
         } else {
             res.json({"status": "intranet_offline_nocache"});
         }
-    });
+    })
 });
 
 app.get("/course-participants/:id", (req, res) => {
@@ -632,26 +654,29 @@ app.get("/resources/:time", async (req, res) => {
         "method": "POST"
     };
     let user = cookieToUser(req.headers.cookie);
+
     
-    let resCacheData;
+    let resCacheObj;
     try {
-        resCacheData = (resCache != {}) ? await resourcesCallback(user, resCache.data) : {};
+        resCacheObj = (resCache["data_" + body.periodId]) ? resCache["data_" + body.periodId] : {};
     } catch (e) {}
 
-    if (goodResCache(resCache) && resCacheData != {}) {
-        res.json({"status": "ok", "data": resCacheData});
+    if (goodResCache(resCacheObj)) {
+        res.json({"status": "ok", "data": await resourcesCallback(user, resCacheObj.data)});
         return;
     }
     intranetReq("/kzo/timetable/ajax-get-resources/", body).then(async r => {
-        resCache = {
+        resCache["data_" + body.periodId] = {
             time: new Date(),
             data: r
         };
         let resData = await resourcesCallback(user, r);
         res.json({"status": "ok", "data": resData});
-    }).catch(e => {
-        if (resCacheData) {
-            res.json({"status": "intranet_offline", "data": resCacheData, "time": resCache.time});
+    }).catch(async e => {
+        if (e.message == "successful_login_invalid_result") {
+            res.json({"status": "error"});
+        } else if (resCache && resCache["data_" + body.periodId]) {
+            res.json({"status": "intranet_offline", "data": await resourcesCallback(user, resCacheObj.data), "time": resCache.time});
         } else {
             res.json({"status": "intranet_offline_nocache"});
         }
@@ -822,6 +847,65 @@ async function readMensa(identifier) {
     }
     return menu;
 }
+
+app.post("/grades", async (req, res) => {
+    let user = cookieToUser(req.headers.cookie);
+    if (!await isAuthorized(user)) {
+        res.status(401).end();
+        return;
+    }
+    let body = "";
+    req.on("data", chunk => {
+        body += chunk.toString();
+    });
+    req.on("end", async () => {
+        // assert string is valid JSON
+        try {
+            JSON.parse(body);
+        } catch (e) {
+            res.status(400).send("invalid_request").end();
+            return;
+        }
+        let compressed = zlib.deflateSync(body).toString("base64");
+        if (compressed.length > MAX_GRADES_SIZE) {
+            res.status(400).send("too_large").end();
+            return;
+        }
+        let qRes = await pgClient.query(`SELECT gradedata, lastmod FROM grades where username='${user.username}'`);
+        if (qRes.rowCount == 0) {
+            pgClient.query(`INSERT INTO grades VALUES ('${user.username}', ${compressed}, ${Date.now()})`);
+        } else {
+            pgClient.query(`UPDATE grades SET gradedata='${compressed}', lastmod=${Date.now()} WHERE username='${user.username}'`);
+        }
+        res.send("ok");
+    });
+});
+
+app.get("/grades", async (req, res) => {
+    let user = cookieToUser(req.headers.cookie);
+    if (!await isAuthorized(user)) {
+        res.status(401).end();
+        return;
+    }
+    try {
+        let qRes = await pgClient.query(`SELECT gradedata, lastmod FROM grades where username='${user.username}'`);
+        if (qRes.rowCount == 0) {
+            res.json({
+                data: {},
+                modified: -1
+            });
+            return;
+        }
+        let decompressed = zlib.inflateSync(Buffer.from(qRes.rows[0].gradedata, "base64"));
+        res.json({
+            data: JSON.parse(decompressed),
+            lastmod: qRes.rows[0].lastmod
+        });
+    } catch (e) {
+        console.error("Error fetching grade data:", e);
+        res.status(500).end();
+    }
+});
 
 app.listen(PORT, () => console.log("Web server is up and running on port " + PORT));
 

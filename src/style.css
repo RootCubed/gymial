@@ -8,7 +8,7 @@
 :root {
     --default-font: "Inter", Arial, sans-serif;
     --bg-primary: #333;
-    --bg-secondary: #37373b;
+    --bg-secondary: #444;
     --color-primary: #fff;
     --color-secondary: #000;
     --color-progress-bar: #329f5b;
@@ -22,13 +22,15 @@
     --topbar-height: 63px;
 }
 
-body {
+html, body {
     --wh: 100vh;
     background-color: var(--bg-secondary);
     overflow: hidden;
     position: relative;
     height: 100vh;
     height: var(--wh);
+    height: -webkit-fill-available;
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
 body.preload * {
@@ -631,7 +633,8 @@ button, input[type=submit] {
 }
 
 #invalid-login {
-    color: #ec6969;
+    color: #ff3535;
+    margin-top: 30px;
 }
 
 #panel-timetable, #panel-mensa {

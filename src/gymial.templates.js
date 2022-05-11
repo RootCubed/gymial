@@ -12,6 +12,15 @@ ${(index != undefined) ? "data-index=\"" + index + "\"" : ""}>
 </div>
 `;
 
+export const gradeSemContainer = (className, title, plusPoints, avg, vertbarCol) => {
+    return gradeContainerGeneric(className, title, vertbarCol, `
+        <span class="grades-overview-span grades-overview-avg">
+            <span class="grades-small-pluspoint-cont">${plusPoints}</span>
+        </span>
+        <span class="grades-overview-span grades-overview-round-avg">${avg}</span>
+    `);
+};
+
 export const gradeSubjContainer = (className, title, trueAvg, roundedAvg, vertbarCol) => {
     return gradeContainerGeneric(className, title, vertbarCol, `
         <span class="grades-overview-span grades-overview-avg has-avg-label">${trueAvg}</span>
@@ -30,6 +39,7 @@ export const gradeGradeContainer = (className, index, title, weight, roundedAvg,
 };
 
 const gradeListPre = (links, title, avg) => `
+<div class="grades-view-header">
 <div class="grades-back-btn color-svg">
     <svg width="40" height="40">
         <line x1="12" y1="12" x2="28" y2="28" />
@@ -43,12 +53,13 @@ const gradeListPre = (links, title, avg) => `
         <circle cx="32" cy="20" r="3" />
     </svg>
 </span>
+<h2 class="grades-heading">${title} (⌀ ${avg})</h2>
 <div class="grades-dropdown-more hidden">
     ${links.map(e => {
         return `<span class="grades-link ${e.cl}">${e.title}</span>`;
     }).join("")}
 </div>
-<h2 class="grades-heading">${title} (⌀ ${avg})</h2>
+</div>
 `;
 
 const gradeListAddForm = (placeholder) => `
