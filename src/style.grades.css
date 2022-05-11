@@ -442,23 +442,22 @@
     grid-area: frac;
     background-size: 100% 100%;
 }
-.f1 {
-    grid-area: f1;
+.f1, .f2 {
     text-align: center;
     align-self: center;
     justify-self: center;
     display: block;
     width: 100%;
-    border-bottom: 1.75px solid white;
+    font-size: 15px;
+}
+.f1 {
+    grid-area: f1;
+    border-bottom: 1px solid white;
     
 }
 .f2 {
     grid-area: f2;
-    text-align: center;
-    align-self: center;
-    justify-self: center;
-    display: block;
-    width: 100%;
+    border-top: 1px solid white;
 }
 .grades-overview-weight-t {
     grid-area: text;

@@ -54,7 +54,7 @@ export function loadPersData() {
             $i("login-form").style.display = "none";
             $i("accountinfo").style.display = "inline";
             $s("#panel-settings h2").innerText = "Account";
-            $i("login").style.display = "none";
+            $i("login-btn-cont").style.display = "none";
             $i("persDetails").style.display = "";
         }
     });

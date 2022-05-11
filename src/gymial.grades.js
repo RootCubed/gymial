@@ -74,18 +74,17 @@ function calculateSemAvg(data) {
 function calculateGradesAvg(data) {
     // recursively calculate subgrades
     let gradesCalc = data.map(grade => {
+        let res = Object.assign({}, grade);
         if (grade.grade_type == "subgrade") {
             let avg = calculateGradesAvg(grade.value);
             if (isNaN(avg)) return null;
-            return {
-                "title": grade.title,
-                "grade_type": "regular",
-                "weight_type": grade.weight_type,
-                "weight": grade.weight,
-                "value": avg
-            };
+            res.value = avg;
+            res.grade_type = "regular";
         }
-        return grade;
+        if (res.frac_weight) {
+            res.weight = res.frac_weight.numer / res.frac_weight.denom;
+        }
+        return res;
     }).filter(grade => grade != null);
     
     if (gradesCalc.length == 0) return NaN;
