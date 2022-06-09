@@ -344,7 +344,6 @@ span.entry-title {
     visibility: hidden;
     opacity: 0;
     text-align: center;
-    color: white;
     display: flex;
     flex-direction: column;
     justify-content: center;

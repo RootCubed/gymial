@@ -13,7 +13,7 @@ let viewState = {
 };
 
 export function init() {
-    $i("grades-save-cloud-spinner").style.display = "none";
+    $i("grades-cloud-spinner").style.display = "none";
 
     $i("grades-reset-all").addEventListener("click", () => {
         if (confirm("Willst du wirklich alle Noten löschen? Dies kann nicht rückgängig gemacht werden!")) {
@@ -23,16 +23,15 @@ export function init() {
         }
     });
 
-    $i("grades-save-cloud").addEventListener("click", async () => {
+    $i("grades-sync-cloud").addEventListener("click", async () => {
         try {
-            $i("grades-save-cloud").style.display = "none";
-            $i("grades-save-cloud-spinner").style.display = "";
+            $i("grades-sync-cloud").style.display = "none";
+            $i("grades-cloud-spinner").style.display = "";
             let gradesReq = await fetch("/grades");
             if (gradesReq.status == 401) {
                 throw new Error("401");
             }
             let gradesJSON = await gradesReq.json();
-            alert(gradesJSON.lastmod + " " + getGradeLastMod());
             if (gradesJSON.lastmod > getGradeLastMod()) {
                 viewState.gradeData = gradesJSON.data;
                 setGradeData(viewState.gradeData);
@@ -47,8 +46,38 @@ export function init() {
             }
             refreshGrades();
         } catch (e) {}
-        $i("grades-save-cloud").style.display = "";
-        $i("grades-save-cloud-spinner").style.display = "none";
+        $i("grades-sync-cloud").style.display = "";
+        $i("grades-cloud-spinner").style.display = "none";
+    });
+
+    $i("grades-dl-cloud").addEventListener("click", async () => {
+        try {
+            $i("grades-sync-cloud").style.display = "none";
+            $i("grades-cloud-spinner").style.display = "";
+            let gradesReq = await fetch("/grades");
+            if (gradesReq.status == 401) {
+                throw new Error("401");
+            }
+            let gradesJSON = await gradesReq.json();
+            viewState.gradeData = gradesJSON.data;
+            setGradeData(viewState.gradeData);
+            refreshGrades();
+        } catch (e) {}
+        $i("grades-sync-cloud").style.display = "";
+        $i("grades-cloud-spinner").style.display = "none";
+    });
+
+    $i("grades-ul-cloud").addEventListener("click", async () => {
+        try {
+            $i("grades-sync-cloud").style.display = "none";
+            $i("grades-cloud-spinner").style.display = "";
+            gradesReq = await fetch("/grades", {
+                method: "post",
+                body: JSON.stringify(viewState.gradeData)
+            });
+        } catch (e) {}
+        $i("grades-sync-cloud").style.display = "";
+        $i("grades-cloud-spinner").style.display = "none";
     });
 
     viewState.gradeData = getGradeData();
@@ -75,7 +104,7 @@ function roundedAvg(grade, plusPoints) {
         let pp = (rounded > 4) ? (rounded - 4) : (4 - rounded) * -2;
         return (pp >= 0 ? "+" : "") + pp.toFixed(1);
     }
-    return rounded;
+    return rounded.toFixed(1);
 }
 
 function weightAsHTML(grade) {
@@ -100,6 +129,12 @@ function weightAsHTML(grade) {
 function calculateSemAvg(data) {
     let avgs = Object.keys(data).map(subj => calculateGradesAvg(data[subj])).filter(g => !isNaN(g));
     return avgs.reduce((a, v) => a + v, 0) / avgs.length;
+}
+
+function calculateSemPlusPoints(data) {
+    let pps = Object.keys(data).map(subj => calculateGradesAvg(data[subj])).filter(g => !isNaN(g));
+    let ppRes = pps.reduce((a, v) => a + parseInt(roundedAvg(v, true)), 0);
+    return (ppRes >= 0 ? "+" : "") + ppRes.toFixed(1);
 }
 
 function calculateGradesAvg(data) {
@@ -450,9 +485,9 @@ function showGradeList(context) {
     }
 }
 
-function genSemOverviewContainer(topClass, title, avg) {
+function genSemOverviewContainer(topClass, title, avg, plusPoints) {
     let fAvg = formatGrade(avg, false);
-    return templ.gradeSemContainer(topClass, $esc(title), roundedAvg(avg, true), fAvg, getGradeColor(avg));
+    return templ.gradeSemContainer(topClass, $esc(title), plusPoints, fAvg, getGradeColor(avg));
 }
 
 function genGradeOverviewContainer(topClass, title, avg, plusPoints) {
@@ -483,7 +518,7 @@ function genGradeContainer(grade, index) {
 function getSemesterList(data) {
     let html = "";
     for (let sem in data) {
-        html += genSemOverviewContainer("grades-sem-container", sem, calculateSemAvg(data[sem]));
+        html += genSemOverviewContainer("grades-sem-container", sem, calculateSemAvg(data[sem]), calculateSemPlusPoints(data[sem]));
     }
     return templ.gradeListSem(html);
 }

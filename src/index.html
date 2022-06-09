@@ -138,8 +138,21 @@
                 </div>
                 <div class="grades-section">
                     <h2 class="settings-section-header">Noten</h2>
-                    <button id="grades-save-cloud" type="button">Noten auf Cloud abspeichern (In Entwicklung)</button>
-                    <img id="grades-save-cloud-spinner" width="40" height="40" src="<%= require("./static/spinner.svg") %>" alt="Loading spinner">
+                    <div id="grade-sync-settings-cont">
+                        <span>Synchronisation</span>
+                        <div class="grade-chip-cont">
+                            <span id="grade-auto-sync" class="grade-chip-sel active">Automatisch</span>
+                            <span id="grade-manual-sync" class="grade-chip-sel">Manuell</span>
+                        </div>
+                    </div>
+                    <div id="grades-auto-sync-cont">
+                        <button id="grades-sync-cloud" type="button">Jetzt synchronisieren</button>
+                    </div>
+                    <div id="grades-manual-sync-cont">
+                        <button id="grades-dl-cloud" type="button"><img width="30" src="<%= require("./static/icon-cloud-dl.svg") %>"></button>
+                        <button id="grades-ul-cloud" type="button"><img width="30" src="<%= require("./static/icon-cloud-ul.svg") %>"></button>
+                    </div>
+                    <img id="grades-cloud-spinner" width="40" height="40" src="<%= require("./static/spinner.svg") %>" alt="Loading spinner">
                 </div>
                 <div class="debug-section">
                     <h2 class="settings-section-header">Mehr</h2>

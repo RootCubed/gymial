@@ -117,6 +117,7 @@
 }
 
 .grades-view-header {
+    -webkit-position: sticky;
     position: sticky;
     display: grid;
     top: 0;
@@ -479,4 +480,16 @@
 }
 .grades-overview-weight-w {
     grid-area: w;
+}
+
+#grades-manual-sync-cont {
+    display: grid;
+    grid-template: "dl ul";
+    grid-gap: 5px;
+}
+
+.grades-section button {
+    margin: 0;
+    justify-self: center;
+    width: 100%;
 }
