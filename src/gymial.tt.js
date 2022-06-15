@@ -122,7 +122,7 @@ export function init() {
             });
         } else {
             if (viewState.entityType == "student") {
-                fetch("/getName/" + parseInt(entityID)).then(res => res.json()).then(personName => {
+                fetch("/getName/" + parseInt(viewState.entityID)).then(res => res.json()).then(personName => {
                     if (personName.status && personName.status == "intranet_offline_nocache") {
                         gymial.detail.showDetail(`<span>Das Intranet ist leider momentan offline. Versuche es später wieder.</span>`);
                     }

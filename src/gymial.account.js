@@ -47,15 +47,15 @@ export async function login(username, password) {
 export function loadPersData() {
     $i("invalid-login").style.display = "none";
     fetch("/myData").then(res => res.json()).then(res => {
-        if (res.total > 0) {
-            persData = res.data[0];
-            $i("ownName").innerText = persData.Vorname + " " + persData.Nachname;
-            $i("otherDetails").innerText = persData.Adresse + ", " + persData.PLZ + " " + persData.Ort;
-            $i("accountinfo").style.display = "inline";
-            $s("#panel-settings h2").innerText = "Account";
-            $i("login-btn-cont").style.display = "none";
-            $i("persDetails").style.display = "";
-        }
+        persData = res.data[0];
+        $i("ownName").innerText = persData.Vorname + " " + persData.Nachname;
+        $i("otherDetails").innerText = persData.Adresse + ", " + persData.PLZ + " " + persData.Ort;
+        $i("accountinfo").style.display = "inline";
+        $s("#panel-settings h2").innerText = "Account";
+        $i("login-btn-cont").style.display = "none";
+        $i("persDetails").style.display = "";
+    }).catch(() => {
+        logout();
     });
 }
 
