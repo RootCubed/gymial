@@ -6,7 +6,7 @@
 }
 
 :root {
-    --default-font: "Inter", Arial, sans-serif;
+    --default-font: Arial, sans-serif;
     --bg-primary: #333;
     --bg-secondary: #444;
     --color-primary: #fff;
