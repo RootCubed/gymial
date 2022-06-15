@@ -5,9 +5,9 @@ const redisClient = createClient({
     url: process.env.REDIS_URL
 });
 
-await redisClient.connect();
+redisClient.on("error", err => console.log("Redis error: ", err));
 
-redisClient.on("error", (err) => console.log("Redis error: ", err));
+await redisClient.connect();
 
 const genKN = (key) => `${process.env.REDIS_PREFIX}:${key}`;
 
@@ -43,8 +43,7 @@ export async function getGradeData(username) {
             modified: -1
         };
     }
-    const decompressed = zlib.inflateSync(Buffer.from(grades, "base64"));
-    return JSON.parse(decompressed);
+    return grades;
 }
 export async function setGradeData(username, data) {
     await redisClient.hSet(genKN(`user:${username}`), "grades", data);

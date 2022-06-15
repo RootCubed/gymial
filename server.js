@@ -39,6 +39,7 @@ const authorizeMiddleware = async (req, res, next) => {
         res.status(401).end();
         return;
     }
+    req.user = user;
     next();
 };
 
@@ -53,7 +54,7 @@ const goodResCache = c => (!!c && !!c.time) && (new Date() - c.time) < resCacheT
 async function verifyAuthentication(username, password) {
     let token;
     try {
-        token = await login(username, password);
+        token = await ds.tam.login(username, password);
     } catch (e) {
         return false;
     }
@@ -105,8 +106,7 @@ app.post("/auth", (req, res) => {
 });
 
 app.get("/myData", authorizeMiddleware, async (req, res) => {
-    let user = cookieToUser(req.headers.cookie);
-    let persData = await db.getPersData(user.username);
+    let persData = await db.getPersData(req.user.username);
     if (persData == null) {
         res.status(500).end();
         return;
@@ -388,14 +388,17 @@ app.post("/grades", authorizeMiddleware, async (req, res) => {
             res.status(400).send("too_large").end();
             return;
         }
-        db.setGradeData(user.username, compressed);
+        db.setGradeData(req.user.username, compressed);
         res.send("ok");
     });
 });
 
 app.get("/grades", authorizeMiddleware, async (req, res) => {
     try {
-        res.json(await db.getGradeData(user.username));
+        const grades = await db.getGradeData(req.user.username);
+        const decompressed = zlib.inflateSync(Buffer.from(grades, "base64"));
+        const decompData =  JSON.parse(decompressed);
+        res.json(decompData);
     } catch (e) {
         console.error("Error fetching grade data:", e);
         res.status(500).end();

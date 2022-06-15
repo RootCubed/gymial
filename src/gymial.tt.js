@@ -461,7 +461,7 @@ function setLessonData(lesson) {
             $i("names").innerHTML = html;
             $c("person-link").forEach(link => link.addEventListener("click", el => {
                 let name = el.target.innerText;
-                let id = parseInt(el.getAttribute("data"));
+                let id = parseInt(el.target.getAttribute("data"));
                 gymial.menu.overrideTitle(name);
                 setSelectedPerson(name);
                 loadTTData("student", id, viewState.time, viewState.currResources); // TODO: fix!

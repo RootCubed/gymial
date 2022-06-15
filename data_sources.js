@@ -319,7 +319,8 @@ async function readMensaData(identifier) {
 
 export default {
     tam: {
-        request: intranetReq
+        request: intranetReq,
+        login: tamLogin
     },
     kzoch: {
         personSearch: searchPeopleKZOch
