@@ -25,7 +25,7 @@
     "node-fetch": "^3.2.0",
     "pg": "^8.7.3",
     "rate-limiter-flexible": "^2.3.6",
-    "redis": "^3.1.2",
+    "redis": "^4.1.0",
     "webpack": "^5.72.0"
   },
   "devDependencies": {
