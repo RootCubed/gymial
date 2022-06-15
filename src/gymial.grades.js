@@ -401,13 +401,49 @@ function showGradeList(context) {
     );
 
     glEl.querySelector(".grades-delete-link").addEventListener("click", () => {
-        if (confirm("Wirklich löschen?")) {
+        g_detail.showModal({
+            title: "Wirklich löschen?",
+            subtext: "",
+            input: false,
+            noText: "Abbrechen",
+            yesText: "Löschen"
+        }).then(() => {
             deleteAtContext(viewState.gradeData, viewState.context);
             closeCurrView(context);
             popContext(context);
             refreshGrades();
-        }
+        }).catch(() => {});
     });
+    
+    let rnLink = glEl.querySelector(".grades-rename-link");
+    if (rnLink) {
+        rnLink.addEventListener("click", async () => {
+            try {
+                let subtext = "";
+                do {
+                    let resp = await g_detail.showModal({
+                        title: `Semester ${ctxEl.name} umbenennen`,
+                        subtext: subtext,
+                        input: true,
+                        noText: "Abbrechen",
+                        yesText: "Bestätigen"
+                    });
+                    let contextClone = JSON.parse(JSON.stringify(viewState.context));
+                    popContext(contextClone);
+                    let curr = getAtContext(viewState.gradeData, contextClone);
+                    if (!curr[resp.input]) {
+                        Object.assign(curr, { [resp.input]: curr[ctxEl.name] });
+                        delete curr[ctxEl.name];
+                        // !!! hardcoded to semester name
+                        viewState.context.sem.name = resp.input;
+                        refreshGrades();
+                        break;
+                    }
+                    subtext = "Dieses Semester existiert schon!";
+                } while (true);
+            } catch (e) {}
+        });
+    }
     
     glEl.querySelector(".grades-back-btn").addEventListener("click", () => {
         if (animPlaying) return;

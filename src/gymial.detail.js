@@ -1,5 +1,7 @@
 import { $esc, $i, $c } from "./gymial.helper.js";
 
+let grEditPromise, modalPromise;
+
 export function init() {
     $i("grade-form").addEventListener("submit", () => {
         try {
@@ -17,8 +19,8 @@ export function init() {
             } else {
                 resVal.weight = weightVal;
             }
-            if (modalPromise) modalPromise.res(resVal);
-            modalPromise = null;
+            if (grEditPromise) grEditPromise.res(resVal);
+            grEditPromise = null;
         } catch (e) {}
         hide();
         return false; // prevent redirect
@@ -76,10 +78,25 @@ export function init() {
             $i("label-grade-weight-hint").classList.add("hidden");
         }
     });
+
+    $i("modal-no").addEventListener("click", () => {
+        hide();
+    });
+
+    $i("modal-yes").addEventListener("click", () => {
+        let resVal = {
+            "input": $i("modal-input").value
+        };
+        if (modalPromise) modalPromise.res(resVal);
+        modalPromise = null;
+        hide();
+        return false; // prevent redirect
+    });
 }
 
 function show(divToShow) {
-    for (let div of ["details_cont", "login-window", "grade-editor"]) {
+    $i("details-overlay").style.display = "";
+    for (let div of ["details_cont", "login-window", "grade-editor", "simple-modal"]) {
         $i(div).style.display = (div == divToShow) ? "" : "none";
     }
     $i("scrollLimiter").classList.add("blur");
@@ -100,8 +117,6 @@ export function showPwForm() {
 
 let currGradeType = "exam";
 let currWeightType = "fullgrade";
-
-let modalPromise;
 
 function gradeSwitchToTypeExam() {
     $i("grade-cont-typeexam").style.display = "";
@@ -222,6 +237,25 @@ export function showGradeEditor(config) {
     $i("margin-details").classList.add("visible");
 
     return new Promise((res, rej) => {
+        grEditPromise = {
+            res: res,
+            rej: () => rej("cancel")
+        };
+    });
+}
+
+export function showModal(config) {
+    show("simple-modal");
+    $i("modal-title").innerHTML = config.title || "";
+    $i("modal-subtext").innerHTML = config.subtext || "";
+    $i("modal-input").style.display = config.input ? "" : "none";
+    $i("modal-no").innerHTML = config.noText || "";
+    $i("modal-yes").innerHTML = config.yesText || "";
+
+    $i("details-overlay").style.display = "none";
+    $i("margin-details").classList.add("visible");
+
+    return new Promise((res, rej) => {
         modalPromise = {
             res: res,
             rej: () => rej("cancel")
@@ -232,6 +266,6 @@ export function showGradeEditor(config) {
 export function hide() {
     $i("margin-details").classList.remove("visible");
     $i("scrollLimiter").classList.remove("blur");
-    if (modalPromise) modalPromise.rej();
-    modalPromise = null;
+    if (grEditPromise) grEditPromise.rej();
+    grEditPromise = null;
 }

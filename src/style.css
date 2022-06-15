@@ -401,10 +401,7 @@ span.entry-title {
     opacity: 1;
 }
 
-#details-overlay {
-    width: 80vw;
-    max-height: 80vh;
-    min-height: 50vh;
+#details-overlay, #simple-modal {
     background-color: #222222f8;
     color: white;
     border-radius: 5px;
@@ -413,6 +410,16 @@ span.entry-title {
     left: 50%;
     margin-right: -50%;
     transform: translate(-50%, -50%);
+}
+
+#details-overlay {
+    width: 80vw;
+    max-height: 80vh;
+    min-height: 50vh;
+}
+
+#simple-modal {
+    padding: 10px;
 }
 
 #details_cont {
@@ -852,6 +859,20 @@ div#hint-new-timetable:after {
 
 #hint-new-timetable.visible {
     opacity: 1;
+}
+
+#simple-modal > * {
+    margin: 10px 0;
+}
+
+#modal-title {
+    max-width: 60vw;
+}
+
+#yes-no {
+    display: grid;
+    grid-template: "yes no" auto / 1fr 1fr;
+    grid-gap: 5px;
 }
 
 @-webkit-keyframes scroll {
