@@ -36,6 +36,10 @@
     animation: 0.25s linear fade-in;
 }
 
+.grades-cont:last-child {
+    z-index: 2;
+}
+
 .grades-cont.fade-out {
     opacity: 0;
     animation: 0.25s linear fade-out;

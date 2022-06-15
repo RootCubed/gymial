@@ -114,10 +114,11 @@ export function init() {
                     gymial.detail.showDetail(`<span>Das Intranet ist leider momentan offline. Versuche es später wieder.</span>`);
                     return;
                 }
-                let htmlToAdd = `<h1 style="margin-bottom: 20px">Klassenliste ${$i("current-class").innerText}</h1>`;
+                let htmlToAdd = `<h1 style="margin-bottom: 20px">Klassenliste ${$i("current-class").innerText}</h1><div id="names">`;
                 for (let student of res) {
                     htmlToAdd += `<span class="student studentName person-link" data="${student.studentId}">${student.studentName}</span>`;
                 }
+                htmlToAdd += "</div>";
                 gymial.detail.showDetail(htmlToAdd);
             });
         } else {

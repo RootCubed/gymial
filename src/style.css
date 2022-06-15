@@ -19,7 +19,7 @@
     --class-special: #e2f7a4;
     --link-color: #a8cdff;
     --font: var(--default-font);
-    --topbar-height: 63px;
+    --topbar-height: 62px;
 }
 
 html, body {
@@ -497,11 +497,6 @@ img.teacher {
 
 .student {
     margin-top: 10px;
-}
-
-.studentName {
-    display: block;
-    font-size: 16px;
 }
 
 #teacher-detail-view p {

@@ -2,6 +2,15 @@
     span {
         font-size: 16px;
     }
+
+    #overlay-lesson-tabs a {
+        font-size: 14px;
+        padding: 15px 20px 10px;
+    }
+
+    #room-detail, #teacher-detail {
+        font-size: 1.8em;
+    }
 }
 
 @media only screen and (max-width: 600px) {
@@ -10,7 +19,7 @@
     }
 
     :root {
-        --topbar-height: 53px;
+        --topbar-height: 48px;
     }
 
     #selection {
