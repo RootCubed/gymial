@@ -5,19 +5,24 @@ const redisClient = createClient({
     url: process.env.REDIS_URL
 });
 
+redisClient.on("ready", () => console.log("Redis client connected."));
+redisClient.on("reconnecting", () => console.log("Reconnecting to redis server..."));
 redisClient.on("error", err => console.log("Redis error: ", err));
 
-await redisClient.connect();
+setTimeout(async () => {
+    await redisClient.connect();
+    
+    // setup database
+    if (!(await redisClient.get(genKN("nonAuthReqs")))) {
+        redisClient.set(genKN("nonAuthReqs"), 0);
+    }
+
+}, 500);
 
 const genKN = (key) => `${process.env.REDIS_PREFIX}:${key}`;
 
 if (!process.env.REDIS_PREFIX) {
     console.warn("Environment variable \"REDIS_PREFIX\" is not set!");
-}
-
-// setup database
-if (!(await redisClient.get(genKN("nonAuthReqs")))) {
-    redisClient.set(genKN("nonAuthReqs"), 0);
 }
 
 export function userReq(username) {

@@ -17,8 +17,12 @@ app.use(async (req, res, next) => {
     } else {
         if (req.headers.cookie) {
             let user = cookieToUser(req.headers.cookie);
-            let isAuth = await db.isAuthorized(user);
-            db.userReq((isAuth) ? user.username : null);
+            try {
+                let isAuth = await db.isAuthorized(user);
+                db.userReq((isAuth) ? user.username : null);
+            } catch (e) {
+                console.error("Error getting isAuthorized:", e);
+            }
         }
         next();
     }
@@ -301,7 +305,6 @@ app.get("/class-personal-details/:classID", authorizeMiddleware, async (req, res
         "method": "POST",
         "classId[]": req.params.classID
     };
-    console.log(body);
     ds.tam.request("/kzo/timetable/ajax-get-timetable", body).then(r => {
         let data = JSON.parse(r).data;
         let potentialClassLists = {};

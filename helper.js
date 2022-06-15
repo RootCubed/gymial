@@ -28,7 +28,6 @@ export function getPeriod(time) {
 export function getPeriodFromClass(classID) {
     let currPeriod;
     for (let period of periods) {
-        console.log(classID, period.lowestClass);
         if (parseInt(classID) >= period.lowestClass) {
             currPeriod = period;
             break;
