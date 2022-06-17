@@ -112,3 +112,12 @@ export function getGradeLastMod() {
     let r = window.localStorage.getItem("grades_mod_ts");
     return (r != undefined) ? parseInt(r) : 0;
 }
+
+export function getGradeSyncMode() {
+    let r = window.localStorage.getItem("grades_sync_mode");
+    return (r != undefined) ? r : "auto";
+}
+
+export function setGradeSyncMode(mode) {
+    window.localStorage.setItem("grades_sync_mode", mode);
+}

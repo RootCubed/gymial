@@ -1,6 +1,6 @@
 import { $c, $i, $sa, $esc, $s } from "./gymial.helper.js";
 
-import { getGradeData, setGradeData, getGradeLastMod } from "./gymial.store.js";
+import { getGradeData, setGradeData, getGradeLastMod, getGradeSyncMode, setGradeSyncMode } from "./gymial.store.js";
 
 import * as templ from "./gymial.templates.js";
 
@@ -23,36 +23,8 @@ export function init() {
         }
     });
 
-    $i("grades-sync-cloud").addEventListener("click", async () => {
-        try {
-            $i("grades-sync-cloud").style.display = "none";
-            $i("grades-cloud-spinner").style.display = "";
-            let gradesReq = await fetch("/grades");
-            if (gradesReq.status == 401) {
-                throw new Error("401");
-            }
-            let gradesJSON = await gradesReq.json();
-            if (gradesJSON.lastmod > getGradeLastMod()) {
-                viewState.gradeData = gradesJSON.data;
-                setGradeData(viewState.gradeData);
-            } else {
-                gradesReq = await fetch("/grades", {
-                    method: "post",
-                    body: JSON.stringify(viewState.gradeData)
-                });
-                if (gradesReq.status == 401) {
-                    throw new Error("401");
-                }
-            }
-            refreshGrades();
-        } catch (e) {}
-        $i("grades-sync-cloud").style.display = "";
-        $i("grades-cloud-spinner").style.display = "none";
-    });
-
     $i("grades-dl-cloud").addEventListener("click", async () => {
         try {
-            $i("grades-sync-cloud").style.display = "none";
             $i("grades-cloud-spinner").style.display = "";
             let gradesReq = await fetch("/grades");
             if (gradesReq.status == 401) {
@@ -63,28 +35,61 @@ export function init() {
             setGradeData(viewState.gradeData);
             refreshGrades();
         } catch (e) {}
-        $i("grades-sync-cloud").style.display = "";
         $i("grades-cloud-spinner").style.display = "none";
     });
 
     $i("grades-ul-cloud").addEventListener("click", async () => {
         try {
-            $i("grades-sync-cloud").style.display = "none";
             $i("grades-cloud-spinner").style.display = "";
             gradesReq = await fetch("/grades", {
                 method: "post",
                 body: JSON.stringify(viewState.gradeData)
             });
         } catch (e) {}
-        $i("grades-sync-cloud").style.display = "";
         $i("grades-cloud-spinner").style.display = "none";
     });
 
-    viewState.gradeData = getGradeData();
-    refreshGrades();
+    console.log(getGradeSyncMode());
+
+    if (getGradeSyncMode() == "auto") {
+        $i("grades-manual-sync-cont").style.display = "none";
+        cloudSyncAuto();
+    } else {
+        $i("grades-auto-sync-cont").style.display = "none";
+        viewState.gradeData = getGradeData();
+        refreshGrades();
+    }
 }
 
 // helper functions
+
+async function cloudSyncAuto() {
+    try {
+        $i("grades-cloud-spinner").style.display = "";
+        let gradesReq = await fetch("/grades");
+        if (gradesReq.status == 401) {
+            throw new Error("401");
+        }
+        let gradesJSON = await gradesReq.json();
+        if (gradesJSON.lastmod > getGradeLastMod()) {
+            viewState.gradeData = gradesJSON.data;
+            setGradeData(viewState.gradeData);
+        } else {
+            gradesReq = await fetch("/grades", {
+                method: "post",
+                body: JSON.stringify(viewState.gradeData)
+            });
+            if (gradesReq.status == 401) {
+                throw new Error("401");
+            }
+        }
+        $i("grades-sync-info-last-cont").innerHTML = new Date().toLocaleTimeString([], {
+            year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit"
+        });
+        refreshGrades();
+    } catch (e) {}
+    $i("grades-cloud-spinner").style.display = "none";
+}
 
 const getGradeColor = grade => {
     let g = parseFloat(grade);

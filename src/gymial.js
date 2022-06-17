@@ -7,7 +7,7 @@ import "./style.css";
 import "./style.mobile.css";
 import "./style.grades.css";
 
-if (document.readyState == "complete"){
+if (document.readyState == "complete") {
     init();
 } else {
     document.addEventListener("DOMContentLoaded", init);
@@ -37,33 +37,6 @@ function init() {
 
     window.addEventListener("resize", resizeScreen);
     window.addEventListener("orientationchange", resizeScreen);
-
-    // web worker
-    if (navigator.serviceWorker) {
-        // The website receives hundreds of requests per second from time to time,
-        // and this might be caused by an erroneous service worker configuration.
-        // Disabling for now.
-        navigator.serviceWorker.getRegistrations().then(registrations => {
-            for(let reg of registrations) {
-                reg.unregister();
-            }
-        });
-        
-        /*
-        navigator.serviceWorker.register("service-worker.js").then(sw => {
-            sw.addEventListener("updatefound", () => {
-                let newWorker = sw.installing;
-                newWorker.addEventListener("statechange", () => {
-                    if (newWorker.state == "installed") {
-                        newWorker.postMessage({action: "skipWaiting"});
-                    }
-                });
-            });
-        });
-        navigator.serviceWorker.addEventListener("controllerchange", () => {
-            window.location.reload();
-        });*/
-    }
 }
 
 let resizeTimer;
