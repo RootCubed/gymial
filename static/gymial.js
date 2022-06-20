@@ -1,21 +1,21 @@
-const timesPre73 = ["07:30-08:15", "08:25-09:10", "09:20-10:05", "10:25-11:10", "11:20-12:05", "12:25-13:10", "13:20-14:05", "14:15-15:00", "15:10-15:55", "16:05-16:50", "16:55-17:40"];
-const shortTimesPre73 = [730, 825, 920, 1025, 1120, 1225, 1320, 1415, 1510, 1605, 1655];
+const timesPre73Post76 = ["07:30-08:15", "08:25-09:10", "09:20-10:05", "10:25-11:10", "11:20-12:05", "12:25-13:10", "13:20-14:05", "14:15-15:00", "15:10-15:55", "16:05-16:50", "16:55-17:40"];
+const shortTimesPre73Post76 = [730, 825, 920, 1025, 1120, 1225, 1320, 1415, 1510, 1605, 1655];
 
 const timesPost73 = ["07:30-08:15", "08:25-09:10", "09:30-10:15", "10:35-11:20", "11:40-12:25", "12:35-13:20", "13:40-14:25", "14:45-15:30", "15:40-16:25", "16:35-17:20", "17:20-18:05"];
 const shortTimesPost73 = [730, 825, 920, 1035, 1140, 1235, 1340, 1445, 1540, 1635, 1720];
 
-const NEXT_SEM_START = 1646002800000;
-const nextSemOnline = false;
+const NEXT_SEM_START = 1661119200000;
+const nextSemOnline = true;
 
-let times = timesPre73;
-let shortTimes = shortTimesPre73;
+let times = timesPre73Post76;
+let shortTimes = shortTimesPre73Post76;
 
 const DAY = 24 * 60 * 60 * 1000;
 
 let timetableData;
 
 let IDType = "class";
-let classID = 2659;
+let classID = 2733;
 let currPeriod = 76;
 let persData;
 
@@ -597,12 +597,12 @@ async function loadClass(startAtZero) {
         }
     }
     progress(30);
-    if (parseInt(perID) >= 73) {
+    if (parseInt(perID) >= 73 && parseInt(perID) <= 76) {
         times = timesPost73;
         shortTimes = shortTimesPost73;
     } else {
-        times = timesPre73;
-        shortTimes = shortTimesPre73;
+        times = timesPre73Post76;
+        shortTimes = shortTimesPre73Post76;
     }
     if (parseInt(perID) != currPeriod) {
         currPeriod = parseInt(perID);

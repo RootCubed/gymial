@@ -93,6 +93,10 @@ let token = "";
 
 const periods = [
     {
+        "period": 77,
+        "startTime": 1661119200000
+    },
+    {
         "period": 76,
         "startTime": 1646002800000
     },
@@ -586,20 +590,20 @@ app.get("/resources/:time", async (req, res) => {
     };
     let user = cookieToUser(req.headers.cookie);
     
-    let resCacheData;
+    let resCacheObj;
     try {
-        resCacheData = (resCache != {}) ? await resourcesCallback(user, resCache.data) : {};
+        resCacheObj = (resCache["data_" + body.periodId]) ? resCache["data_" + body.periodId] : {};
     } catch (e) {}
 
-    if (goodResCache(resCache) && resCacheData != {}) {
-        res.json({"status": "ok", "data": resCacheData});
+    if (goodResCache(resCache)) {
+        res.json({"status": "ok", "data": await resourcesCallback(user, resCacheObj.data)});
         return;
     }
     intranetReq("/kzo/timetable/ajax-get-resources/", body).then(async r => {
-        resCache = {
+        resCache["data_" + body.periodId] = {
             time: new Date(),
             data: r
-        }
+        };
         let resData = await resourcesCallback(user, r);
         res.json({"status": "ok", "data": resData});
     }).catch(e => {
@@ -654,7 +658,7 @@ app.get("/class-personal-details/:classID", (req, res) => {
             return;
         }
         let startTime = periods[1].startTime;
-        if (req.params.classID >= 2564) startTime = periods[0].startTime;
+        if (req.params.classID >= 2696) startTime = periods[0].startTime;
         let body = {
             "startDate": startTime,
             "endDate": startTime + 4 * 24 * 60 * 60 * 1000,
