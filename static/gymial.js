@@ -16,7 +16,7 @@ let timetableData;
 
 let IDType = "class";
 let classID = 2733;
-let currPeriod = 76;
+let currPeriod = 77;
 let persData;
 
 let avStyles;
