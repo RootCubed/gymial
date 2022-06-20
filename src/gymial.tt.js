@@ -17,8 +17,8 @@ const ERROR_NOCACHE = "Das TAM-Intranet ist momentan leider offline, und dieser 
 const ERROR_VIEWCACHE = "Das TAM-Intranet ist momentan leider offline. Klicke <a href='#' id='view-cached'>hier</a>," +
 " um die zuletzt geladene Version dieses Studenplans anschauen ";
 
-const NEXT_SEM_START = 1646002800000;
-const nextSemOnline = false;
+const NEXT_SEM_START = 1661119200000;
+const nextSemOnline = true;
 
 let times = timesPre73Post76;
 let shortTimes = shortTimesPre73Post76;
@@ -29,7 +29,7 @@ let viewState = {
     entityName: "A4",
     selPersonName: "",
     time: ttdata.getFirstDayOfWeek(new Date()).getTime(),
-    currPeriod: 76,
+    currPeriod: 77,
     currResources: null,
     currTT: null,
     weekOffset: 0
@@ -82,8 +82,8 @@ export function init() {
     });
     $i("forward-next-sem").addEventListener("click", () => {
         viewState.time = NEXT_SEM_START;
-        let now = getFirstDayOfWeek(new Date()).getTime();
-        viewState.weekOffset = Math.floor((NEXT_SEM_START - now) / (DAY * 7));
+        let now = ttdata.getFirstDayOfWeek(new Date()).getTime();
+        viewState.weekOffset = Math.floor((NEXT_SEM_START - now) / (ttdata.DAY * 7));
         refreshTodayEl();
         reloadClass();
     });

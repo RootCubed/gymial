@@ -1,5 +1,7 @@
 import * as gymial from "./gymial.module.js";
 
+import { $i } from "./gymial.helper.js";
+
 let currStyleName = "Classic Dark";
 let searchHistory, searchHistoryName;
 let username, apiToken;
