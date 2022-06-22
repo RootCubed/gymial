@@ -607,8 +607,8 @@ app.get("/resources/:time", async (req, res) => {
         let resData = await resourcesCallback(user, r);
         res.json({"status": "ok", "data": resData});
     }).catch(e => {
-        if (resCacheData) {
-            res.json({"status": "intranet_offline", "data": resCacheData, "time": resCache.time});
+        if (resCacheObj) {
+            res.json({"status": "intranet_offline", "data": resCacheObj, "time": resCache.time});
         } else {
             res.json({"status": "intranet_offline_nocache"});
         }
