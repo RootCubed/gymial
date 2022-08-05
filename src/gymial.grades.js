@@ -333,17 +333,22 @@ function clickOnCont(selEl) {
         let grade = viewState.context.getForData(viewState.gradeData).value[selEl.dataset.index];
         let selIndex = selEl.dataset.index;
         g_detail.showGradeEditor({
-            "title": "Note bearbeiten",
-            "gradeName": grade.title,
-            "gradeType": grade.grade_type,
-            "gradeVal": grade.value,
-            "weightType": grade.weight_type,
-            "weightVal": (grade.frac_weight) ? (grade.frac_weight.numer + "/" + grade.frac_weight.denom) : grade.weight
+            title: "Note bearbeiten",
+            gradeName: grade.title,
+            gradeType: grade.grade_type,
+            gradeVal: grade.value,
+            weightType: grade.weight_type,
+            weightVal: (grade.frac_weight) ? (grade.frac_weight.numer + "/" + grade.frac_weight.denom) : grade.weight,
+            showDelete: true
         }).then(r => {
-            viewState.context.editGrade(selIndex, viewState.gradeData, r);
+            if (r.wants_delete) {
+                viewState.context.removeForData(viewState.gradeData);
+            } else {
+                viewState.context.editGrade(selIndex, viewState.gradeData, r);
+            }
             setGradeDataWithSync(viewState.gradeData);
             refreshGrades();
-        }).catch(() => {});
+        });
         return;
     }
 
@@ -413,7 +418,7 @@ function showGradeList(context) {
 
     glEl.querySelector(".grades-delete-link").addEventListener("click", () => {
         g_detail.showModal({
-            title: "Wirklich löschen?",
+            title: `"${ctxEl.selEl.dataset.name}" wirklich löschen?`,
             subtext: "",
             input: false,
             noText: "Abbrechen",
@@ -457,6 +462,21 @@ function showGradeList(context) {
     if (addSubjBtn) registerClickAddBtn(addSubjBtn, glEl, async name => {
         name = name.trim();
         if (name == "") return false;
+        let foundSubj = g_subj.subjects.find(e => e.name == name);
+        if (!foundSubj) {
+            try {
+                await g_detail.showModal({
+                    title: `Unbekanntes Fach "${name}"`,
+                    subtext: `OK, um das Fach trotzdem in der Kategorie "Andere" hinzuzufügen.`,
+                    input: false,
+                    noText: "Abbrechen",
+                    yesText: "OK"
+                });
+            } catch(e) {
+                // cancelled
+                return;
+            }
+        }
         let subjs = viewState.context.getForData(viewState.gradeData);
         subjs.value.push({ name: name, value: [] });
         setGradeDataWithSync(viewState.gradeData);
@@ -499,9 +519,10 @@ function showGradeList(context) {
     if (addGradeBtn) {
         addGradeBtn.addEventListener("click", () => {
             g_detail.showGradeEditor({
-                "title": "Note hinzufügen",
-                "gradeType": "regular",
-                "weightType": "fullgrade"
+                title: "Note hinzufügen",
+                gradeType: "regular",
+                weightType: "fullgrade",
+                showDelete: false
             }).then(r => {
                 viewState.context.addGrade(viewState.gradeData, r);
                 setGradeDataWithSync(viewState.gradeData);
@@ -516,7 +537,8 @@ function showGradeList(context) {
                 title: "Ordner hinzufügen",
                 gradeType: "regular",
                 weightType: "fullgrade",
-                hideGradeEntry: true
+                hideGradeEntry: true,
+                showDelete: false
             }).then(r => {
                 viewState.context.addGrade(viewState.gradeData, {
                     "title": r.title,

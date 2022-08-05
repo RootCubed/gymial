@@ -11,7 +11,8 @@ export function init() {
                 "value": parseFloat($i(
                     (currGradeType == "regular") ? "grade-input-grade" : "grade-input-bonus"
                 ).value),
-                "weight_type": currWeightType
+                "weight_type": currWeightType,
+                "wants_delete": false
             };
             let weightVal = parseWeightVal($i("grade-input-weight").value);
             if (typeof weightVal == "object") {
@@ -24,6 +25,26 @@ export function init() {
         } catch (e) {}
         hide();
         return false; // prevent redirect
+    });
+
+    $i("grade-edit-delete").addEventListener("click", () => {
+        let resVal = {
+            "wants_delete": true
+        };
+        showModal({
+            title: `"${$i("grade-input-title").value}" wirklich löschen?`,
+            subtext: "",
+            input: false,
+            noText: "Abbrechen",
+            yesText: "Löschen"
+        }).then(() => {
+            if (grEditPromise) grEditPromise.res(resVal);
+            grEditPromise = null;
+            hide();
+        }).catch(() => {
+            // cancelled
+            show("grade-editor");
+        });
     });
 
     $i("margin-details").addEventListener("click", el => {
@@ -80,7 +101,7 @@ export function init() {
     });
 
     $i("modal-no").addEventListener("click", () => {
-        hide();
+        hideModal();
     });
 
     $i("modal-yes").addEventListener("click", () => {
@@ -89,7 +110,7 @@ export function init() {
         };
         if (modalPromise) modalPromise.res(resVal);
         modalPromise = null;
-        hide();
+        hideModal();
         return false; // prevent redirect
     });
 }
@@ -99,6 +120,7 @@ function show(divToShow) {
     for (let div of ["details_cont", "login-window", "grade-editor", "simple-modal"]) {
         $i(div).style.display = (div == divToShow) ? "" : "none";
     }
+    $i("margin-details").classList.add("visible");
     $i("scrollLimiter").classList.add("blur");
 }
 
@@ -234,7 +256,7 @@ export function showGradeEditor(config) {
         $i("grade-input-grade").required = false;
     }
 
-    $i("margin-details").classList.add("visible");
+    $i("grade-edit-delete").style.display = config.showDelete ? "" : "none";
 
     return new Promise((res, rej) => {
         grEditPromise = {
@@ -261,6 +283,13 @@ export function showModal(config) {
             rej: () => rej("cancel")
         };
     });
+}
+
+function hideModal() {
+    $i("margin-details").classList.remove("visible");
+    $i("scrollLimiter").classList.remove("blur");
+    if (modalPromise) modalPromise.rej();
+    modalPromise = null;
 }
 
 export function hide() {
