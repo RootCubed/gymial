@@ -83,20 +83,20 @@ class Context {
 
 let viewState = {
     viewPluspoints: false,
-    gradeData: {},
+    gradeData: [],
     context: new Context()
 };
 
 export function init() {
     $i("grades-cloud-spinner").style.display = "none";
 
-    $i("grades-reset-all").addEventListener("click", () => {
+    /*$i("grades-reset-all").addEventListener("click", () => {
         if (confirm("Willst du wirklich alle Noten löschen? Dies kann nicht rückgängig gemacht werden!")) {
             setGradeDataWithSync([]);
             viewState.gradeData = {};
             refreshGrades();
         }
-    });
+    });*/
 
     $i("grades-dl-cloud").addEventListener("click", async () => {
         try {
@@ -154,10 +154,17 @@ async function cloudSyncAuto() {
         if (gradesJSON.lastmod > getGradeLastMod()) {
             viewState.gradeData = gradesJSON.data;
             setGradeData(viewState.gradeData);
+            // make sure that we are not in an invalid state
+            while (viewState.context.ctx.length > 0) {
+                closeCurrView(viewState.context);
+            }
         } else {
             gradesReq = await fetch("/grades", {
                 method: "post",
-                body: JSON.stringify(viewState.gradeData)
+                body: JSON.stringify({
+                    data: viewState.gradeData,
+                    lastmod: getGradeLastMod()
+                })
             });
             if (gradesReq.status == 401) {
                 throw new Error("401");

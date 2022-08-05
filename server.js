@@ -399,6 +399,10 @@ app.post("/grades", authorizeMiddleware, async (req, res) => {
 app.get("/grades", authorizeMiddleware, async (req, res) => {
     try {
         const grades = await db.getGradeData(req.user.username);
+        if (grades.lastmod && grades.lastmod == -1) {
+            res.json(grades);
+            return;
+        }
         const decompressed = zlib.inflateSync(Buffer.from(grades, "base64"));
         const decompData =  JSON.parse(decompressed);
         res.json(decompData);

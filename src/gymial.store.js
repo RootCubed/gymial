@@ -125,7 +125,7 @@ export function getGradeLastMod() {
 
 export function getGradeSyncMode() {
     let r = window.localStorage.getItem("grades_sync_mode");
-    return (r != undefined) ? r : "auto";
+    return (r != undefined) ? r : "manual";
 }
 
 export function setGradeSyncMode(mode) {

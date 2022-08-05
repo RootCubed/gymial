@@ -44,8 +44,8 @@ export async function getGradeData(username) {
     const grades = await redisClient.hGet(genKN(`user:${username}`), "grades");
     if (!grades) {
         return {
-            data: {},
-            modified: -1
+            data: [],
+            lastmod: -1
         };
     }
     return grades;
