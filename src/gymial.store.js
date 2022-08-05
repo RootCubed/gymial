@@ -98,10 +98,10 @@ export function pushSearch(name, id) {
 export function getGradeData() {
     try {
         let json = JSON.parse(window.localStorage.getItem("grades"));
-        if (json == null) return {};
+        if (json == null) return [];
         return json;
     } catch (e) {
-        return {};
+        return [];
     }
 }
 

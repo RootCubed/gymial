@@ -3,8 +3,7 @@ import addSgIcon from "./icon-add-subgrade.svg";
 import addGradeIcon from "./icon-add-grade.svg";
 
 const gradeContainerGeneric = (className, title, vertbarCol, content, index) => `
-<div class="grades-overview-container ${className}" data-name="${title}"
-${(index != undefined) ? "data-index=\"" + index + "\"" : ""}>
+<div class="grades-overview-container ${className}" data-name="${title}" data-index="${index}">
     <span class="grades-overview-span grades-overview-title">${title}</span>
     <h3 style="margin-bottom: 15px;color: #ff4141;display:none;">Summe der Notenanteile über 100%!</h3>
     ${content}
@@ -12,23 +11,23 @@ ${(index != undefined) ? "data-index=\"" + index + "\"" : ""}>
 </div>
 `;
 
-export const gradeSemContainer = (className, title, plusPoints, avg, vertbarCol) => {
+export const gradeSemContainer = (className, title, plusPoints, avg, vertbarCol, index) => {
     return gradeContainerGeneric(className, title, vertbarCol, `
         <span class="grades-overview-span grades-overview-avg">
             <span class="grades-small-pluspoint-cont">${plusPoints}</span>
         </span>
         <span class="grades-overview-span grades-overview-round-avg">${avg}</span>
-    `);
+    `, index);
 };
 
-export const gradeSubjContainer = (className, title, trueAvg, roundedAvg, vertbarCol) => {
+export const gradeSubjContainer = (className, title, trueAvg, roundedAvg, vertbarCol, index) => {
     return gradeContainerGeneric(className, title, vertbarCol, `
         <span class="grades-overview-span grades-overview-avg has-avg-label">${trueAvg}</span>
         <span class="grades-overview-span grades-overview-round-avg">${roundedAvg}</span>
-    `);
+    `, index);
 };
 
-export const gradeGradeContainer = (className, index, title, weight, roundedAvg, vertbarCol) => {
+export const gradeGradeContainer = (className, title, weight, roundedAvg, vertbarCol, index) => {
     return gradeContainerGeneric(className, title, vertbarCol, `
         <span class="grades-overview-sg-icon color-svg" style="${className.includes("subgrade") ? "" : "display: none;"}">
             ${sgIcon}
