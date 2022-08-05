@@ -1,10 +1,16 @@
 import { $c, $i, $sa, $esc, $s } from "./gymial.helper.js";
 
-import { getGradeData, setGradeData, getGradeLastMod, getGradeSyncMode, setGradeSyncMode } from "./gymial.store.js";
+import {
+    getGradeData, setGradeData,
+    getGradeLastMod,
+    getGradeSyncMode, setGradeSyncMode, getGradeLastSync, setGradeSynced
+} from "./gymial.store.js";
+
+import * as g_subj from "./gymial.subjects.js";
+import * as g_detail from "./gymial.detail.js";
 
 import * as templ from "./gymial.templates.js";
 
-import * as g_detail from "./gymial.detail.js";
 
 let viewState = {
     viewPluspoints: false,
@@ -17,7 +23,7 @@ export function init() {
 
     $i("grades-reset-all").addEventListener("click", () => {
         if (confirm("Willst du wirklich alle Noten löschen? Dies kann nicht rückgängig gemacht werden!")) {
-            setGradeData({});
+            setGradeDataWithSync({});
             viewState.gradeData = {};
             refreshGrades();
         }
@@ -49,8 +55,6 @@ export function init() {
         $i("grades-cloud-spinner").style.display = "none";
     });
 
-    console.log(getGradeSyncMode());
-
     if (getGradeSyncMode() == "auto") {
         $i("grades-manual-sync-cont").style.display = "none";
         cloudSyncAuto();
@@ -62,6 +66,13 @@ export function init() {
 }
 
 // helper functions
+
+function setGradeDataWithSync(data) {
+    setGradeData(data);
+    if (getGradeSyncMode() == "auto") {
+        cloudSyncAuto();
+    }
+}
 
 async function cloudSyncAuto() {
     try {
@@ -83,11 +94,15 @@ async function cloudSyncAuto() {
                 throw new Error("401");
             }
         }
-        $i("grades-sync-info-last-cont").innerHTML = new Date().toLocaleTimeString([], {
-            year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit"
-        });
-        refreshGrades();
-    } catch (e) {}
+        setGradeSynced();
+    } catch (e) {
+        // fallback: localStorage
+        viewState.gradeData = getGradeData();
+    }
+    refreshGrades();
+    $i("grades-sync-info-last-cont").innerHTML = new Date(getGradeLastSync()).toLocaleTimeString([], {
+        year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit"
+    });
     $i("grades-cloud-spinner").style.display = "none";
 }
 
@@ -280,7 +295,7 @@ function refreshGrades() {
             return false;
         }
         sems[name] = {};
-        setGradeData(viewState.gradeData);
+        setGradeDataWithSync(viewState.gradeData);
         return true;
     });
 
@@ -337,7 +352,7 @@ function clickOnCont(selEl) {
             "weightVal": (grade.frac_weight) ? (grade.frac_weight.numer + "/" + grade.frac_weight.denom) : grade.weight
         }).then(r => {
             editGrade(viewState.context, viewState.gradeData, r);
-            setGradeData(viewState.gradeData);
+            setGradeDataWithSync(viewState.gradeData);
             refreshGrades();
         }).catch(() => {});
         return;
@@ -386,6 +401,7 @@ function registerClickAddBtn(btn, cont, cb) {
 
     cont.addEventListener("click", ev => {
         if (btn.contains(ev.target)) return;
+        btnInput.value = "";
         btn.classList.remove("adding");
     }, false);
 
@@ -458,6 +474,7 @@ function showGradeList(context) {
     });
 
     let addSubjBtn = glEl.querySelector(".grades-add-subj");
+    let sr = glEl.querySelector(".grades-search-results");
     if (addSubjBtn) registerClickAddBtn(addSubjBtn, glEl, name => {
         name = name.trim();
         if (name == "") return false;
@@ -467,9 +484,49 @@ function showGradeList(context) {
             return false;
         }
         subjs[name] = [];
-        setGradeData(viewState.gradeData);
+        setGradeDataWithSync(viewState.gradeData);
+        sr.innerHTML = "";
         return true;
     });
+    if (addSubjBtn) {
+        // Search handler
+        let inputSubjName = glEl.querySelector(".grades-sem-add-form");
+        inputSubjName.addEventListener("keyup", () => {
+            let input = glEl.querySelector("input");
+            let results = [];
+            if (input.value.length > 0) {
+                results = g_subj.subjects.filter(e => {
+                    let lower = input.value.toLowerCase();
+                    if (e.name.toLowerCase().startsWith(lower)) return true;
+                    if (e.shortName.toLowerCase().includes(lower)) return true;
+                    return false;
+                });
+            }
+            if (results.length > 0) {
+                sr.innerHTML = results
+                    .map(e => {
+                        let str = "";
+                        let types = e.types ? e.types : [""];
+                        for (let t of types) {
+                            str += `
+                            <div class="grades-search-result" data="${e.name}">
+                                <span class="grades-search-result-main">${e.name}</span>
+                                <span class="grades-search-result-type">${t}</span>
+                            </div>
+                            `;
+                        }
+                        return str;
+                    })
+                    .join('\n');
+            } else {
+                sr.innerHTML = "";
+            }
+            glEl.querySelectorAll(".grades-search-result").forEach(sr => sr.addEventListener("click", () => {
+                input.value = sr.getAttribute("data");
+                addSubjBtn.querySelector(".grades-confirm-add-cont").click();
+            }));
+        });
+    }
     let addGradeBtn = glEl.querySelector(".grades-add-grade");
     if (addGradeBtn) {
         addGradeBtn.addEventListener("click", () => {
@@ -479,7 +536,7 @@ function showGradeList(context) {
                 "weightType": "fullgrade"
             }).then(r => {
                 addGrade(viewState.context, viewState.gradeData, r);
-                setGradeData(viewState.gradeData);
+                setGradeDataWithSync(viewState.gradeData);
                 refreshGrades();
             }).catch(() => {});
         });
@@ -500,7 +557,7 @@ function showGradeList(context) {
                     "weight_type": r.weight_type,
                     "weight": r.weight
                 });
-                setGradeData(viewState.gradeData);
+                setGradeDataWithSync(viewState.gradeData);
                 refreshGrades();
             }).catch(() => {});
         });
@@ -569,10 +626,22 @@ function getSubjList(data, title, parentType) {
     let avg;
     if (parentType == "sem") {
         avg = calculateSemAvg(data);
-        let subjGroups = subjectCategories.map(e => ({"title": e, "grades": [], "html": ""}));
+        let subjGroups = g_subj.categories.map(e => ({"title": e, "grades": [], "html": ""}));
         for (let subj in data) {
-            let catName = (subjects[subj]) ? subjects[subj].category : "Andere";
-            let categoryID = subjectCategories.indexOf(catName);
+            let subjName = subj;
+            let subjType = "";
+            if (subj.includes("$$")) {
+                subjName = subj.split("$$")[0];
+                subjType = subj.split("$$")[1];
+            }
+            let foundSubj = g_subj.subjects.find(e => e.name == subj);
+            if (!foundSubj) foundSubj = {
+                name: subjName,
+                shortName: subjName,
+                types: [],
+                category: "Andere"
+            };
+            let categoryID = g_subj.categories.indexOf(foundSubj.category);
             subjGroups[categoryID].grades.push(data[subj]);
             subjGroups[categoryID].html += genGradeOverviewContainer("grades-subj-container", subj, calculateGradesAvg(data[subj]), viewState.viewPluspoints);
         }
@@ -617,125 +686,6 @@ function getSubjList(data, title, parentType) {
 }
 
 // constants
-
-const subjectCategories = [
-    "Sprachen",
-    "Naturwissenschaften",
-    "Geisteswissenschaften",
-    "Wirtschaftsfächer",
-    "Andere"
-];
-
-const subjects = {
-    "Anwendungen des Computers": {
-        "short_name": "AC",
-        "category": "Andere"
-    },
-    "Anwendungen der Mathematik": {
-        "short_name": "AM",
-        "category": "Naturwissenschaften"
-    },
-    "Biologie": {
-        "short_name": "B",
-        "category": "Naturwissenschaften"
-    },
-    "Bildnerisches Gestalten": {
-        "short_name": "BG",
-        "category": "Andere"
-    },
-    "Chemie": {
-        "short_name": "C",
-        "category": "Naturwissenschaften"
-    },
-    "Deutsch": {
-        "short_name": "D",
-        "category": "Sprachen"
-    },
-    "Englisch": {
-        "short_name": "E",
-        "category": "Sprachen"
-    },
-    "Einführung Wirtschaft": {
-        "short_name": "EW",
-        "category": "Wirtschaftsfächer"
-    },
-    "Einführung Wirtschaft und Recht": {
-        "short_name": "EWR",
-        "category": "Wirtschaftsfächer"
-    },
-    "Französisch": {
-        "short_name": "F",
-        "category": "Sprachen" 
-    },
-    "Freifach": {
-        "short_name": "FF",
-        "category": "Andere"
-    },
-    "Finanzen": {
-        "short_name": "FIN",
-        "category": "Wirtschaftsfächer"
-    },
-    "Geographie": {
-        "short_name": "GG",
-        "category": "Geisteswissenschaften"
-    },
-    "Geschichte": {
-        "short_name": "G",
-        "category": "Geisteswissenschaften"
-    },
-    "Griechisch": {
-        "short_name": "GR",
-        "category": "Sprachen" 
-    },
-    "Italienisch": {
-        "short_name": "IT",
-        "category": "Sprachen" 
-    },
-    "Latein": {
-        "short_name": "L",
-        "category": "Sprachen"  
-    },
-    "Mathematik": {
-        "short_name": "M",
-        "category": "Naturwissenschaften"  
-    },
-    "Mensch und Arbeit": {
-        "short_name": "M+A",
-        "category": "Wirtschaftsfächer"
-    },
-    "Musik": {
-        "short_name": "MU",
-        "category": "Andere" 
-    },
-    "Physik": {
-        "short_name": "P",
-        "category": "Naturwissenschaften"  
-    },
-    "Recht": {
-        "short_name": "R",
-        "category": "Wirtschaftsfächer"  
-    },
-    "Religion": {
-        "short_name": "RL",
-        "category": "Geisteswissenschaften" 
-    },
-    "Rechnungswesen": {
-        "short_name": "RW",
-        "category": "Wirtschaftsfächer" 
-    },
-    "Spanisch": {
-        "short_name": "SP",
-        "category": "Sprachen" 
-    },
-    "Turnen": {
-        "short_name": "T",
-        "category": "Andere"  
-    },
-    "Volkswirtschaftslehre": {
-        "short_name": "VWL",
-        "category": "Wirtschaftsfächer"
-    }
-};
 
 const gradeColors = [
     "F70E0E", // 1

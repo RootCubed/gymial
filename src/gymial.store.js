@@ -109,6 +109,14 @@ export function setGradeData(data) {
     window.localStorage.setItem("grades", JSON.stringify(data));
     window.localStorage.setItem("grades_mod_ts", Date.now());
 }
+export function setGradeSynced() {
+    window.localStorage.setItem("grades_sync_ts", Date.now());
+}
+
+export function getGradeLastSync() {
+    let r = window.localStorage.getItem("grades_sync_ts");
+    return (r != undefined) ? parseInt(r) : 0;
+}
 
 export function getGradeLastMod() {
     let r = window.localStorage.getItem("grades_mod_ts");

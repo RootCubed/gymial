@@ -208,6 +208,7 @@ a:not(.overlay-tab) {
     margin-left: 10px;
     cursor: pointer;
     font-size: 18px;
+    border-top: 1px solid #ddd;
 }
 
 .search-result:hover {

@@ -79,18 +79,23 @@ const gradeListAddForSem = `
 `;
 
 const gradeListAddForSubj = `
-<div class="grades-overview-container grades-add grades-add-subj">
-    <span class="grades-overview-span">Fach hinzufügen</span>
-    ${gradeListAddForm("Fach")}
+<div class="grades-add-subj-cont">
+    <div class="grades-overview-container grades-add grades-add-subj">
+        <span class="grades-overview-span">Fach hinzufügen</span>
+        ${gradeListAddForm("Fach")}
+    </div>
+    <div class="grades-search-results-cont"><div class="grades-search-results"></div></div>
 </div>
 `;
 
 const gradeListAddForGrade = `
-<div class="grades-overview-container grades-add grades-add-grade small">
-    <span class="grades-overview-span"><span class="color-svg">${addGradeIcon}</span></span>
-</div>
-<div class="grades-overview-container grades-add grades-add-subgrade small">
-    <span class="grades-overview-span"><span class="color-svg">${addSgIcon}</span></span>
+<div class="grades-add-grade-cont">
+    <div class="grades-overview-container grades-add grades-add-grade small">
+        <span class="grades-overview-span"><span class="color-svg">${addGradeIcon}</span></span>
+    </div>
+    <div class="grades-overview-container grades-add grades-add-subgrade small">
+        <span class="grades-overview-span"><span class="color-svg">${addSgIcon}</span></span>
+    </div>
 </div>
 `;
 
@@ -102,9 +107,7 @@ ${content}
 export const gradeList = (links, title, avg, type, content) => `
 ${gradeListPre(links, title, avg)}
 ${(type == "sem") ? "" : "<div class=\"grades-content\">"}
-    <div style="width: 100%;">
-        ${(type == "sem") ? gradeListAddForSubj : gradeListAddForGrade}
-    </div>
+    ${(type == "sem") ? gradeListAddForSubj : gradeListAddForGrade}
     ${content}
 ${(type == "sem") ? "" : "</div>"}
 `;

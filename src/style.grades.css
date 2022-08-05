@@ -292,6 +292,62 @@
     visibility: hidden;
 }
 
+.grades-add-subj-cont {
+    display: grid;
+    grid-template: auto auto / auto;
+    justify-items: center;
+}
+
+.grades-add-grade-cont {
+    width: 100%;
+}
+
+.grades-search-results-cont {
+    position: relative;
+    width: calc(min(450px, 80%));
+}
+
+.grades-search-results {
+    width: calc(100% - 60px);
+    max-height: 20vh;
+    margin-top: -10px;
+    overflow-y: auto;
+    z-index: 1;
+    position: absolute;
+    border-top: 1px solid #ddd;
+    display: none;
+    text-align: left;
+}
+
+
+/* only show when in "adding" mode */
+.adding + div .grades-search-results {
+    display: block;
+}
+
+.grades-search-result {
+    display: grid;
+    grid-gap: 2px;
+    background-color: white;
+    padding: 10px;
+    cursor: pointer;
+    color: black;
+    border-top: #ddd;
+}
+
+.grades-search-result-main {
+    font-size: 18px;
+}
+
+.grades-search-result-type {
+    font-size: 13px;
+    color: #555;
+}
+
+.grades-search-result:hover {
+    background-color: #aaa;
+}
+
 .grades-link {
     display: block;
     padding: 15px 20px;
