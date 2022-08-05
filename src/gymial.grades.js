@@ -319,7 +319,7 @@ function refreshGrades() {
     }
     if (ctx.length > 2) {
         let prevCont = ctx[1].contEl;
-        for (let g of ctx.grade.slice(2)) {
+        for (let g of ctx.slice(2)) {
             let btns = Array(...prevCont.getElementsByClassName("grades-grade-container"));
             let selBtn = btns.find(e => e.dataset.index == g.index);
             selBtn.classList.add("growing");
@@ -341,7 +341,7 @@ function clickOnCont(selEl) {
         let selIndex = selEl.dataset.index;
         g_detail.showGradeEditor({
             title: "Note bearbeiten",
-            gradeName: grade.title,
+            gradeName: grade.name,
             gradeType: grade.grade_type,
             gradeVal: grade.value,
             weightType: grade.weight_type,
@@ -349,7 +349,8 @@ function clickOnCont(selEl) {
             showDelete: true
         }).then(r => {
             if (r.wants_delete) {
-                viewState.context.removeForData(viewState.gradeData);
+                let dat = viewState.context.getForData(viewState.gradeData);
+                dat.value.splice(selIndex, 1);
             } else {
                 viewState.context.editGrade(selIndex, viewState.gradeData, r);
             }
@@ -548,11 +549,11 @@ function showGradeList(context) {
                 showDelete: false
             }).then(r => {
                 viewState.context.addGrade(viewState.gradeData, {
-                    "title": r.title,
-                    "grade_type": "subgrade",
-                    "value": [],
-                    "weight_type": r.weight_type,
-                    "weight": r.weight
+                    name: r.name,
+                    grade_type: "subgrade",
+                    value: [],
+                    weight_type: r.weight_type,
+                    weight: r.weight
                 });
                 setGradeDataWithSync(viewState.gradeData);
                 refreshGrades();
@@ -606,7 +607,7 @@ function genGradeContainer(grade, index) {
     let subgradeClass = (grade.grade_type == "subgrade") ? "grades-subgrade" : "grades-reggrade";
     return templ.gradeGradeContainer(
         "grades-grade-container " + subgradeClass,
-        $esc(grade.title), weightAsHTML(grade), fAvg, getGradeColor(fAvg), index
+        $esc(grade.name), weightAsHTML(grade), fAvg, getGradeColor(fAvg), index
     );
 }
 
@@ -657,11 +658,11 @@ function getSubjList(data, parentType) {
             if (subjGroup.grades.length > 0) {
                 let groupAvg = formatGrade(calculateGradesAvg(subjGroup.grades.map(grade => {
                     return {
-                        "title": "",
-                        "grade_type": "subgrade",
-                        "weight_type": "fullgrade",
-                        "weight": 1,
-                        "value": grade
+                        name: "",
+                        grade_type: "subgrade",
+                        weight_type: "fullgrade",
+                        weight: 1,
+                        value: grade
                     };
                 })), false);
                 html += templ.gradeGroup(subjGroup.title, groupAvg, subjGroup.html);

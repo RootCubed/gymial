@@ -4,7 +4,6 @@ import { $i } from "./gymial.helper.js";
 
 let currStyleName = "Classic Dark";
 let searchHistory, searchHistoryName;
-let username, apiToken;
 
 // TODO: move code in init() into respective modules
 
@@ -98,7 +97,7 @@ export function pushSearch(name, id) {
 export function getGradeData() {
     try {
         let json = JSON.parse(window.localStorage.getItem("grades"));
-        if (json == null) return [];
+        if (json == null || !Array.isArray(json)) return [];
         return json;
     } catch (e) {
         return [];
