@@ -1,0 +1,7 @@
+<svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg" stroke-width="2" stroke="#fff">
+    <polygon stroke="none" fill="#fff" points="28,5 28,29 2,29 2,5 6,5 6,7 4,7 4,27 26,27 26,7 24,7 24,5 "/>
+    <line x1="22" y1="2" x2="22" y2="10"/>
+    <line x1="10" y1="6" x2="20" y2="6"/>
+    <line x1="8" y1="2" x2="8" y2="10"/>
+    <text id="today-text" stroke="none" fill="#fff" x="15" y="23" text-anchor="middle"></text>
+</svg>

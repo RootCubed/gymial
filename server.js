@@ -1,23 +1,15 @@
-import https from "https";
 import express from "express";
 const app = express();
-import nodeFetch from "node-fetch";
 import cors from "cors";
-import crypto from "crypto";
-import compression from"compression";
-import minify from "express-minify";
-import iconv from "iconv-lite";
-import { JSDOM } from "jsdom";
+import compression from "compression";
 import fs from "fs";
+import zlib from "zlib";
 
-const rtg = new URL(process.env.REDISTOGO_URL);
-import redisModule from "redis";
-const redis = redisModule.createClient(rtg.port, rtg.hostname);
-redis.auth(rtg.password);
-import { promisify } from "util";
-const redisHGet = promisify(redis.hget).bind(redis);
+import * as db from "./db.js";
+import ds from "./data_sources.js";
+import * as helper from "./helper.js";
 
-import { RateLimiterRedis } from "rate-limiter-flexible";
+const MAX_GRADES_SIZE = 5000; // 5KB
 
 const limiterIntranetLogin = new RateLimiterRedis({
     storeClient: redis,
@@ -44,30 +36,24 @@ const limiterIntranetReq = new RateLimiterRedis({
 });
 
 app.use((req, res, next) => {
-    //if (req.header("x-forwarded-proto") !== "https" && req.hostname !== "localhost" && !req.hostname.includes("192.168") && !req.hostname.includes("rootcubed.dev")) {
-    //    res.redirect(301, `https://${req.header("host")}${req.url}`);
-    //} else {
+    if (req.header("x-forwarded-proto") !== "https" && req.hostname !== "localhost" && !req.hostname.includes("192.168") && !req.hostname.includes("rootcubed.dev")) {
+        res.redirect(301, `https://${req.header("host")}${req.url}`);
+    } else {
         if (req.headers.cookie) {
             let user = cookieToUser(req.headers.cookie);
-            isAuthorized(user).then(isAuth => {
-                if (isAuth) {
-                    redis.hincrby("user:" + user.username, "requests", 1);
-                } else {
-                    redis.incr("nonAuthReqs");
-                }
-            });
+            try {
+                let isAuth = await db.isAuthorized(user);
+                db.userReq((isAuth) ? user.username : null);
+            } catch (e) {
+                console.error("Error getting isAuthorized:", e);
+            }
         }
         next();
-    //}
+    }
 });
 
 app.use(cors());
 app.use(compression());
-app.use(minify({
-    jsMatch: /javascript/,
-    cssMatch: /css/,
-    jsonMatch: false
-}));
 app.use(express.static("static"));
 
 let headers = {
@@ -92,10 +78,6 @@ const PORT = process.env.PORT || 3000;
 let token = "";
 
 const periods = [
-    {
-        "period": 77,
-        "startTime": 1661119200000
-    },
     {
         "period": 76,
         "startTime": 1646002800000
@@ -124,267 +106,22 @@ const periods = [
 
 let ttCache = {};
 let resCache = {};
-const ttCacheTimeout = 1000 * 60 * 10; // 10 minutes
+const ttCacheTimeout = ((process.env.NODE_ENV == "development") ? 24 : 1) * 1000 * 60 * 10; // 10 minutes (4h in development branch)
 const resCacheTimeout = 1000 * 60 * 60 * 5; // 5 hours
 
 const goodTTCache = c => (!!c && !!c.time) && (new Date() - c.time) < ttCacheTimeout;
 const goodResCache = c => (!!c && !!c.time) && (new Date() - c.time) < resCacheTimeout;
 
-function generateAPIKey() {
-    return crypto.randomBytes(16).toString("hex");
-}
-
-function login(username, password) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            await limiterIntranetLogin.consume();
-        } catch (e) {
-            reject(new Error("ratelimit"));
-        }
-        let body = {
-            loginuser: username,
-            loginpassword: password,
-            loginschool: "kzo"
-        };
-
-        let options = {
-            hostname: "intranet.tam.ch",
-            port: 443,
-            path: "/kzo/",
-            method: "POST",
-            headers: JSON.parse(JSON.stringify(headers)),
-            referrerPolicy: "strict-origin-when-cross-origin",
-            timeout: 5000
-        };
-
-        options.headers["Cookie"] = null;
-    
-        let req = https.request(options, res => {
-            let setCookies = res.headers["set-cookie"];
-            let sturmsession;
-            let str = "";
-            let newCookies = "";
-            if (setCookies) {
-                for (let c of setCookies) {
-                    newCookies += c.split(";")[0] + "; ";
-                    sturmsession = c.match(/sturmsession=[0-9a-z]+/);
-                }
-            }
-            if (!sturmsession) reject(new Error("invalidlogin"));
-            options.path = "/kzo/list/get-person-detail-list/list/30/id/0/noListData/1/selector/config-list-edit";
-            options.headers["Cookie"] = newCookies;
-            options.method = "GET";
-            let req2 = https.request(options, res => {
-                res.on("data", d => {
-                    str += d.toString();
-                });
-                res.on("end", () => {
-                    let user = {data: []};
-                    try {
-                        user = {data: [JSON.parse(str.match(/personData ?= ?\[([^\]]+)\],/)[1])], total: 1};
-                    } catch (err) {}
-                    resolve([sturmsession, user]);
-                });
-            });
-            req2.end();
-        });
-
-        req.on("timeout", () => {
-            req.destroy();
-            reject(new Error("timeout"));
-        });
-    
-        req.write(new URLSearchParams(body).toString());
-        req.end();
-    });
-}
-
-function objToCookie(obj) {
-    let res = "";
-    for (let el in obj) {
-        res += el + "=" + obj[el] + ";";
-    }
-    return res;
-}
-
-function loginRegularKZO(user, pass) {
-    return new Promise((resolve, reject) => {
-        nodeFetch("https://intranet.kzo.ch/index.php?id=intranet", {
-            "headers": {
-                "accept": "text/html,application/xhtml+xml,application/xml",
-                "cache-control": "no-cache",
-                "content-type": "application/x-www-form-urlencoded",
-                "pragma": "no-cache",
-                "sec-fetch-dest": "document",
-                "sec-fetch-mode": "navigate",
-                "sec-fetch-site": "same-origin",
-                "sec-fetch-user": "?1",
-                "upgrade-insecure-requests": "1"
-            },
-            "referrer": "https://www.kzo.ch/index.php?id=intranet",
-            "referrerPolicy": "no-referrer-when-downgrade",
-            "body": `user=${user}&pass=${pass}&submit=Anmelden&logintype=login&pid=712`,
-            "method": "POST",
-            "mode": "cors"
-        }).then(res => {
-            let setCookies = res.headers.raw()["set-cookie"];
-            kzoCHCookies = {};
-            if (setCookies) {
-                for (let c of setCookies) {
-                    let tmp = c.split("=");
-                    kzoCHCookies[tmp[0]] = tmp[1].split("; ")[0];
-                }
-                resolve();
-            }
-            reject(new Error("kzoch_down"));
-        });
-    });
-}
-
-function searchPeopleKzoCH(firstName, lastName, classToSearch) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            await limiterKZOch.consume("");
-        } catch (e) {
-            reject(new Error("ratelimit"));
-            return;
-        }
-        if (!kzoCHCookies.PHPSESSID) {
-            try {
-                await loginRegularKZO(process.env.user, process.env.password);
-            } catch (e) {
-                reject(e);
-                return;
-            }
-        }
-        nodeFetch("https://intranet.kzo.ch/index.php?id=549", {
-            "headers": {
-                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9",
-                "accept-charset": "utf-8;q=0.9",
-                "cache-control": "no-cache",
-                "content-type": "application/x-www-form-urlencoded",
-                "pragma": "no-cache",
-                "sec-fetch-dest": "document",
-                "sec-fetch-mode": "navigate",
-                "sec-fetch-site": "same-origin",
-                "sec-fetch-user": "?1",
-                "upgrade-insecure-requests": "1",
-                "cookie": objToCookie(kzoCHCookies)
-            },
-            "referrer": "https://intranet.kzo.ch/index.php?id=549",
-            "referrerPolicy": "no-referrer-when-downgrade",
-            "body": `vorname=${firstName}&nachname=${lastName}&klasse=${classToSearch}&search=%3E%3E+suchen`,
-            "method": "POST",
-            "mode": "cors",
-            "credentials": "include"
-        }).then(res => res.arrayBuffer()).then(res => {
-            res = iconv.decode(Buffer.from(res), "iso-8859-1"); // bruh why does kzo.ch use ancient charsets, please just start using utf-8
-            if (res.includes("Keine Adressen gefunden")) resolve([]);
-            let table = res.match(/<table.*?adressliste">(.|\s)+?<\/table>/g)[0];
-            let rows = table.match(/<tr.*?>(.|\s)+?<\/tr>/g);
-            let json = [];
-            for (let i = 1; i < rows.length; i++) { // skip the header row
-                let entries = rows[i].match(/<td.*?>(.|\s)+?<\/td>/g);
-                json.push([]);
-                for (let e of entries) {
-                    json[json.length - 1].push(e.replace(/<td.*?>/, '').replace(/<\/td>/, '').replace("&nbsp;", ''));
-                }
-            }
-            resolve(json)
-        });
-    });
-}
-
-function intranetReq(endpoint, body, canRetryLogin) {
-    let options = {
-        hostname: "intranet.tam.ch",
-        port: 443,
-        path: endpoint,
-        method: "POST",
-        headers: JSON.parse(JSON.stringify(headers)),
-        referrerPolicy: "strict-origin-when-cross-origin",
-        timeout: 5000
-    };
-    if (body.periodId == periods[0].period) {
-        options.referrer = "https://intranet.tam.ch/kzo/calendar/index/period/" + body.periodId;
-        options.headers.Referer = "https://intranet.tam.ch/kzo/calendar/index/period/" + body.periodId;
-    }
-    body.csrfToken = token;
-    return new Promise(async (resolve, reject) => {
-        try {
-            await limiterIntranetReq.consume();
-        } catch (e) {
-            reject(new Error("ratelimit"));
-        }
-        let str = "";
-
-        let req = https.request(options, res => {
-            res.on("data", d => {
-                str += d.toString();
-            });
-            res.on("end", () => {
-                if (str[0] === "<" || str.length == 0) { // invalid session
-                    if (canRetryLogin === false) {
-                        reject(new Error("successful_login_invalid_result"));
-                    }
-                    console.log("logging in...");
-                    login(process.env.user, process.env.password).then((sessionToken) => {
-                        if (sessionToken != null) {
-                            let token = sessionToken[0];
-                            headers["Cookie"] = `username=${process.env.user}; school=kzo; sturmuser=${process.env.user}; ` + token;
-                        }
-                        nodeFetch("https://intranet.tam.ch/kzo", {headers: headers}).then(r => r.text()).then(r => {
-                            token = r.match(/csrfToken ?= ?'([0-z]+)/)[1];
-                            intranetReq(endpoint, body, false).then(r => {
-                                resolve(r);
-                            }).catch(err => {
-                                reject(err);
-                            });
-                        });
-                    }).catch(err => {
-                        reject(err);
-                    });
-                } else {
-                    resolve(str);
-                }
-            });
-        });
-
-        req.on("timeout", () => {
-            req.destroy();
-            reject(new Error("timeout"));
-        });
-        
-        req.on("error", err => {
-            reject(err);
-        });
-    
-        req.write(new URLSearchParams(body).toString());
-        req.end();
-    });
-}
-
 async function verifyAuthentication(username, password) {
     let token;
     try {
-        token = await login(username, password);
+        token = await ds.tam.login(username, password);
     } catch (e) {
         return false;
     }
     if (!token) return false;
-    redis.hset("user:" + username, "persData", JSON.stringify(token[1]));
+    db.savePersData(username, JSON.stringify(token[1]));
     return true;
-}
-
-function getPeriod(time) {
-    let currPeriod;
-    for (let period of periods) {
-        if (time >= period.startTime) {
-            currPeriod = period.period;
-            break;
-        }
-    }
-    return currPeriod;
 }
 
 function cookieToUser(cookie) {
@@ -401,24 +138,16 @@ function cookieToUser(cookie) {
     return cookies;
 }
 
-async function isAuthorized(user) {
-    if (!user) return false;
-    if (!user.username || !user.apiToken) return false;
-    let correctAPIToken = await redisHGet("user:" + user.username, "token");
-    if (correctAPIToken == null) return false;
-    return (user.apiToken == correctAPIToken);
-}
-
-function toStandardFormat (token) {
+function toStandardFormat(token) {
     return token.toLowerCase().replace(/\@studmail.kzo.ch/g, "").trim();
 }
 
 app.post("/auth", (req, res) => {
-    var body = "";
+    let body = "";
     req.on("data", chunk => {
         body += chunk.toString();
     });
-    req.on("end", () => {
+    req.on("end", async () => {
         let bodySplitted = body.split('&');
         let bodyJSON = {};
         for (let arg of bodySplitted) {
@@ -426,58 +155,46 @@ app.post("/auth", (req, res) => {
         }
         if (bodyJSON.user && bodyJSON.pass) {
             bodyJSON.user = toStandardFormat(bodyJSON.user);
-            verifyAuthentication(bodyJSON.user, bodyJSON.pass).then(r => {
-                if (r) {
-                    let token = generateAPIKey();
-                    redis.hset("user:" + bodyJSON.user, "token", token);
-                    redis.hget("user:" + bodyJSON.user, "requests", (err, res) => {
-                        if (res == null) redis.hset("user:" + bodyJSON.user, "requests", 0);
-                    });
-                    res.send(token).end();
-                } else {
-                    res.status(401).end();
-                }
-            });
+            const goodAuth = await verifyAuthentication(bodyJSON.user, bodyJSON.pass);
+            if (goodAuth) {
+                const tok = await db.authenticateUser(bodyJSON.user);
+                res.send(tok).end();
+            } else {
+                res.status(401).end();
+            }
         }
     });
 });
 
-app.get("/myData", (req, res) => {
-    let user = cookieToUser(req.headers.cookie);
-    isAuthorized(user).then(isAuth => {
-        if (!isAuth) {
-            res.json({
-                data: [],
-                total: 0
-            });
-            return;
-        }
-        redis.hget("user:" + user.username, "persData", (err, r) => {
-            if (r == null) {
-                res.json({
-                    data: [],
-                    total: 0
-                });
-                return;
-            }
-            res.json(JSON.parse(r));
-        });
-    });
+app.get("/myData", authorizeMiddleware, async (req, res) => {
+    let persData = await db.getPersData(req.user.username);
+    if (persData == null) {
+        res.status(500).end();
+        return;
+    }
+    res.json(JSON.parse(persData));
 });
 
 async function ttCallback(user, r) {
-    let isAuth = await isAuthorized(user);
+    let isAuth = await db.isAuthorized(user);
     let json = JSON.parse(r);
     if (json.status != 1) {
         throw json.message;
     }
+    // hyphenate title
+    json.data = json.data.map(entry => {
+        if (entry.title) {
+            entry.title = helper.hyphenate(entry.title, "&shy;");
+        }
+        return entry;
+    });
     if (!isAuth) {
         const propsToKeep = [
             "id", "periodId", "start", "end", "lessonDate", "lessonStart", "lessonEnd", "lessonDuration",
             "timetableEntryTypeId", "timetableEntryType", "timetableEntryTypeLong", "timetableEntryTypeShort",
             "title", "courseId", "courseName", "course", "subjectName", "classId", "className", "teacherAcronym",
             "roomId", "roomName", "teacherId", "isAllDay"
-        ]
+        ];
         let basicJSON = new Array(json.data.length);
         for (let i = 0; i < json.data.length; i++) {
             basicJSON[i] = {};
@@ -512,7 +229,7 @@ app.get("/timetable/:type/:id/:time", async (req, res) => {
         case "room":
             break;
         default:
-            res.status(400).end();
+            res.sendStatus(400).end();
             return;
     }
     let user = cookieToUser(req.headers.cookie);
@@ -528,7 +245,7 @@ app.get("/timetable/:type/:id/:time", async (req, res) => {
         return;
     }
     body[req.params.type + "Id[]"] = req.params.id;
-    intranetReq("/kzo/timetable/ajax-get-timetable", body).then(async r => {
+    ds.tam.request("/kzo/timetable/ajax-get-timetable", body).then(async r => {
         ttCache[ttCacheStr] = {
             time: new Date(),
             data: r
@@ -537,7 +254,7 @@ app.get("/timetable/:type/:id/:time", async (req, res) => {
         try {
             res.json({"status": "ok", "data": ttData});
         } catch (e) {
-            res.json({"status": "error", "data": e.message})
+            res.json({"status": "error", "data": e.message});
         }
     }).catch(e => {
         if (ttCacheData) {
@@ -548,29 +265,23 @@ app.get("/timetable/:type/:id/:time", async (req, res) => {
     });
 });
 
-app.get("/course-participants/:id", (req, res) => {
-    isAuthorized(cookieToUser(req.headers.cookie)).then(isAuth => {
-        if (!isAuth) {
-            res.status(401).end();
-            return;
-        }
-        let body = {
-            "method": "GET"
-        };
-        let escapedId = parseInt(req.params.id);
-        intranetReq(`/kzo/list/getlist/list/40/id/${escapedId}/period/73`, body).then(r => {
-            res.json(JSON.parse(r).data.map(el => ({
-                    "name": el.Name + ", " + el.Vorname,
-                    "id": el.PersonID
-            })));
-        }).catch(e => {
-            res.json({"status": "intranet_offline_nocache"});
-        });
+app.get("/course-participants/:id", authorizeMiddleware, async (req, res) => {
+    let body = {
+        "method": "GET"
+    };
+    let escapedId = parseInt(req.params.id);
+    ds.tam.request(`/kzo/list/getlist/list/40/id/${escapedId}/period/73`, body).then(r => {
+        res.json(JSON.parse(r).data.map(el => ({
+                "name": el.Name + ", " + el.Vorname,
+                "id": el.PersonID
+        })));
+    }).catch(e => {
+        res.json({"status": "intranet_offline_nocache"});
     });
 });
 
 async function resourcesCallback(user, r) {
-    let isAuth = await isAuthorized(user);
+    const isAuth = await db.isAuthorized(user);
     if (!isAuth) {
         return {
             "offline": false,
@@ -585,7 +296,7 @@ async function resourcesCallback(user, r) {
 
 app.get("/resources/:time", async (req, res) => {
     let body = {
-        "periodId": getPeriod(req.params.time),
+        "periodId": helper.getPeriod(req.params.time),
         "method": "POST"
     };
     let user = cookieToUser(req.headers.cookie);
@@ -595,59 +306,47 @@ app.get("/resources/:time", async (req, res) => {
         resCacheObj = (resCache["data_" + body.periodId]) ? resCache["data_" + body.periodId] : {};
     } catch (e) {}
 
-    if (goodResCache(resCache)) {
-        res.json({"status": "ok", "data": await resourcesCallback(user, resCacheObj.data)});
+    if (goodResCache(resCache) && resCacheData != {}) {
+        res.json({"status": "ok", "data": resCacheData});
         return;
     }
     intranetReq("/kzo/timetable/ajax-get-resources/", body).then(async r => {
-        resCache["data_" + body.periodId] = {
+        resCache = {
             time: new Date(),
             data: r
         };
         let resData = await resourcesCallback(user, r);
         res.json({"status": "ok", "data": resData});
     }).catch(e => {
-        if (resCacheObj) {
-            res.json({"status": "intranet_offline", "data": resCacheObj, "time": resCache.time});
+        if (resCacheData) {
+            res.json({"status": "intranet_offline", "data": resCacheData, "time": resCache.time});
         } else {
             res.json({"status": "intranet_offline_nocache"});
         }
     });
 });
 
-app.get("/getName/:id", (req, res) => {
-    isAuthorized(cookieToUser(req.headers.cookie)).then(isAuth => {
-        if (!isAuth) {
-            res.status(401).end();
-            return;
-        }
-        let body = {
-            "id": req.params.id,
-            "method": "POST"
-        };
-        intranetReq("/kzo/list/get-person-name", body).then((r) => {
-            res.send(JSON.parse(r));
-        }).catch(e => {
-            res.json({"status": "intranet_offline_nocache"});
-        });
+app.get("/getName/:id", authorizeMiddleware, async (req, res) => {
+    let body = {
+        "id": req.params.id,
+        "method": "POST"
+    };
+    ds.tam.request("/kzo/list/get-person-name", body).then((r) => {
+        res.send(JSON.parse(r));
+    }).catch(e => {
+        res.json({"status": "intranet_offline_nocache"});
     });
 });
 
-app.get("/search-internal-kzoCH/:firstName/:lastName/:class", (req, res) => {
-    isAuthorized(cookieToUser(req.headers.cookie)).then(isAuth => {
-        if (!isAuth) {
-            res.status(401).end();
-            return;
-        }
-        let fN = "";
-        let lN = "";
-        let cl = "";
-        if (req.params.firstName != "_") fN = req.params.firstName;
-        if (req.params.lastName != "_") lN = req.params.lastName;
-        if (req.params.class != "_") cl = req.params.class;
-        searchPeopleKzoCH(fN, lN, cl).then(r => res.send(r)).catch(e => {
-            res.sendStatus(500);
-        });
+app.get("/search-internal-kzoCH/:firstName/:lastName/:class", authorizeMiddleware, async (req, res) => {
+    let fN = "";
+    let lN = "";
+    let cl = "";
+    if (req.params.firstName != "_") fN = req.params.firstName;
+    if (req.params.lastName != "_") lN = req.params.lastName;
+    if (req.params.class != "_") cl = req.params.class;
+    ds.kzoch.personSearch(fN, lN, cl).then(r => res.send(r)).catch(e => {
+        res.sendStatus(500);
     });
 });
 
@@ -658,7 +357,7 @@ app.get("/class-personal-details/:classID", (req, res) => {
             return;
         }
         let startTime = periods[1].startTime;
-        if (req.params.classID >= 2696) startTime = periods[0].startTime;
+        if (req.params.classID >= 2564) startTime = periods[0].startTime;
         let body = {
             "startDate": startTime,
             "endDate": startTime + 4 * 24 * 60 * 60 * 1000,
@@ -696,7 +395,7 @@ app.get("/class-personal-details/:classID", (req, res) => {
 });
 
 app.get("/period-from-time/:time", (req, res) => {
-    res.end(getPeriod(req.params.time).toString());
+    res.end(`${helper.getPeriod(req.params.time).toString()},${helper.getPeriod(new Date().getTime()).toString()}`);
 });
 
 const styles = JSON.parse(fs.readFileSync("style_presets.json"));
@@ -712,7 +411,7 @@ app.get("/mensa/KZO", (req, res) => {
         res.json(mensaPlanKZO).end();
         return;
     }
-    res.status(404).end();
+    res.status(503).end();
 });
 
 app.get("/mensa/Schellerstrasse", (req, res) => {
@@ -720,58 +419,71 @@ app.get("/mensa/Schellerstrasse", (req, res) => {
         res.json(mensaPlanScheller).end();
         return;
     }
-    res.status(404).end();
+    res.status(503).end();
 });
 
 updateMensaCache();
 setInterval(updateMensaCache, 1000 * 60 * 60);
 
 async function updateMensaCache() {
-    mensaPlanKZO = await readMensa(7912);
-    mensaPlanScheller = await readMensa(7913);
+    mensaPlanKZO = await ds.mensa.getData(7912);
+    mensaPlanScheller = await ds.mensa.getData(7913);
 }
 
-async function readMensa(identifier) {
-    let f = await nodeFetch("https://menu.sv-group.ch/typo3conf/ext/netv_svg_menumob/ajax.getContent.php", {
-        "headers": {
-            "content-type": "application/x-www-form-urlencoded",
-        },
-        "body": `action=getMenuplan&params%5Bbranchidentifier%5D=${identifier}`,
-        "method": "POST",
-        "mode": "cors"
+app.post("/grades", authorizeMiddleware, async (req, res) => {
+    let body = "";
+    req.on("data", chunk => {
+        body += chunk.toString();
     });
-    let json = await f.json();
-
-    const dom = new JSDOM(json[0].html);
-    let menu = {};
-    let days = dom.window.document.getElementsByClassName("day-tab");
-    for (let day of days) {
-        let menus = day.getElementsByClassName("details-menu");
-        let dayName = day.getElementsByClassName("details-date")[0].textContent;
-        dayName = dayName.split(". ").join(".");
-        menu[dayName] = [];
-        for (let m of menus) {
-            let kitchenName = m.getElementsByClassName("details-menu-type")[0].textContent;
-            let menuName = m.getElementsByClassName("details-menu-name");
-            let menuDescription = m.getElementsByClassName("details-menu-trimmings");
-            if (menuName.length == 0) {
-                menuName = "";
-            } else {
-                menuName = menuName[0].textContent;
-            }
-            if (menuDescription.length == 0) {
-                menuDescription = "";
-            } else {
-                menuDescription = menuDescription[0].textContent;
-            }
-            menu[dayName].push({
-                kitchen: kitchenName,
-                title: menuName,
-                description: menuDescription.replace(/\n/g, ' ').replace(/  /g, ' ')
-            });
+    req.on("end", async () => {
+        // assert string is valid JSON
+        let json;
+        try {
+            json = JSON.parse(body);
+        } catch (e) {
+            res.status(400).send("invalid_request").end();
+            return;
         }
+        let compressed = zlib.deflateSync(JSON.stringify({
+            data: json,
+            lastmod: Date.now()
+        })).toString("base64");
+        if (compressed.length > MAX_GRADES_SIZE) {
+            res.status(400).send("too_large").end();
+            return;
+        }
+        db.setGradeData(req.user.username, compressed);
+        res.send("ok");
+    });
+});
+
+app.get("/grades", authorizeMiddleware, async (req, res) => {
+    try {
+        const grades = await db.getGradeData(req.user.username);
+        if (grades.lastmod && grades.lastmod == -1) {
+            res.json(grades);
+            return;
+        }
+        const decompressed = zlib.inflateSync(Buffer.from(grades, "base64"));
+        const decompData =  JSON.parse(decompressed);
+        res.json(decompData);
+    } catch (e) {
+        console.error("Error fetching grade data:", e);
+        res.status(500).end();
     }
-    return menu;
-}
+});
+
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => console.log("Web server is up and running on port " + PORT));
+
+process.on("unhandledRejection", (reason, p) => {
+    console.log("Unhandled Rejection at: Promise", p, "reason:", reason);
+    console.trace();
+});
+
+process.on("uncaughtException", err => {
+    console.error("Uncaught error thrown: ", err);
+    console.trace();
+    process.exit(1);
+});

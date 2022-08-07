@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Gymial - der open-source KZO Stundenplan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=0.94">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="description" content="Gymial ist ein open-source Tool, das die Stundenpläne und Mensamenüs der KZO anzeigt.">
+    <meta name="theme-color" content="#333">
+    <script defer src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WYE0MDHZXP"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        if (self.location.hostname == "gymial.ch") {
+            gtag('js', new Date());
+            gtag('config', 'G-WYE0MDHZXP');
+        }
+    </script>
+    
+    <link rel="apple-touch-icon" href="<%= require("./static/apple-touch-icon.png") %>">
+    <link rel="manifest" href="<%= require("./static/manifest.webmanifest") %>">
+    <link rel="shortcut icon" href="<%= require("./static/favicon.ico") %>">
+</head>
+<body>
+    <script>// to eliminate Firefox FOUC</script>
+    <div id="scrollLimiter">
+        <div id="selection">
+            <span id="open-menu" class="buttonSpan color-svg round-linecap">
+                <%= require("./btn-menu.svg") %>
+            </span>
+            <div id="current-class-cont"><h1 id="current-class">A4</h1></div>
+            <div class="topbar-btns" id="week-btns">
+                <span id="backward-next-sem" class="buttonSpan color-svg round-linecap" style="display: none;">
+                    <%= require("./btn-backward-sem.svg") %>
+                </span>
+                <span id="week-back" class="buttonSpan color-svg round-linecap">
+                    <%= require("./btn-week-back.svg") %>
+                </span>
+                <span id="today" class="buttonSpan color-svg">
+                    <%= require("./btn-today.svg") %>
+                </span>
+                <span id="week-forward" class="buttonSpan color-svg round-linecap">
+                    <%= require("./btn-week-forward.svg") %>
+                </span>
+                <span id="forward-next-sem" class="buttonSpan color-svg round-linecap" style="display: none;">
+                    <%= require("./btn-forward-sem.svg") %>
+                </span>
+            </div>
+            <div class="topbar-btns" id="grade-btns" style="display: none;">
+                <span id="switch-matura-calc" class="buttonSpan color-svg">
+                    <%= require("./btn-switch-matura-calc.svg") %>
+                </span>
+                <span id="switch-grade-calc" class="buttonSpan color-svg">
+                    <%= require("./btn-switch-grade-calc.svg") %>
+                </span>
+                <span id="grade-pluspoints" class="buttonSpan color-svg-fill">
+                    <%= require("./btn-grade-pluspoints.svg") %>
+                </span>
+            </div>
+        </div>
+        <div id="progress-bar-cont">
+            <hr id="progress-bar">
+        </div>
+        <div id="hint-new-timetable">
+            <span>Die neuen Stundenpläne sind jetzt online. Schaue sie dir hier an!</span>
+        </div>
+        <div id="sidebar">
+            <div id="search-dropdown" class="dropdown-content">
+                <label for="class-select" class="visuallyhidden">Suche nach Klasse, Raum oder Person</label>
+                <input id="class-select" placeholder="Suche"/>
+                <div id="search-results"></div>
+            </div>
+            <span id="link-timetable" class="sidebar-link active">Stundenplan</span>
+            <span id="link-settings" class="sidebar-link">Einstellungen</span>
+            <span id="link-mensa" class="sidebar-link">Mensaplan</span>
+            <span id="link-grades" class="sidebar-link">Noten</span>
+            <div id="sidebar-bottom">
+                <a class="sidebar-link bottom" href="https://discord.gg/wM4Wsts" rel="noopener" target="_blank">Entwicklungs-Discord-Server</a>
+                <a class="sidebar-link bottom" href="https://github.com/RootCubed/gymial" rel="noopener" target="_blank">Gymial auf GitHub</a>
+            </div>
+        </div>
+        <div id="panels" style="display: none;">
+            <div id="panel-timetable">
+                <div id="panel-timetable-cont">
+                    <noscript>JavaScript wird für diese Website benötigt. Bitte aktiviere es.</noscript>
+                    <table id="timetable">
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <div id="error-timetable">
+                        <svg width="125" height="125" viewBox="0 0 180 180">
+                            <circle fill="#f44336" cx="90" cy="90" r="80" stroke="white" stroke-width="5" />
+                            <path fill="white" d="M77,32L103,32L100,115L80,115Z"></path>
+                            <path fill="white" d="M78,129l24,0l0,15l-24,0z"></path>
+                        </svg>
+                        <span id="error-title">ERROR_TITLE</span>
+                        <span id="error-desc">ERROR_DESC</span>
+                    </div>
+                </div>
+            </div>
+            <div id="panel-settings">
+                <div class="settings-section">
+                    <h2 class="settings-section-header">Account (nicht angemeldet)</h2>
+                    <div id="login-btn-cont">
+                        Melde dich an, um Klassenlisten, Instrumentalstunden und Lehrerstundenpläne zu sehen.
+                        <button type="button" id="login">Zum Login</button>
+                    </div>
+                    <div id="accountinfo">
+                        <span id="ownName"></span>
+                        <div id="persDetails" style="display: none;">
+                            <div id="otherDetails"></div>
+                            <button type="button" id="persplan">Persönlicher Stundenplan</button>
+                            <button type="button" id="logout">Abmelden</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h2 class="settings-section-header">Styles</h2>
+                    <object style="position: absolute; visibility: hidden;" class="stylepreview" data="<%= require("./static/stylepreview.svg") %>" id="styleprevsvg"></object>
+                    <div id="stylepicker_cont">
+                        <div id="stylepicker">
+                        </div>
+                    </div>
+                </div>
+                <div class="grades-section" style="display: none">
+                    <h2 class="settings-section-header">Noten</h2>
+                    <div id="grade-sync-settings-cont">
+                        <span>Synchronisation</span>
+                        <div class="grade-chip-cont">
+                            <span id="grade-auto-sync" class="grade-chip-sel active">Automatisch</span>
+                            <span id="grade-manual-sync" class="grade-chip-sel">Manuell</span>
+                        </div>
+                    </div>
+                    <div id="grades-auto-sync-cont">
+                        <span id="grades-sync-info-last">Letzte Synchronisation: <span id="grades-sync-info-last-cont"></span></span>
+                    </div>
+                    <div id="grades-manual-sync-cont">
+                        <button id="grades-dl-cloud" type="button"><img width="30" src="<%= require("./static/icon-cloud-dl.svg") %>"></button>
+                        <button id="grades-ul-cloud" type="button"><img width="30" src="<%= require("./static/icon-cloud-ul.svg") %>"></button>
+                    </div>
+                    <img id="grades-cloud-spinner" width="40" height="40" src="<%= require("./static/spinner.svg") %>" alt="Loading spinner">
+                </div>
+            </div>
+            <div id="panel-mensa">
+                <table id="mensa-table">
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="panel-grades">
+                <div class="grades-cont visible" id="grades-sems-cont">
+                    <h2 class="grades-heading">Semester</h2>
+                    <div id="main-grades-content" class="grades-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="margin-details" class="no-transition">
+        <div id="details-overlay">
+            <span class="icon-x"></span>
+            <div id="details_cont">
+                <div id="overlay-lesson-tabs"></div>
+                <div id="lesson-detail">
+                    <p id="room-detail"></p>
+                    <p id="teacher-detail"></p>
+                    <div id="detail-view">
+                        <img width="40" height="40" src="<%= require("./static/spinner.svg") %>" alt="Loading spinner">
+                    </div>
+                </div>
+            </div>
+            <div id="login-window" style="display: none">
+                <form id="login-form" method="get" onsubmit="return false">
+                    <h3>Anmelden</h3>
+                    <h4 style="margin-bottom: 20px;">Melde dich an, um Klassenlisten, Instrumentalstunden und Lehrerstundenpläne zu sehen.</h4>
+                    <label id="label-user">Name (vorname.nachname)</label>
+                    <input id="login-user" autocomplete="username" name="user" type="text" placeholder="Name" aria-labelledby="label-user" required>
+        
+                    <label id="label-pw">Passwort für das Intranet</label>
+                    <input id="login-pw" autocomplete="current-password" name="pass" type="password" placeholder="Passwort" aria-labelledby="label-pw" autocomplete="current-password" required>
+        
+                    <div id="button-spinner">
+                        <span id="invalid-login" style="display: none;">Ungültiges Login!</span>
+                        <img width="40" src="<%= require("./static/spinner.svg") %>" alt="Loading spinner" style="display: none;">
+                        <button type="submit" id="login-submit">Einloggen</button>
+                    </div>
+                </form>
+            </div>
+            <div id="grade-editor" style="display: none">
+                <form id="grade-form" method="get" onsubmit="return false" autocomplete="off">
+                    <h3 id="grade-form-title">Note bearbeiten</h3>
+                    <div id="grade-form-main-cont">
+                        <div class="grade-form-section">
+                            <label id="label-grade-title">Titel</label>
+                            <input id="grade-input-title" name="title" type="text" aria-labelledby="label-grade-title"
+                                placeholder="Name eingeben"
+                                oninvalid="this.setCustomValidity('Bitte fülle dieses Feld aus.')"
+                                oninput="this.setCustomValidity('')"
+                                required>
+                        </div>
+        
+                        <div class="grade-form-section" id="grade-form-grade-type-cont">
+                            <label id="label-grade-type">Notentyp</label>
+                            <div class="grade-chip-cont">
+                                <span id="grade-type-exam" class="grade-chip-sel active">Prüfung</span>
+                                <span id="grade-type-bonus" class="grade-chip-sel">Bonusnote</span>
+                            </div>
+                        </div>
+
+                        <div id="grade-cont-typeexam">
+                            <div class="grade-form-section" id="grade-form-grade-entry-cont">
+                                <label id="label-grade-grade">Note</label>
+                                <input id="grade-input-grade" name="grade" type="text" placeholder="Note eingeben" aria-labelledby="label-grade-grade"
+                                    required pattern="\d(\.\d+)?"
+                                    oninvalid="this.setCustomValidity('Bitte gib eine Zahl ein.')"
+                                    oninput="this.setCustomValidity('')">
+                            </div>
+                            
+                            <div class="grade-form-section">
+                                <label id="label-grade-weight">Gewicht <span id="label-grade-weight-hint" class="hidden">(Tipp: du kannst auch Brüche eingeben, z.B. 2/3)</span></label>
+                                <input id="grade-input-weight" name="weight" type="text" placeholder="Gewicht eingeben" aria-labelledby="label-grade-weight"
+                                    required pattern="(\d+/\d+)|(\d+(\.\d+)?%?)"
+                                    oninvalid="this.setCustomValidity('Bitte gib eine Zahl oder einen Bruch ein.')"
+                                    oninput="this.setCustomValidity('')">
+                                <span id="grade-weight-percent-symbol" style="display: none;">%</span>
+                                <div class="grade-chip-cont">
+                                    <span id="grade-weight-full" class="grade-chip-sel active">ganze Note(n)</span>
+                                    <span id="grade-weight-perc_entire" class="grade-chip-sel">% der Zeugnisnote</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="grade-cont-typebonus" class="grade-form-section">
+                            <label id="label-grade-bonus">Bonus</label>
+                            <div id="grade-bonus-cont">
+                                <div class="grade-chip-cont vert">
+                                    <span id="grade-bonus-plus" class="grade-chip-sel active large">+</span>
+                                    <span id="grade-bonus-minus" class="grade-chip-sel large">-</span>
+                                </div>
+                                <input id="grade-input-bonus" name="grade" type="text" placeholder="Bonus" aria-labelledby="label-grade-bonus"
+                                    required pattern="\d(\.\d+)?"
+                                    oninvalid="this.setCustomValidity('Bitte gib eine Zahl ein.')"
+                                    oninput="this.setCustomValidity('')">
+                            </div>
+                        </div>
+                        <button type="button" id="grade-edit-delete">Note löschen</button>
+                    </div>
+                    
+                    <div id="grade-edit-button-cont">
+                        <button type="button" id="grade-edit-cancel">Abbrechen</button>
+                        <button type="submit" id="grade-edit-submit">Speichern</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <form id="simple-modal" method="get" onsubmit="return false" autocomplete="off" style="display: none">
+            <h1 id="modal-title">MODAL_TEXT</h1>
+            <span id="modal-subtext">MODAL_SUBTEXT</span>
+            <input type="text" id="modal-input"></input>
+            <div id="yes-no">
+                <button type="button" id="modal-no">NO_TEXT</button>
+                <button type="submit" id="modal-yes">YES_TEXT</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

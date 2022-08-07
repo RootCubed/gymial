@@ -43,7 +43,7 @@
     },
     "The Matrix": {
         "bg-primary": "#000",
-        "bg-secondary": "#000",
+        "bg-secondary": "#010",
         "color-primary": "#0f0",
         "color-secondary": "#0f0",
         "color-progress-bar": "#0f0",

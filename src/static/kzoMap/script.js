@@ -115,7 +115,6 @@ function init() {
             }
             room.style.opacity = 0;
             room.onclick = () => {
-                console.log(room.id);
                 let roomID = room.id
                     .replace(/_/g, ' ').replace(/Ae/g, 'Ä').replace(/Oe/g, 'Ö').replace(/Ue/g, 'Ü')
                     .replace(/ae/g, 'ä').replace(/oe/g, 'ö').replace(/ue/g, 'ü')

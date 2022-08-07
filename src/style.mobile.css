@@ -1,0 +1,145 @@
+@media only screen and (max-width: 900px) {
+    span {
+        font-size: 16px;
+    }
+
+    #overlay-lesson-tabs a {
+        font-size: 14px;
+        padding: 15px 20px 10px;
+    }
+
+    #room-detail, #teacher-detail {
+        font-size: 1.8em;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    span {
+        font-size: 15px;
+    }
+
+    :root {
+        --topbar-height: 48px;
+    }
+
+    #selection {
+        height: 33px;
+        padding: 7px;
+    }
+
+    #selection svg {
+        height: 25px;
+    }
+
+    #today::before {
+        padding: 8px 0 0px 24.5px;
+        font-size: 15px;
+    }
+
+    #current-class {
+        font-size: 20px;
+    }
+
+    #current-class-cont {
+        height: 25px;
+        padding: 0;
+    }
+
+    .buttonSpan {
+        height: 25px;
+    }
+
+    #sidebar {
+        width: 150px;
+    }
+
+    #class-select, .sidebar-link {
+        font-size: inherit;
+    }
+
+    .sidebar-link {
+        margin: 3px 10px;
+        padding: 8px 0px;
+    }
+
+    .search-result {
+        font-size: inherit;
+    }
+
+    #login-form h3, #grade-editor h3 {
+        font-size: 22px;
+    }
+
+    form label {
+        font-size: 16px !important;
+        padding: 8px 0px;
+    }
+
+    form button, form input {
+        font-size: 14px !important;
+    }
+
+    button, input[type=submit] {
+        margin: 10px 10px 0;
+    }
+
+    .timetable-entry {
+        border-radius: 7px;
+    }
+
+    .timetable-date {
+        font-size: 12px;
+    }
+
+    .timetable-time {
+        width: 50px;
+        font-size: 13px;
+    }
+
+    #timetable {
+        border-spacing: 3px;
+    }
+
+    .mensa-date {
+        font-size: 11px;
+    }
+
+    .mensa-desc, .mensa-desc * {
+        font-size: 12px;
+    }
+
+    .grade-form-section {
+        margin-bottom: 10px;
+    }
+}
+
+@media only screen and (max-width: 500px) {
+    .timetable-entry span {
+        font-size: 12px;
+    }
+    
+    .timetable-date {
+        font-size: 11px;
+    }
+
+    .timetable-time {
+        width: 40px;
+        font-size: 12px;
+    }
+}
+
+@media (min-width: 1025px) {
+    #panels {
+        width: calc(100vw - 200px);
+        right: 0;
+    }
+
+    #sidebar {
+        left: 0;
+    }
+
+    #open-menu {
+        visibility: hidden;
+        width: 0;
+    }
+}
