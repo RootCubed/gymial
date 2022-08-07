@@ -291,7 +291,6 @@ app.get("/search-internal-kzoCH/:firstName/:lastName/:class", authorizeMiddlewar
     if (req.params.lastName != "_") lN = req.params.lastName;
     if (req.params.class != "_") cl = req.params.class;
     ds.kzoch.personSearch(fN, lN, cl).then(r => res.send(r)).catch(e => {
-        console.log(e);
         res.sendStatus(500);
     });
 });
