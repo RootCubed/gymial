@@ -11,32 +11,8 @@ import * as helper from "./helper.js";
 
 const MAX_GRADES_SIZE = 5000; // 5KB
 
-const limiterIntranetLogin = new RateLimiterRedis({
-    storeClient: redis,
-    keyPrefix: "intranet_login",
-    points: 30,
-    duration: 60,
-    blockDuration: 60
-});
-
-const limiterKZOch = new RateLimiterRedis({
-    storeClient: redis,
-    keyPrefix: "kzo_ch_total",
-    points: 30,
-    duration: 60,
-    blockDuration: 60
-});
-
-const limiterIntranetReq = new RateLimiterRedis({
-    storeClient: redis,
-    keyPrefix: "intranet_total",
-    points: 120,
-    duration: 60,
-    blockDuration: 30
-});
-
-app.use((req, res, next) => {
-    if (req.header("x-forwarded-proto") !== "https" && req.hostname !== "localhost" && !req.hostname.includes("192.168") && !req.hostname.includes("rootcubed.dev")) {
+app.use(async (req, res, next) => {
+    if (req.header("x-forwarded-proto") !== "https" && req.hostname !== "localhost" && !req.hostname.includes("192.168")) {
         res.redirect(301, `https://${req.header("host")}${req.url}`);
     } else {
         if (req.headers.cookie) {
@@ -52,57 +28,24 @@ app.use((req, res, next) => {
     }
 });
 
+app.use((req, res, next) => {
+    res.setTimeout(20000, () => res.sendStatus(408));
+    next();
+});
+
 app.use(cors());
 app.use(compression());
 app.use(express.static("static"));
 
-let headers = {
-    "Connection": "keep-alive",
-    "Accept": "application/json, text/javascript, */*; q=0.01",
-    "Origin": "https://intranet.tam.ch",
-    "X-Requested-With": "XMLHttpRequest",
-    "Accept-language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7",
-    "User-Agent": "Node.js application",
-    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-    "Host": "intranet.tam.ch",
-    "Sec-Fetch-Site": "same-origin",
-    "Sec-Fetch-Mode": "cors",
-    "Referer": "https://intranet.tam.ch/kzo",
-    "Cookie": `username=${process.env.user}; school=kzo; sturmuser=${process.env.user}; sturmsession=`
-};
-
-let kzoCHCookies = {};
-
-const PORT = process.env.PORT || 3000;
-
-let token = "";
-
-const periods = [
-    {
-        "period": 76,
-        "startTime": 1646002800000
-    },
-    {
-        "period": 75,
-        "startTime": 1629752236880
-    },
-    {
-        "period": 74,
-        "startTime": 1614553200000
-    },
-    {
-        "period": 73,
-        "startTime": 1597615200000
-    },
-    {
-        "period": 72,
-        "startTime": 1582498800000
-    },
-    {
-        "period": 71,
-        "startTime": 0
+const authorizeMiddleware = async (req, res, next) => {
+    let user = cookieToUser(req.headers.cookie);
+    if (!await db.isAuthorized(user)) {
+        res.status(401).end();
+        return;
     }
-];
+    req.user = user;
+    next();
+};
 
 let ttCache = {};
 let resCache = {};
@@ -306,20 +249,22 @@ app.get("/resources/:time", async (req, res) => {
         resCacheObj = (resCache["data_" + body.periodId]) ? resCache["data_" + body.periodId] : {};
     } catch (e) {}
 
-    if (goodResCache(resCache) && resCacheData != {}) {
-        res.json({"status": "ok", "data": resCacheData});
+    if (goodResCache(resCacheObj)) {
+        res.json({"status": "ok", "data": await resourcesCallback(user, resCacheObj.data)});
         return;
     }
-    intranetReq("/kzo/timetable/ajax-get-resources/", body).then(async r => {
-        resCache = {
+    ds.tam.request("/kzo/timetable/ajax-get-resources/", body).then(async r => {
+        resCache["data_" + body.periodId] = {
             time: new Date(),
             data: r
         };
         let resData = await resourcesCallback(user, r);
         res.json({"status": "ok", "data": resData});
-    }).catch(e => {
-        if (resCacheData) {
-            res.json({"status": "intranet_offline", "data": resCacheData, "time": resCache.time});
+    }).catch(async e => {
+        if (e.message == "successful_login_invalid_result") {
+            res.json({"status": "error"});
+        } else if (resCache && resCache["data_" + body.periodId]) {
+            res.json({"status": "intranet_offline", "data": await resourcesCallback(user, resCacheObj.data), "time": resCache.time});
         } else {
             res.json({"status": "intranet_offline_nocache"});
         }
@@ -350,47 +295,40 @@ app.get("/search-internal-kzoCH/:firstName/:lastName/:class", authorizeMiddlewar
     });
 });
 
-app.get("/class-personal-details/:classID", (req, res) => {
-    isAuthorized(cookieToUser(req.headers.cookie)).then(isAuth => {
-        if (!isAuth) {
-            res.status(401).end();
-            return;
+app.get("/class-personal-details/:classID", authorizeMiddleware, async (req, res) => {
+    let startTime = helper.getPeriodFromClass(req.params.classID).startTime;
+    let body = {
+        "startDate": startTime,
+        "endDate": startTime + 4 * 24 * 60 * 60 * 1000,
+        "holidaysOnly": 0,
+        "method": "POST",
+        "classId[]": req.params.classID
+    };
+    ds.tam.request("/kzo/timetable/ajax-get-timetable", body).then(r => {
+        let data = JSON.parse(r).data;
+        let potentialClassLists = {};
+        for (let d of data) {
+            if (d.classId.length == 1) {
+                let studStr = d.student.reduce((a, v) => a + v.studentName + ";", "");
+                if (potentialClassLists[studStr]) {
+                    potentialClassLists[studStr].count++;
+                } else {
+                    potentialClassLists[studStr] = {
+                        count: 0,
+                        studentArray: d.student
+                    };
+                }
+            }
         }
-        let startTime = periods[1].startTime;
-        if (req.params.classID >= 2564) startTime = periods[0].startTime;
-        let body = {
-            "startDate": startTime,
-            "endDate": startTime + 4 * 24 * 60 * 60 * 1000,
-            "holidaysOnly": 0,
-            "method": "POST",
-            "classId[]": req.params.classID
-        };
-        intranetReq("/kzo/timetable/ajax-get-timetable", body).then(r => {
-            let data = JSON.parse(r).data;
-            let potentialClassLists = {};
-            for (let d of data) {
-                if (d.classId.length == 1) {
-                    let studStr = d.student.reduce((a, v) => a + v.studentName + ";", "");
-                    if (potentialClassLists[studStr]) {
-                        potentialClassLists[studStr].count++;
-                    } else {
-                        potentialClassLists[studStr] = {
-                            count: 0,
-                            studentArray: d.student
-                        };
-                    }
-                }
+        let best = {count:0};
+        for (let d in potentialClassLists) {
+            if (potentialClassLists[d].count > best.count) {
+                best = potentialClassLists[d];
             }
-            let best = {count:0};
-            for (let d in potentialClassLists) {
-                if (potentialClassLists[d].count > best.count) {
-                    best = potentialClassLists[d];
-                }
-            }
-            res.json(best.studentArray);
-        }).catch(e => {
-            res.json({"status": "intranet_offline_nocache"});
-        });
+        }
+        res.json(best.studentArray);
+    }).catch(e => {
+        res.json({"status": "intranet_offline_nocache"});
     });
 });
 
