@@ -80,7 +80,7 @@ export async function authenticateUser(username) {
     for (let key of keepTokens) {
         if (new Date(tokenJSON[key]).getTime() > Date.now()) tokenList[key] = tokenJSON[key];
     }
-    tokenList[genToken] = Date.now() + 60 * 60 * 24 * 365; // store token for one year
+    tokenList[genToken] = Date.now() + 1000 * 60 * 60 * 24 * 365; // store token for one year
 
     redisClient.set(keyNameTok, JSON.stringify(tokenList));
     const reqs = await redisClient.hGet(keyNameUser, "requests");
