@@ -59,16 +59,7 @@ export function init() {
                 currentView = 1;
                 break;
             case VIEW_NAMES[2]:
-                overrideTitle(`${VIEW_NAMES[2]} <span id="toggle-mensa">${currMensa}</span>`);
-                $i("toggle-mensa").addEventListener("click", () => {
-                    if (currMensa == "KZO") {
-                        currMensa = "Schellerstrasse";
-                    } else {
-                        currMensa = "KZO";
-                    }
-                    $i("toggle-mensa").innerText = currMensa;
-                    gymial.mensa.loadMensa(currMensa, true);
-                });
+                overrideTitle(`${VIEW_NAMES[2]} ${currMensa}`);
                 $i("panels").classList.add("scrollMensa");
                 $i("link-mensa").classList.add("active");
                 $i("week-btns").classList.add("hide");

@@ -342,7 +342,6 @@ app.get("/styles", (req, res) => {
 });
 
 let mensaPlanKZO;
-let mensaPlanScheller;
 
 app.get("/mensa/KZO", (req, res) => {
     if (mensaPlanKZO) {
@@ -352,21 +351,12 @@ app.get("/mensa/KZO", (req, res) => {
     res.status(503).end();
 });
 
-app.get("/mensa/Schellerstrasse", (req, res) => {
-    if (mensaPlanScheller) {
-        res.json(mensaPlanScheller).end();
-        return;
-    }
-    res.status(503).end();
-});
+async function updateMensaCache() {
+    mensaPlanKZO = await ds.mensa.getData(7912);
+}
 
 updateMensaCache();
 setInterval(updateMensaCache, 1000 * 60 * 60);
-
-async function updateMensaCache() {
-    mensaPlanKZO = await ds.mensa.getData(7912);
-    mensaPlanScheller = await ds.mensa.getData(7913);
-}
 
 app.post("/grades", authorizeMiddleware, async (req, res) => {
     let body = "";
