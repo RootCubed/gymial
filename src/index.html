@@ -20,44 +20,43 @@
         }
     </script>
     
-    <link rel="apple-touch-icon" href="<%= require("./static/apple-touch-icon.png") %>">
-    <link rel="manifest" href="<%= require("./static/manifest.webmanifest") %>">
-    <link rel="shortcut icon" href="<%= require("./static/favicon.ico") %>">
+    <link rel="apple-touch-icon" href="<%= require("./resources/apple-touch-icon.png") %>">
+    <link rel="manifest" href="<%= require("./resources/manifest.webmanifest") %>">
 </head>
 <body>
     <script>// to eliminate Firefox FOUC</script>
     <div id="scrollLimiter">
         <div id="selection">
             <span id="open-menu" class="buttonSpan color-svg round-linecap">
-                <%= require("./btn-menu.svg") %>
+                <%= require("./inline/btn-menu.svg") %>
             </span>
             <div id="current-class-cont"><h1 id="current-class">A4</h1></div>
             <div class="topbar-btns" id="week-btns">
                 <span id="backward-next-sem" class="buttonSpan color-svg round-linecap" style="display: none;">
-                    <%= require("./btn-backward-sem.svg") %>
+                    <%= require("./inline/btn-backward-sem.svg") %>
                 </span>
                 <span id="week-back" class="buttonSpan color-svg round-linecap">
-                    <%= require("./btn-week-back.svg") %>
+                    <%= require("./inline/btn-week-back.svg") %>
                 </span>
                 <span id="today" class="buttonSpan color-svg">
-                    <%= require("./btn-today.svg") %>
+                    <%= require("./inline/btn-today.svg") %>
                 </span>
                 <span id="week-forward" class="buttonSpan color-svg round-linecap">
-                    <%= require("./btn-week-forward.svg") %>
+                    <%= require("./inline/btn-week-forward.svg") %>
                 </span>
                 <span id="forward-next-sem" class="buttonSpan color-svg round-linecap" style="display: none;">
-                    <%= require("./btn-forward-sem.svg") %>
+                    <%= require("./inline/btn-forward-sem.svg") %>
                 </span>
             </div>
             <div class="topbar-btns" id="grade-btns" style="display: none;">
                 <span id="switch-matura-calc" class="buttonSpan color-svg">
-                    <%= require("./btn-switch-matura-calc.svg") %>
+                    <%= require("./inline/btn-switch-matura-calc.svg") %>
                 </span>
                 <span id="switch-grade-calc" class="buttonSpan color-svg">
-                    <%= require("./btn-switch-grade-calc.svg") %>
+                    <%= require("./inline/btn-switch-grade-calc.svg") %>
                 </span>
                 <span id="grade-pluspoints" class="buttonSpan color-svg-fill">
-                    <%= require("./btn-grade-pluspoints.svg") %>
+                    <%= require("./inline/btn-grade-pluspoints.svg") %>
                 </span>
             </div>
         </div>
@@ -119,7 +118,6 @@
                 </div>
                 <div class="settings-section">
                     <h2 class="settings-section-header">Styles</h2>
-                    <object style="position: absolute; visibility: hidden;" class="stylepreview" data="<%= require("./static/stylepreview.svg") %>" id="styleprevsvg"></object>
                     <div id="stylepicker_cont">
                         <div id="stylepicker">
                         </div>
@@ -197,7 +195,7 @@
                     <p id="room-detail"></p>
                     <p id="teacher-detail"></p>
                     <div id="detail-view">
-                        <img width="40" height="40" src="<%= require("./static/spinner.svg") %>" alt="Loading spinner">
+                        <img width="40" height="40" src="<%= require("./resources/spinner.svg") %>" alt="Loading spinner">
                     </div>
                 </div>
             </div>
@@ -213,7 +211,7 @@
         
                     <div id="button-spinner">
                         <span id="invalid-login" style="display: none;">Ungültiges Login!</span>
-                        <img width="40" src="<%= require("./static/spinner.svg") %>" alt="Loading spinner" style="display: none;">
+                        <img width="40" src="<%= require("./resources/spinner.svg") %>" alt="Loading spinner" style="display: none;">
                         <button type="submit" id="login-submit">Einloggen</button>
                     </div>
                 </form>

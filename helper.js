@@ -2,8 +2,10 @@ import hyphenopoly from "hyphenopoly";
 import fs from "fs";
 
 const hyphenator = await hyphenopoly.config({
-    "require": ["de", "en-us"],
-    "hyphen": "•"
+    require: ["de", "en-us"],
+    hyphen: "•",
+    loaderSync: file => fs.readFileSync(`node_modules/hyphenopoly/patterns/${file}`),
+    sync: true
 }).get("de");
 
 export const hyphenate = (str, token) => hyphenator(str).replace(/•/g, token);

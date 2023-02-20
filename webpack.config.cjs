@@ -6,14 +6,14 @@ module.exports = {
     entry: "./src/gymial.js",
     output: {
         path: path.resolve(__dirname, "static/"),
-        filename: "[name].js",
-        clean: true
+        filename: "[name].js"
     },
     target: "web",
     module: {
         rules: [
             {
                 test: /\.svg$/,
+                include: /inline/,
                 type: "asset/source"
             },
             {
@@ -22,7 +22,7 @@ module.exports = {
             },
             {
                 test: /\.(png|svg|ico|webmanifest)$/,
-                include: [ path.resolve(__dirname, "src/static/") ],
+                exclude: /inline/,
                 type: "asset/resource"
             },
             {
@@ -35,10 +35,7 @@ module.exports = {
         new HtmlWebpackPlugin({
             filename: "index.html",
             template: "./src/index.html",
-            favicon: "./src/static/favicon.ico",
-            minify: {
-                removeRedundantAttributes: false
-            }
+            favicon: "./src/resources/favicon.ico"
         }),
         new MiniCssExtractPlugin()
     ]

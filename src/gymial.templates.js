@@ -1,6 +1,6 @@
-import sgIcon from "./icon-subgrade.svg";
-import addSgIcon from "./icon-add-subgrade.svg";
-import addGradeIcon from "./icon-add-grade.svg";
+import sgIcon from "./inline/icon-subgrade.svg";
+import addSgIcon from "./inline/icon-add-subgrade.svg";
+import addGradeIcon from "./inline/icon-add-grade.svg";
 
 const gradeContainerGeneric = (className, title, vertbarCol, content, index) => `
 <div class="grades-overview-container ${className}" data-name="${title}" data-index="${index}">

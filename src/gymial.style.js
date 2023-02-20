@@ -1,6 +1,7 @@
 import { $i, $c } from "./gymial.helper.js";
-
 import * as gymial from "./gymial.module.js";
+
+import STYLE_PICKER_SVG from "./inline/stylepreview.svg";
 
 let avStyles;
 
@@ -17,24 +18,13 @@ export function init() {
 
 function initStyles() {
     $i("stylepicker").innerHTML = "";
-    let svgContent;
-    try {
-        svgContent = new XMLSerializer().serializeToString($i("styleprevsvg").getSVGDocument());
-    } catch (e) {
-        console.info("style preview svg not loaded yet");
-        // The SVG is not ready yet, wait until it is loaded
-        $i("styleprevsvg").addEventListener("load", () => {
-            initStyles();
-        });
-        return;
-    }
     for (let style in avStyles) {
         let randomCancelled = Math.floor(Math.random() * cancelledLessons.length);
         let randomNonCancelled = Math.floor(Math.random() * nonCancelledLessons.length);
         $i("stylepicker").innerHTML += `
         <div class="stylepreview_cont">
             <span class="style_name">${style}</span>
-            ${svgContent
+            ${STYLE_PICKER_SVG
                 .replace("$LES1S$", cancelledLessons[randomCancelled][0]).replace("$LES1T$", cancelledLessons[randomCancelled][1])
                 .replace("$LES2S$", nonCancelledLessons[randomNonCancelled][0]).replace("$LES2T$", nonCancelledLessons[randomNonCancelled][1])
             }

@@ -421,7 +421,7 @@ process.on("unhandledRejection", (reason, p) => {
 });
 
 process.on("uncaughtException", err => {
-    console.error("Uncaught error thrown: ", err);
+    console.error("Uncaught error thrown:", err);
     console.trace();
     process.exit(1);
 });
