@@ -82,8 +82,7 @@ export function init() {
     });
     $i("forward-next-sem").addEventListener("click", () => {
         viewState.time = NEXT_SEM_START;
-        let now = ttdata.getFirstDayOfWeek(new Date()).getTime();
-        viewState.weekOffset = Math.floor((NEXT_SEM_START - now) / (ttdata.DAY * 7));
+        viewState.weekOffset = Math.ceil((NEXT_SEM_START - Date.now()) / (ttdata.DAY * 7));
         refreshTodayEl();
         reloadClass();
     });
@@ -205,7 +204,7 @@ export async function loadTTData(entityType, entityID, time, resources) {
             loadTTData(entityType, entityID, time);
             return;
         }
-        loadClass(resources, entityType, entityID, time, reqTTPeriod);
+        loadClass(entityType, entityID, time, reqTTPeriod);
     });
 }
 
@@ -332,7 +331,7 @@ async function loadPeriod(time) {
     return null;
 }
 
-async function loadClass(resources, entityType, entityID, time, period) {
+async function loadClass(entityType, entityID, time, period) {
     gymial.menu.setProgress(30);
     gymial.error.hide();
     gtag("event", "loadClass");

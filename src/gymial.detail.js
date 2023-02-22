@@ -6,20 +6,22 @@ export function init() {
     $i("grade-form").addEventListener("submit", () => {
         try {
             let resVal = {
-                name: $i("grade-input-title").value,
-                grade_type: currGradeType,
-                value: parseFloat($i(
-                    (currGradeType == "regular") ? "grade-input-grade" : "grade-input-bonus"
-                ).value),
-                weight_type: currWeightType,
+                data: {
+                    name: $i("grade-input-title").value,
+                    grade_type: currGradeType,
+                    value: parseFloat($i(
+                        (currGradeType == "regular") ? "grade-input-grade" : "grade-input-bonus"
+                    ).value),
+                    weight_type: currWeightType
+                },
                 wants_delete: false
             };
             let weightVal = parseWeightVal($i("grade-input-weight").value);
             if (typeof weightVal == "object") {
-                resVal.frac_weight = weightVal;
+                resVal.data.frac_weight = weightVal;
             } else {
                 if (currWeightType == "perc_entire") weightVal /= 100;
-                resVal.weight = weightVal;
+                resVal.data.weight = weightVal;
             }
             if (grEditPromise) grEditPromise.res(resVal);
             grEditPromise = null;
@@ -30,7 +32,8 @@ export function init() {
 
     $i("grade-edit-delete").addEventListener("click", () => {
         let resVal = {
-            "wants_delete": true
+            data: {},
+            wants_delete: true
         };
         showModal({
             title: `"${$i("grade-input-title").value}" wirklich löschen?`,
@@ -107,7 +110,10 @@ export function init() {
 
     $i("modal-yes").addEventListener("click", () => {
         let resVal = {
-            "input": $i("modal-input").value
+            data: {
+                input: $i("modal-input").value
+            },
+            wants_delete: false
         };
         if (modalPromise) modalPromise.res(resVal);
         modalPromise = null;

@@ -173,7 +173,7 @@ async function cloudSyncAuto() {
         setGradeSynced();
     } catch (e) {
         // fallback: localStorage
-        viewState.gradeData = getGradeData();
+        viewState.gradeData = getGradeData().data;
     }
     refreshGrades();
     $i("grades-sync-info-last-cont").innerHTML = new Date(getGradeLastSync()).toLocaleTimeString([], {
@@ -352,7 +352,7 @@ function clickOnCont(selEl) {
                 let dat = viewState.context.getForData(viewState.gradeData);
                 dat.value.splice(selIndex, 1);
             } else {
-                viewState.context.editGrade(selIndex, viewState.gradeData, r);
+                viewState.context.editGrade(selIndex, viewState.gradeData, r.data);
             }
             setGradeDataWithSync(viewState.gradeData);
             refreshGrades();
@@ -532,7 +532,7 @@ function showGradeList(context) {
                 weightType: "fullgrade",
                 showDelete: false
             }).then(r => {
-                viewState.context.addGrade(viewState.gradeData, r);
+                viewState.context.addGrade(viewState.gradeData, r.data);
                 setGradeDataWithSync(viewState.gradeData);
                 refreshGrades();
             }).catch(() => {});
@@ -549,11 +549,11 @@ function showGradeList(context) {
                 showDelete: false
             }).then(r => {
                 viewState.context.addGrade(viewState.gradeData, {
-                    name: r.name,
+                    name: r.data.name,
                     grade_type: "subgrade",
                     value: [],
-                    weight_type: r.weight_type,
-                    weight: r.weight
+                    weight_type: r.data.weight_type,
+                    weight: r.data.weight
                 });
                 setGradeDataWithSync(viewState.gradeData);
                 refreshGrades();
