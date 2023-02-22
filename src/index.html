@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Gymial - der open-source KZO Stundenplan</title>
-    <meta name="viewport" content="width=device-width, initial-scale=0.94">
+    <meta name="viewport" content="width=device-width, initial-scale=0.94, maximum-scale=0.94">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="description" content="Gymial ist ein open-source Tool, das die Stundenpläne und Mensamenüs der KZO anzeigt.">
@@ -123,57 +123,52 @@
                         </div>
                     </div>
                 </div>
-                <div class="grades-section" style="display: none">
+                <div class="grades-section">
                     <h2 class="settings-section-header">Noten</h2>
                     <div id="grade-sync-settings-cont">
-                        <span>Synchronisation</span>
-                        <div class="grade-chip-cont">
-                            <span id="grade-auto-sync" class="grade-chip-sel active">Automatisch</span>
-                            <span id="grade-manual-sync" class="grade-chip-sel">Manuell</span>
+                        <h3>Synchronisation</h3>
+                        <div id="grade-sync-must-login">
+                            Du musst angemeldet sein, um deine Noten mit der Cloud synchronisieren zu können.
+                        </div>
+                        <div id="grade-sync-mode-cont">
+                            <div id="grade-auto-sync" class="grade-chip-sel">
+                                <span class="grade-chip-title">Automatisch</span>
+                                <span class="grade-chip-subtitle">Wenn du deine Noten bearbeitest, wird eine Kopie der Noten automatisch auf der Cloud erstellt.</span>
+                            </div>
+                            <div id="grade-manual-sync" class="grade-chip-sel active">
+                                <span class="grade-chip-title">Manuell</span>
+                                <span class="grade-chip-subtitle">Cloud-Kopien werden nur manuell erstellt.</span>
+                            </div>
+                        </div>
+                        <div id="grade-auto-sync-cont">
+                            <span id="grade-sync-info-last">Letzte Synchronisation: <span id="grade-sync-info-last-cont">-</span></span>
+                            <button id="grade-sync-cloud-now" type="button">Jetzt synchronisieren</button>
+                        </div>
+                        <div id="grade-manual-sync-cont">
+                            <button id="grade-ul-cloud" type="button">Lokale Noten auf Cloud speichern</button>
+                            <button id="grade-dl-cloud" type="button">Noten von Cloud auf dieses Gerät laden</button>
                         </div>
                     </div>
-                    <div id="grades-auto-sync-cont">
-                        <span id="grades-sync-info-last">Letzte Synchronisation: <span id="grades-sync-info-last-cont"></span></span>
-                    </div>
-                    <div id="grades-manual-sync-cont">
-                        <button id="grades-dl-cloud" type="button"><img width="30" src="<%= require("./static/icon-cloud-dl.svg") %>"></button>
-                        <button id="grades-ul-cloud" type="button"><img width="30" src="<%= require("./static/icon-cloud-ul.svg") %>"></button>
-                    </div>
-                    <img id="grades-cloud-spinner" width="40" height="40" src="<%= require("./static/spinner.svg") %>" alt="Loading spinner">
+                    <img id="grade-cloud-spinner" width="40" height="40" src="<%= require("./resources/spinner.svg") %>" alt="Loading spinner">
                 </div>
             </div>
             <div id="panel-mensa">
                 <table id="mensa-table">
                     <tbody>
                         <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td></td><td></td><td></td><td></td>
                         </tr>
                         <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td></td><td></td><td></td><td></td>
                         </tr>
                         <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td></td><td></td><td></td><td></td>
                         </tr>
                         <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td></td><td></td><td></td><td></td>
                         </tr>
                         <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td></td><td></td><td></td><td></td>
                         </tr>
                     </tbody>
                 </table>

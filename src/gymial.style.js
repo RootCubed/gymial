@@ -33,11 +33,22 @@ function initStyles() {
 
     // temporary "in progress" message
     $i("stylepicker").innerHTML += `<div style="display: inline-block;"><span class="style_name">Weitere in Entwicklung...</span><div style="display: inline-block; height: 12.5vh;"></div></div>`;
+
+    const styleClickHandler = (el, style) => () => {
+        for (let pv of $c("stylepreview_cont")) {
+            pv.classList.remove("selected");
+        }
+        let currentStyle = {
+            name: style,
+            data: avStyles[style]
+        };
+        el.classList.add("selected");
+        applyStyle(currentStyle);
+        gtag("event", "applyNewStyle");
+    };
     
-    let previewers = [];
     for (let i = 0; i < Object.keys(avStyles).length; i++) {
         let el = $c("stylepreview_cont")[i];
-        previewers.push(el);
         let style = Object.keys(avStyles)[i];
         for (let prop in avStyles[style]) {
             el.style.setProperty("--sp_" + prop, avStyles[style][prop]);
@@ -45,18 +56,7 @@ function initStyles() {
         if (style == gymial.store.getStyleName()) {
             el.classList.add("selected");
         }
-        el.addEventListener("click", () => {
-            for (let pv of previewers) {
-                pv.classList.remove("selected");
-            }
-            let currentStyle = {
-                name: style,
-                data: avStyles[style]
-            };
-            el.classList.add("selected");
-            applyStyle(currentStyle);
-            gtag("event", "applyNewStyle");
-        });
+        el.addEventListener("click", styleClickHandler(el, style));
     }
 }
 

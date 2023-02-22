@@ -54,6 +54,7 @@ export function loadPersData() {
         $s("#panel-settings h2").innerText = "Account";
         $i("login-btn-cont").style.display = "none";
         $i("persDetails").style.display = "";
+        gymial.grades.onLogin();
     }).catch(() => {
         logout();
     });
@@ -66,6 +67,7 @@ export function logout() {
     $i("accountinfo").style.display = "none";
     $i("login-submit").style.display = "";
     $s("#button-spinner img").style.display = "none";
+    gymial.grades.onLogout();
 }
 
 export function getPersData() {

@@ -87,20 +87,38 @@ let viewState = {
     context: new Context()
 };
 
+function repaintSyncSettings(loggedIn) {
+    $i("grade-cloud-spinner").style.display = "none";
+    if (!loggedIn) {
+        $i("grade-sync-must-login").style.display = "";
+        $i("grade-sync-mode-cont").style.display = "none";
+        $i("grade-auto-sync-cont").style.display = "none";
+        $i("grade-manual-sync-cont").style.display = "none";
+        return;
+    }
+    $i("grade-sync-must-login").style.display = "none";
+    $i("grade-sync-mode-cont").style.display = "";
+    if (getGradeSyncMode() == "auto") {
+        $i("grade-auto-sync-cont").style.display = "";
+        $i("grade-manual-sync-cont").style.display = "none";
+        $i("grade-auto-sync").classList.add("active");
+        $i("grade-manual-sync").classList.remove("active");
+    } else {
+        $i("grade-auto-sync-cont").style.display = "none";
+        $i("grade-manual-sync-cont").style.display = "";
+        $i("grade-auto-sync").classList.remove("active");
+        $i("grade-manual-sync").classList.add("active");
+    }
+}
+
 export function init() {
-    $i("grades-cloud-spinner").style.display = "none";
+    $i("grade-cloud-spinner").style.display = "none";
 
-    /*$i("grades-reset-all").addEventListener("click", () => {
-        if (confirm("Willst du wirklich alle Noten löschen? Dies kann nicht rückgängig gemacht werden!")) {
-            setGradeDataWithSync([]);
-            viewState.gradeData = {};
-            refreshGrades();
-        }
-    });*/
-
-    $i("grades-dl-cloud").addEventListener("click", async () => {
+    $i("grade-dl-cloud").addEventListener("click", async () => {
+        $i("grade-cloud-spinner").style.display = "";
+        $i("grade-manual-sync-cont").style.display = "none";
         try {
-            $i("grades-cloud-spinner").style.display = "";
+            const startTime = Date.now();
             let gradesReq = await fetch("/grades");
             if (gradesReq.status == 401) {
                 throw new Error("401");
@@ -109,29 +127,73 @@ export function init() {
             viewState.gradeData = gradesJSON.data;
             setGradeData(viewState.gradeData);
             refreshGrades();
-        } catch (e) {}
-        $i("grades-cloud-spinner").style.display = "none";
+            if (Date.now() - startTime < 500) {
+                setTimeout(() => repaintSyncSettings(true), 500 - (Date.now() - startTime));
+            } else {
+                repaintSyncSettings(true);
+            }
+        } catch (e) {
+            g_detail.showPwForm();
+            repaintSyncSettings(false);
+        }
     });
 
-    $i("grades-ul-cloud").addEventListener("click", async () => {
+    $i("grade-ul-cloud").addEventListener("click", async () => {
+        $i("grade-cloud-spinner").style.display = "";
+        $i("grade-manual-sync-cont").style.display = "none";
         try {
-            $i("grades-cloud-spinner").style.display = "";
-            gradesReq = await fetch("/grades", {
-                method: "post",
+            const startTime = Date.now();
+            let gradesReq = await fetch("/grades", {
+                method: "POST",
                 body: JSON.stringify(viewState.gradeData)
             });
-        } catch (e) {}
-        $i("grades-cloud-spinner").style.display = "none";
+            if (gradesReq.status == 401) {
+                throw new Error("401");
+            }
+            if (Date.now() - startTime < 500) {
+                setTimeout(() => repaintSyncSettings(true), 500 - (Date.now() - startTime));
+            } else {
+                repaintSyncSettings(true);
+            }
+        } catch (e) {
+            g_detail.showPwForm();
+            repaintSyncSettings(false);
+        }
     });
 
+    $i("grade-sync-cloud-now").addEventListener("click", async () => {
+        $i("grade-auto-sync-cont").style.display = "none";
+        cloudSyncAuto();
+        viewState.gradeData = getGradeData().data;
+        refreshGrades();
+    });
+
+    $i("grade-auto-sync").addEventListener("click", () => {
+        setGradeSyncMode("auto");
+        repaintSyncSettings(true);
+    });
+    
+    $i("grade-manual-sync").addEventListener("click", () => {
+        setGradeSyncMode("manual");
+        repaintSyncSettings(true);
+    });
+
+    repaintSyncSettings(false);
+
     if (getGradeSyncMode() == "auto") {
-        $i("grades-manual-sync-cont").style.display = "none";
         cloudSyncAuto();
     } else {
-        $i("grades-auto-sync-cont").style.display = "none";
         viewState.gradeData = getGradeData();
-        refreshGrades();
     }
+    refreshGrades();
+}
+
+export function onLogin() {
+    repaintSyncSettings(true);
+}
+
+export function onLogout() {
+    repaintSyncSettings(false);
 }
 
 // helper functions
@@ -144,8 +206,9 @@ function setGradeDataWithSync(data) {
 }
 
 async function cloudSyncAuto() {
+    const startTime = Date.now();
     try {
-        $i("grades-cloud-spinner").style.display = "";
+        $i("grade-cloud-spinner").style.display = "";
         let gradesReq = await fetch("/grades");
         if (gradesReq.status == 401) {
             throw new Error("401");
@@ -171,15 +234,20 @@ async function cloudSyncAuto() {
             }
         }
         setGradeSynced();
+        if (Date.now() - startTime < 500) {
+            setTimeout(() => repaintSyncSettings(true), 500 - (Date.now() - startTime));
+        } else {
+            repaintSyncSettings(true);
+        }
     } catch (e) {
         // fallback: localStorage
         viewState.gradeData = getGradeData().data;
+        repaintSyncSettings(false);
     }
     refreshGrades();
-    $i("grades-sync-info-last-cont").innerHTML = new Date(getGradeLastSync()).toLocaleTimeString([], {
+    $i("grade-sync-info-last-cont").innerHTML = new Date(getGradeLastSync()).toLocaleTimeString([], {
         year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit"
     });
-    $i("grades-cloud-spinner").style.display = "none";
 }
 
 const getGradeColor = grade => {

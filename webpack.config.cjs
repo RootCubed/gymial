@@ -21,9 +21,16 @@ module.exports = {
                 use: [MiniCssExtractPlugin.loader, "css-loader"]
             },
             {
-                test: /\.(png|svg|ico|webmanifest)$/,
+                test: /\.(png|svg)$/,
                 exclude: /inline/,
                 type: "asset/resource"
+            },
+            {
+                test: /\.webmanifest$|apple-touch-icon\.png$/,
+                type: "asset/resource",
+                generator: {
+                    filename: "[name][ext]"
+                }
             },
             {
                 test: /\.ttf$/,
