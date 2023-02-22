@@ -839,43 +839,53 @@ div#hint-new-timetable:after {
     * {
         color: black !important;
     }
-    
+
     body {
-        background-color: white;
         --wh: 90vh !important;
+    }
+    
+    body, #selection {
+        background-color: white;
+    }
+
+    #open-menu, #week-btns {
+        visibility: hidden;
+        width: 0;
     }
 
     #panels, #panel-timetable {
-        height: 100vh;
-        width: 100vw;
+        width: 100vw !important;
         margin-top: 0 !important;
         background-color: white;
     }
 
     #sidebar, #panel-settings, #panel-mensa, #panel-grades {
-        display: none;
-    }
-
-    #scrollLimiter {
-        background: none;
-    }
-
-    #selection * {
-        display: none;
-    }
-
-    #current-class {
-        display: inline-block;
-        color: black;
-    }
-
-    .timetable-time, .timetable-date {
-        color: black;
+        left: -200px !important;
     }
 
     .timetable-entry:not(.timetable-time) {
         border: 2px solid black;
         background: none;
+    }
+
+    .sc_cont {
+        height: calc((100vh - var(--tt-margin-abs)) / 11 - 4px);
+        height: calc((var(--wh) - var(--tt-margin-abs)) / 11 - 4px);
+    }
+    
+    .scroller-container.double {
+        height: calc(2 * (100vh - var(--tt-margin-abs)) / 11 - 4px);
+        height: calc(2 * (var(--wh) - var(--tt-margin-abs)) / 11 - 4px);
+    }
+    
+    .scroller-container.triple {
+        height: calc(3 * (100vh - var(--tt-margin-abs)) / 11 - 4px);
+        height: calc(3 * (var(--wh) - var(--tt-margin-abs)) / 11 - 4px);
+    }
+    
+    .scroller-container.fullday {
+        height: calc(100vh - var(--tt-margin-abs) - 4px);
+        height: calc(var(--wh) - var(--tt-margin-abs) - 4px);
     }
 
     .timetable-entry.empty {
@@ -884,6 +894,6 @@ div#hint-new-timetable:after {
     }
 
     .scrolling {
-        animation: none;
+        animation: none !important;
     }
 }
