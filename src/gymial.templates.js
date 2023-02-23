@@ -5,9 +5,9 @@ import addGradeIcon from "./inline/icon-add-grade.svg";
 const gradeContainerGeneric = (className, title, vertbarCol, content, index) => `
 <div class="grades-overview-container ${className}" data-name="${title}" data-index="${index}">
     <span class="grades-overview-span grades-overview-title">${title}</span>
-    <h3 style="margin-bottom: 15px;color: #ff4141;display:none;">Summe der Notenanteile über 100%!</h3>
     ${content}
     <div class="grades-overview-vertbar" style="background-color: ${vertbarCol}"></div>
+    <h3 class="grades-invalid-weights" style="display: none;">Summe der Notenanteile über 100%!</h3>
 </div>
 `;
 

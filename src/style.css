@@ -597,9 +597,10 @@ button, input[type=submit] {
     margin-top: 30px;
 }
 
-#panel-timetable, #panel-mensa {
+#panels > div {
     height: calc(100vh - var(--topbar-height));
     height: calc(var(--wh) - var(--topbar-height));
+    width: 100%;
 }
 
 #panel-timetable-cont {
@@ -611,8 +612,6 @@ button, input[type=submit] {
 #panel-settings {
     padding: 5vh 10vw;
     padding: calc(var(--wh) * 0.05) 10vw;
-    height: calc(100vh - var(--topbar-height));
-    height: calc(var(--wh) - var(--topbar-height));
 }
 
 #mensa-table {

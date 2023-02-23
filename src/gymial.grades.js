@@ -437,7 +437,10 @@ function clickOnCont(selEl) {
     animPlaying = true;
     selEl.closest(".grades-cont").classList.add("growing");
     selEl.classList.add("growing");
-    setTimeout(() => { animPlaying = false; }, 250);
+    setTimeout(() => {
+        selEl.closest(".grades-cont").classList.add("growdone");
+        animPlaying = false;
+    }, 250);
 }
 
 function closeCurrView(context) {
@@ -449,7 +452,7 @@ function closeCurrView(context) {
     context.pop();
     setTimeout(() => {
         thisCont.remove();
-        parentCont.classList.remove("growing");
+        parentCont.classList.remove("growing growdone");
         animPlaying = false;
     }, 250);
 }
