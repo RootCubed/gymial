@@ -272,6 +272,7 @@ function refreshTodayEl() {
     }
     todayEl.innerHTML = viewState.weekOffset;
     $i("hint-new-timetable").classList.remove("visible");
+    setTimeout(() => $i("hint-new-timetable").style.display = "none", 1000);
 }
 
 async function loadResources(time) {
