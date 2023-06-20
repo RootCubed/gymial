@@ -843,6 +843,7 @@ svg text.small {
     box-shadow: -5px 10px 14px 3px #000000b3;
     transition: opacity 0.5s;
     opacity: 0;
+    z-index: 2;
 }
 
 div#hint-new-timetable:after {

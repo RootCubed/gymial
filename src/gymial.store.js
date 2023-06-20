@@ -22,11 +22,13 @@ export function init() {
     if (gymial.tt.isNextSemOnline() && window.localStorage) {
         let shouldShowHint = false;
         if (window.localStorage.getItem("seenNextSemHint")) {
-            if (window.localStorage.getItem("seenNextSemHint") < gymial.tt.getCurrPeriod()) shouldShowHint = true;
+            if (parseInt(window.localStorage.getItem("seenNextSemHint")) < gymial.tt.NEXT_SEM_PERIOD) {
+                shouldShowHint = true;
+            }
         } else {
             shouldShowHint = true;
         }
-        window.localStorage.setItem("seenNextSemHint", gymial.tt.getCurrPeriod());
+        window.localStorage.setItem("seenNextSemHint", gymial.tt.NEXT_SEM_PERIOD);
         if (shouldShowHint) {
             $i("hint-new-timetable").classList.add("visible");
         }

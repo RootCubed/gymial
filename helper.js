@@ -1,9 +1,16 @@
 import hyphenopoly from "hyphenopoly";
 import fs from "fs";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
-const hyphenator = await hyphenopoly.config({
+const hyphenator = hyphenopoly.config({
     "require": ["de", "en-us"],
-    "hyphen": "•"
+    "hyphen": "•",
+    "loaderSync": file => {
+        const cwd = dirname(fileURLToPath(import.meta.url));
+        return fs.readFileSync(`${cwd}/node_modules/hyphenopoly/patterns/${file}`);
+    },
+    "sync": true
 }).get("de");
 
 export const hyphenate = (str, token) => hyphenator(str).replace(/•/g, token);
