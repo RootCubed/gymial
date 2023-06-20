@@ -31,6 +31,8 @@ export function init() {
         window.localStorage.setItem("seenNextSemHint", gymial.tt.NEXT_SEM_PERIOD);
         if (shouldShowHint) {
             $i("hint-new-timetable").classList.add("visible");
+        } else {
+            $i("hint-new-timetable").style.display = "none";
         }
     }
 
