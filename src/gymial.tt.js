@@ -445,34 +445,7 @@ function setLessonData(lesson) {
     }
     gymial.detail.showDetail("<div id='names'></div>");
     if (lesson.cId) {
-        fetch("/course-participants/" + lesson.cId).then(r => {
-            if (r.status == 401) return 401;
-            return r.json();
-        }).then(res => {
-            if (res == 401) {
-                gymial.detail.showPwForm();
-                return;
-            }
-            let html = "";
-            if (res.status && res.status == "intranet_offline_nocache") {
-                html += `<span class="margin-error-span">Das Intranet ist leider momentan offline. Versuche es später wieder.</span>`;
-            } else {
-                for (let r of res) {
-                    html += `<span class="student studentName person-link" data="${r.id}">${r.name}</span>`;
-                }
-            }
-            $i("names").innerHTML = html;
-            $c("person-link").forEach(link => link.addEventListener("click", el => {
-                let name = el.target.innerText;
-                let id = parseInt(el.target.getAttribute("data"));
-                gymial.menu.overrideTitle(name);
-                setSelectedPerson(name);
-                loadTTData("student", id, viewState.time, viewState.currResources); // TODO: fix!
-                gymial.detail.hide();
-            }));
-        }).catch(() => {
-            $i("names").innerHTML = `<span class="margin-error-span">Es ist ein Fehler aufgetreten. Versuche es später wieder.</span>`;
-        });
+        $i("names").innerHTML = `<span class="margin-error-span">Kursteilnehmerlisten wurden leider vom TAM-Intranet deaktiviert.</span>`;
     } else {
         $i("names").innerHTML = "Keine Informationen über die Teilnehmer an diesem Kurs!";
     }

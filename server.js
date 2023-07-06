@@ -208,21 +208,6 @@ app.get("/timetable/:type/:id/:time", async (req, res) => {
     });
 });
 
-app.get("/course-participants/:id", authorizeMiddleware, async (req, res) => {
-    let body = {
-        "method": "GET"
-    };
-    let escapedId = parseInt(req.params.id);
-    ds.tam.request(`/kzo/list/getlist/list/40/id/${escapedId}/period/73`, body).then(r => {
-        res.json(JSON.parse(r).data.map(el => ({
-                "name": el.Name + ", " + el.Vorname,
-                "id": el.PersonID
-        })));
-    }).catch(e => {
-        res.json({"status": "intranet_offline_nocache"});
-    });
-});
-
 async function resourcesCallback(user, r) {
     const isAuth = await db.isAuthorized(user);
     if (!isAuth) {
