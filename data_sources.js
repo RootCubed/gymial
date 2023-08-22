@@ -104,6 +104,10 @@ function tamLogin(username, password) {
             req.destroy();
             reject(new Error("timeout"));
         });
+
+        req.on("error", err => {
+            reject(err);
+        });
     
         req.write(new URLSearchParams(body).toString());
         req.end();
