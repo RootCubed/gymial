@@ -19,8 +19,8 @@ export function init() {
         gymial.style.applyStyle(currentStyle);
     } catch (e) {}
 
+    let shouldShowHint = false;
     if (gymial.tt.isNextSemOnline() && window.localStorage) {
-        let shouldShowHint = false;
         if (window.localStorage.getItem("seenNextSemHint")) {
             if (parseInt(window.localStorage.getItem("seenNextSemHint")) < gymial.tt.NEXT_SEM_PERIOD) {
                 shouldShowHint = true;
@@ -29,11 +29,11 @@ export function init() {
             shouldShowHint = true;
         }
         window.localStorage.setItem("seenNextSemHint", gymial.tt.NEXT_SEM_PERIOD);
-        if (shouldShowHint) {
-            $i("hint-new-timetable").classList.add("visible");
-        } else {
-            $i("hint-new-timetable").style.display = "none";
-        }
+    }
+    if (shouldShowHint) {
+        $i("hint-new-timetable").classList.add("visible");
+    } else {
+        $i("hint-new-timetable").style.display = "none";
     }
 
     loadSearchHistory(gymial.tt.getCurrPeriod());
