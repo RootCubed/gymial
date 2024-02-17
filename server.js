@@ -210,15 +210,16 @@ app.get("/timetable/:type/:id/:time", async (req, res) => {
 
 async function resourcesCallback(user, r) {
     const isAuth = await db.isAuthorized(user);
+    const jsonData = JSON.parse(r).data;
     if (!isAuth) {
         return {
             "offline": false,
-            "data": JSON.parse(r).data.classes
+            "data": jsonData.classes
         };
     }
     return {
         "offline": false,
-        "data": [...JSON.parse(r).data.classes, ...JSON.parse(r).data.teachers, ...JSON.parse(r).data.students, ...JSON.parse(r).data.rooms]
+        "data": [...jsonData.classes, ...jsonData.teachers, ...jsonData.students, ...jsonData.rooms]
     };
 }
 
@@ -239,6 +240,9 @@ app.get("/resources/:time", async (req, res) => {
         return;
     }
     ds.tam.request("/kzo/timetable/ajax-get-resources/", body).then(async r => {
+        if (!JSON.parse(r).data.classes) {
+            throw new Error("successful_login_invalid_result");
+        }
         resCache["data_" + body.periodId] = {
             time: new Date(),
             data: r
