@@ -17,20 +17,20 @@ const ERROR_NOCACHE = "Das TAM-Intranet ist momentan leider offline, und dieser 
 const ERROR_VIEWCACHE = "Das TAM-Intranet ist momentan leider offline. Klicke <a href='#' id='view-cached'>hier</a>," +
 " um die zuletzt geladene Version dieses Studenplans anschauen ";
 
-export const NEXT_SEM_PERIOD = 81;
-const NEXT_SEM_START = 1724018400000;
-const nextSemOnline = true;
+export const NEXT_SEM_PERIOD = 82;
+const NEXT_SEM_START = 0;
+const nextSemOnline = false;
 
 let times = timesPre73Post76;
 let shortTimes = shortTimesPre73Post76;
 
 let viewState = {
     entityType: "class",
-    entityID: 2946,
-    entityName: "A6",
+    entityID: 2986,
+    entityName: "AC5",
     selPersonName: "",
     time: ttdata.getFirstDayOfWeek(new Date()).getTime(),
-    currPeriod: 80,
+    currPeriod: 81,
     currResources: null,
     currTT: null,
     weekOffset: 0
