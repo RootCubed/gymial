@@ -65,11 +65,11 @@ function tamLogin(username, password) {
             method: "POST",
             headers: JSON.parse(JSON.stringify(headers)),
             referrerPolicy: "strict-origin-when-cross-origin",
-            timeout: 5000
+            timeout: 8000
         };
 
         options.headers.Cookie = null;
-    
+
         let req = https.request(options, res => {
             let setCookies = res.headers["set-cookie"];
             let sturmsession;
@@ -108,7 +108,7 @@ function tamLogin(username, password) {
         req.on("error", err => {
             reject(err);
         });
-    
+
         req.write(new URLSearchParams(body).toString());
         req.end();
     });
@@ -130,7 +130,7 @@ function intranetReq(endpoint, body, canRetryLogin) {
         method: "POST",
         headers: JSON.parse(JSON.stringify(headers)),
         referrerPolicy: "strict-origin-when-cross-origin",
-        timeout: 5000,
+        timeout: 8000,
         referrer: "https://intranet.tam.ch/kzo/"
     };
     if (body.periodId != helper.getPeriod(new Date().getTime())) {
@@ -183,11 +183,11 @@ function intranetReq(endpoint, body, canRetryLogin) {
             req.destroy();
             reject(new Error("timeout"));
         });
-        
+
         req.on("error", err => {
             reject(err);
         });
-    
+
         req.write(new URLSearchParams(body).toString());
         req.end();
     });
