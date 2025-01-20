@@ -17,20 +17,20 @@ const ERROR_NOCACHE = "Das TAM-Intranet ist momentan leider offline, und dieser 
 const ERROR_VIEWCACHE = "Das TAM-Intranet ist momentan leider offline. Klicke <a href='#' id='view-cached'>hier</a>," +
 " um die zuletzt geladene Version dieses Studenplans anschauen ";
 
-export const NEXT_SEM_PERIOD = 82;
-const NEXT_SEM_START = 0;
-const nextSemOnline = false;
+export const NEXT_SEM_PERIOD = 83;
+const NEXT_SEM_START = 1740351600000;
+const nextSemOnline = true;
 
 let times = timesPre73Post76;
 let shortTimes = shortTimesPre73Post76;
 
 let viewState = {
     entityType: "class",
-    entityID: 2986,
+    entityID: 3063,
     entityName: "AC5",
     selPersonName: "",
     time: ttdata.getFirstDayOfWeek(new Date()).getTime(),
-    currPeriod: 81,
+    currPeriod: 82,
     currResources: null,
     currTT: null,
     weekOffset: 0
@@ -45,7 +45,7 @@ export function init() {
         viewState.entityID = loadedClass.id;
         setClassName(loadedClass.name);
     }
-    
+
     // timetable entries
     document.addEventListener("click", el => {
         let tg = el.target;
@@ -56,12 +56,12 @@ export function init() {
             }
             tg = tg.parentNode;
         }
-        
+
         if (el.target.id != "class-select") {
             gymial.menu.hideSearchResults();
         }
     }, false);
-    
+
 
     $i("week-back").addEventListener("click", () => {
         viewState.time -= ttdata.DAY * 7;
@@ -172,7 +172,7 @@ export async function loadTTData(entityType, entityID, time, resources) {
 
         let reqTTPeriod = period.split(",")[0];
         let actualCurrPeriod = period.split(",")[1];
-    
+
         enableDisableSemButton(time);
 
         let entityName = (entityType == "student") ? viewState.selPersonName : viewState.entityName;
@@ -392,7 +392,7 @@ async function loadClass(resources, entityType, entityID, time, period) {
     setClassName(entityName);
     gymial.menu.setProgress(60);
     viewState.currTT = ttdata.convertToUsable(ttData, time, times, shortTimes);
-    
+
     if (shouldShow) {
         $s("#timetable tbody").innerHTML = ttdata.buildHTML(viewState.currTT, times);
         applyScrolling();
