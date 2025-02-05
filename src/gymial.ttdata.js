@@ -132,6 +132,7 @@ function areLessonsIdentical(les1, les2) {
         if (
             les1Entries.cName != les2Entries.cName ||
             les1Entries.tAcronym != les2Entries.tAcronym ||
+            les1Entries.cancelled != les2Entries.cancelled ||
             (les1Entries.sNames && les2Entries.sNames && !arraysAreEqual(les1Entries.sNames, les2Entries.sNames))
         ) {
             return false;
