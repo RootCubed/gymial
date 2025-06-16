@@ -18,7 +18,7 @@ const ERROR_VIEWCACHE = "Das TAM-Intranet ist momentan leider offline. Klicke <a
 " um die zuletzt geladene Version dieses Studenplans anschauen ";
 
 export const NEXT_SEM_PERIOD = 83;
-const NEXT_SEM_START = 1740351600000;
+const NEXT_SEM_START = 1755468000000;
 const nextSemOnline = true;
 
 let times = timesPre73Post76;
