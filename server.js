@@ -154,16 +154,18 @@ async function ttCallback(user, r) {
 function getFirstDayOfWeek(d) {
     let day = d.getDay();
     let diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
-    return new Date(d.setDate(diff));
+    const res = new Date(d.setDate(diff));
+res.setHours(0, 0, 0, 0);
+    return res;
 }
 
 app.get("/timetable/:type/:id/:time", async (req, res) => {
     let timeNum = parseInt(req.params.time);
+let startTime = getFirstDayOfWeek(new Date(timeNum)).getTime();
     let body = {
-        "startDate": req.params.time,
-        "endDate": timeNum + 4 * 24 * 60 * 60 * 1000,
-        "holidaysOnly": 0,
-        "method": "POST"
+        "startDate": startTime.toString(),
+        "endDate": (startTime + 4 * 24 * 60 * 60 * 1000).toString(),
+        "holidaysOnly": 0
     };
     switch (req.params.type) {
         case "class":
@@ -189,12 +191,19 @@ app.get("/timetable/:type/:id/:time", async (req, res) => {
     }
     body[req.params.type + "Id[]"] = req.params.id;
     ds.tam.request("/kzo/timetable/ajax-get-timetable", body).then(async r => {
+let ttData;
+        try {
+            ttData = (await ttCallback(user, r)).filter(e => {
+                return e.relatedId.includes(`cl_${req.params.id}`);
+            });
+        } catch (e) {
+            console.log(e);
+        }
         ttCache[ttCacheStr] = {
             time: new Date(),
-            data: r
+            data: ttData
         };
-        let ttData = await ttCallback(user, r);
-        try {
+                try {
             res.json({"status": "ok", "data": ttData});
         } catch (e) {
             res.json({"status": "error", "data": e.message});
