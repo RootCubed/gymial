@@ -238,7 +238,7 @@ app.get("/resources/:time", async (req, res) => {
         "method": "POST"
     };
     let user = cookieToUser(req.headers.cookie);
-    
+
     let resCacheObj;
     try {
         resCacheObj = (resCache["data_" + body.periodId]) ? resCache["data_" + body.periodId] : {};

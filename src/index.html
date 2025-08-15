@@ -19,7 +19,7 @@
             gtag('config', 'G-WYE0MDHZXP');
         }
     </script>
-    
+
     <link rel="apple-touch-icon" href="<%= require("./static/apple-touch-icon.png") %>">
     <link rel="manifest" href="<%= require("./static/manifest.webmanifest") %>">
     <link rel="shortcut icon" href="<%= require("./static/favicon.ico") %>">
@@ -31,7 +31,7 @@
             <span id="open-menu" class="buttonSpan color-svg round-linecap">
                 <%= require("./btn-menu.svg") %>
             </span>
-            <div id="current-class-cont"><h1 id="current-class">A4</h1></div>
+            <div id="current-class-cont"><h1 id="current-class">-</h1></div>
             <div class="topbar-btns" id="week-btns">
                 <span id="backward-next-sem" class="buttonSpan color-svg round-linecap" style="display: none;">
                     <%= require("./btn-backward-sem.svg") %>
@@ -98,6 +98,14 @@
                         </svg>
                         <span id="error-title">ERROR_TITLE</span>
                         <span id="error-desc">ERROR_DESC</span>
+                    </div>
+                    <div id="gymial-eol">
+                        <div id="gymial-eol-container">
+                            <span id="eol-title">Die Stundenpläne sind leider bis auf Weiteres nicht mehr auf gymial.ch verfügbar.</span>
+                            <span id="eol-desc">
+                                <a href="/goodbye">Mehr erfahren</a>
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -207,10 +215,10 @@
                     <h4 style="margin-bottom: 20px;">Melde dich an, um Klassenlisten, Instrumentalstunden und Lehrerstundenpläne zu sehen.</h4>
                     <label id="label-user">Name (vorname.nachname)</label>
                     <input id="login-user" autocomplete="username" name="user" type="text" placeholder="Name" aria-labelledby="label-user" required>
-        
+
                     <label id="label-pw">Passwort für das Intranet</label>
                     <input id="login-pw" autocomplete="current-password" name="pass" type="password" placeholder="Passwort" aria-labelledby="label-pw" autocomplete="current-password" required>
-        
+
                     <div id="button-spinner">
                         <span id="invalid-login" style="display: none;">Ungültiges Login!</span>
                         <img width="40" src="<%= require("./static/spinner.svg") %>" alt="Loading spinner" style="display: none;">
@@ -230,7 +238,7 @@
                                 oninput="this.setCustomValidity('')"
                                 required>
                         </div>
-        
+
                         <div class="grade-form-section" id="grade-form-grade-type-cont">
                             <label id="label-grade-type">Notentyp</label>
                             <div class="grade-chip-cont">
@@ -247,7 +255,7 @@
                                     oninvalid="this.setCustomValidity('Bitte gib eine Zahl ein.')"
                                     oninput="this.setCustomValidity('')">
                             </div>
-                            
+
                             <div class="grade-form-section">
                                 <label id="label-grade-weight">Gewicht <span id="label-grade-weight-hint" class="hidden">(Tipp: du kannst auch Brüche eingeben, z.B. 2/3)</span></label>
                                 <input id="grade-input-weight" name="weight" type="text" placeholder="Gewicht eingeben" aria-labelledby="label-grade-weight"
@@ -276,7 +284,7 @@
                         </div>
                         <button type="button" id="grade-edit-delete">Note löschen</button>
                     </div>
-                    
+
                     <div id="grade-edit-button-cont">
                         <button type="button" id="grade-edit-cancel">Abbrechen</button>
                         <button type="submit" id="grade-edit-submit">Speichern</button>

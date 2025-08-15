@@ -19,7 +19,7 @@ function init() {
     document.body.style.setProperty('--wh', `${wh}px`);
 
     gymial.store.init();
-    
+
     gymial.settings.init();
     gymial.account.init();
     gymial.style.init();
@@ -45,7 +45,7 @@ function resizeScreen() {
     if (document.body.style.getPropertyValue("--wh") != `${wh}px`) {
         document.body.style.setProperty("--wh", `${wh}px`);
     }
-    
+
     // hacky fix for webkit browsers
     gymial.tt.removeScrolling();
 

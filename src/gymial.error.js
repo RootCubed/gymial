@@ -15,3 +15,8 @@ export function hide() {
     $i("error-timetable").classList.remove("visible");
     $i("timetable").style.display = "table";
 }
+
+export function showEOLScreen() {
+    $i("timetable").style.display = "none";
+    $i("gymial-eol").classList.add("visible");
+}

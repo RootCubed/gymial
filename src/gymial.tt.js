@@ -19,7 +19,7 @@ const ERROR_VIEWCACHE = "Das TAM-Intranet ist momentan leider offline. Klicke <a
 
 export const NEXT_SEM_PERIOD = 83;
 const NEXT_SEM_START = 1755468000000;
-const nextSemOnline = true;
+const nextSemOnline = false;
 
 let times = timesPre73Post76;
 let shortTimes = shortTimesPre73Post76;
@@ -27,7 +27,7 @@ let shortTimes = shortTimesPre73Post76;
 let viewState = {
     entityType: "class",
     entityID: 3063,
-    entityName: "AC5",
+    entityName: "-",
     selPersonName: "",
     time: ttdata.getFirstDayOfWeek(new Date()).getTime(),
     currPeriod: 82,
@@ -161,6 +161,8 @@ export async function loadTTData(entityType, entityID, time, resources) {
     }
     viewState.entityType = entityType;
     viewState.entityID = entityID;
+    gymial.error.showEOLScreen();
+    return;
     if (!resources) {
         resources = await loadResources(time);
         viewState.currResources = resources;

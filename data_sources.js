@@ -47,6 +47,8 @@ let headers = {
 
 function tamLogin(username, password) {
     return new Promise(async (resolve, reject) => {
+        reject(new Error("not_supported"));
+        return;
         try {
             await limiterIntranetLogin.consume();
         } catch (e) {
@@ -139,6 +141,8 @@ function intranetReq(endpoint, body, canRetryLogin) {
     }
     body.csrfToken = cookies.tamIntranetCSRF;
     return new Promise(async (resolve, reject) => {
+        reject(new Error("not_supported"));
+        return;
         try {
             await limiterIntranetReq.consume();
         } catch (e) {
@@ -222,6 +226,7 @@ async function loginRegularKZO(user, pass) {
 }
 
 async function searchPeopleKZOch(firstName, lastName, classToSearch) {
+    throw new Error("not_supported");
     try {
         await limiterKZOch.consume("");
     } catch (e) {
